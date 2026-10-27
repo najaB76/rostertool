@@ -59,6 +59,29 @@ describe('Volunteer Portal API', () => {
     expect(response.statusCode).toBe(201);
   });
 
+  it('POST /api/portal/time-off - submits multi-day date range request', async () => {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/api/portal/time-off?token=super-secret-token',
+      payload: {
+        startDate: '2026-11-06',
+        endDate: '2026-11-08',
+        reason: 'Weekend trip'
+      }
+    });
+    expect(response.statusCode).toBe(201);
+    const payload = JSON.parse(response.payload);
+    expect(payload.datesCreated).toEqual(['2026-11-06', '2026-11-07', '2026-11-08']);
+
+    const listRes = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/time-off'
+    });
+    const allRequests = JSON.parse(listRes.payload);
+    const tripRequests = allRequests.filter((r: any) => r.reason === 'Weekend trip');
+    expect(tripRequests.length).toBe(3);
+  });
+
   it('GET /api/admin/time-off - lists requests', async () => {
     const response = await fastify.inject({
       method: 'GET',

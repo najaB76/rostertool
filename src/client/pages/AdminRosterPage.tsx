@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { RosterGrid } from '../components/RosterGrid';
+import { ShiftAssignModal, ShiftSlotInfo } from '../components/ShiftAssignModal';
 
 export const AdminRosterPage: React.FC = () => {
   const [rosterData, setRosterData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedSlot, setSelectedSlot] = useState<ShiftSlotInfo | null>(null);
   
   // Start with the upcoming Monday or current Monday
   const getMonday = (d: Date) => {
@@ -31,29 +33,42 @@ export const AdminRosterPage: React.FC = () => {
     fetchRoster();
   }, [weekStartDate]);
 
-  const handleAssignClick = (shiftDefId: string, date: string) => {
-    // In a full implementation, this would open a proper dropdown modal
-    const type = window.prompt("Type 'v' to assign volunteer, 's' for staff:");
-    if (!type) return;
+  const handleAssignClick = (
+    shiftDefinitionId: string,
+    date: string,
+    shiftName: string,
+    durationHours: number,
+    minStaff: number,
+    currentAssignments: any[]
+  ) => {
+    setSelectedSlot({
+      shiftDefinitionId,
+      date,
+      shiftName,
+      durationHours,
+      minStaff,
+      currentAssignments
+    });
+  };
 
-    if (type.toLowerCase() === 'v') {
-      const volId = prompt("Enter Volunteer ID:");
-      if (volId) {
-        fetch('/api/admin/roster/assign', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shiftDefinitionId: shiftDefId, date, volunteerId: volId })
-        }).then(() => fetchRoster());
-      }
-    } else if (type.toLowerCase() === 's') {
-      const staffId = prompt("Enter Staff ID:");
-      if (staffId) {
-        fetch('/api/admin/roster/assign', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shiftDefinitionId: shiftDefId, date, staffId: staffId })
-        }).then(() => fetchRoster());
-      }
+  const handleCandidateAssign = async (volunteerId: string | null, staffId: string | null) => {
+    if (!selectedSlot) return;
+    try {
+      await fetch('/api/admin/roster/assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shiftDefinitionId: selectedSlot.shiftDefinitionId,
+          date: selectedSlot.date,
+          volunteerId,
+          staffId
+        })
+      });
+      setSelectedSlot(null);
+      fetchRoster();
+    } catch (err) {
+      console.error('Failed to assign candidate:', err);
+      alert('Failed to assign candidate');
     }
   };
 
@@ -92,29 +107,43 @@ export const AdminRosterPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Weekly Roster</h2>
+        <div>
+          <h2 style={{ margin: '0 0 0.25rem 0' }}>Weekly Roster</h2>
+          <span style={{ fontSize: '0.85rem', color: '#71717a' }}>Schedule volunteers and paid staff across weekly operational shifts.</span>
+        </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <input 
             type="date" 
             value={weekStartDate} 
             onChange={(e) => setWeekStartDate(e.target.value)} 
+            style={{ padding: '0.45rem', borderRadius: '4px', border: '1px solid #d4d4d8' }}
           />
           <button 
             onClick={handleAutoPopulate}
-            style={{ padding: '0.5rem 1rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            style={{ padding: '0.5rem 1rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
           >
-            Auto-Populate
+            ⚡ Auto-Populate
           </button>
         </div>
       </div>
 
       {loading ? (
-        <div>Loading roster...</div>
+        <div style={{ padding: '3rem', textAlign: 'center', color: '#71717a' }}>Loading roster...</div>
       ) : (
         <RosterGrid 
           days={rosterData?.days} 
           onAssignClick={handleAssignClick}
           onRemoveClick={handleRemoveClick}
+        />
+      )}
+
+      {/* Interactive Shift Assignment Modal */}
+      {selectedSlot && (
+        <ShiftAssignModal
+          isOpen={!!selectedSlot}
+          shift={selectedSlot}
+          onAssign={handleCandidateAssign}
+          onClose={() => setSelectedSlot(null)}
         />
       )}
     </div>

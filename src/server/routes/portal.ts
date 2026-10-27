@@ -55,22 +55,40 @@ export default async function portalRoutes(fastify: FastifyInstance) {
     };
   });
 
-  fastify.post<{ Body: { date: string, reason: string } }>('/time-off', { preHandler: authenticatePortal }, async (request, reply) => {
-    const vol = (request as any).volunteer;
-    const { date, reason } = request.body;
+  fastify.post<{ Body: { date?: string; startDate?: string; endDate?: string; reason?: string } }>(
+    '/time-off',
+    { preHandler: authenticatePortal },
+    async (request, reply) => {
+      const vol = (request as any).volunteer;
+      const { date, startDate, endDate, reason } = request.body;
 
-    if (!date) {
-      return reply.status(400).send({ error: 'Date is required' });
+      const datesToCreate: string[] = [];
+      if (startDate) {
+        const start = new Date(startDate).getTime();
+        const end = endDate ? new Date(endDate).getTime() : start;
+        if (start > end) {
+          return reply.status(400).send({ error: 'startDate cannot be after endDate' });
+        }
+        for (let current = start; current <= end; current += 86400000) {
+          datesToCreate.push(new Date(current).toISOString().split('T')[0]);
+        }
+      } else if (date) {
+        datesToCreate.push(date);
+      } else {
+        return reply.status(400).send({ error: 'date or startDate is required' });
+      }
+
+      for (const d of datesToCreate) {
+        await db.insert(timeOffRequests).values({
+          id: crypto.randomUUID(),
+          volunteerId: vol.id,
+          date: d,
+          reason,
+          status: 'Pending'
+        });
+      }
+
+      return reply.status(201).send({ success: true, datesCreated: datesToCreate });
     }
-
-    await db.insert(timeOffRequests).values({
-      id: crypto.randomUUID(),
-      volunteerId: vol.id,
-      date,
-      reason,
-      status: 'Pending'
-    });
-
-    return reply.status(201).send({ success: true });
-  });
+  );
 }

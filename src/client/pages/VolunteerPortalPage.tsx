@@ -36,12 +36,12 @@ export const VolunteerPortalPage: React.FC = () => {
     fetchPortalData();
   }, [token]);
 
-  const handleTimeOffSubmit = async (date: string, reason: string) => {
+  const handleTimeOffSubmit = async (startDate: string, endDate: string, reason: string) => {
     try {
       await fetch(`/api/portal/time-off?token=${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date, reason })
+        body: JSON.stringify({ startDate, endDate: endDate || startDate, reason })
       });
       setIsTimeOffModalOpen(false);
       fetchPortalData();

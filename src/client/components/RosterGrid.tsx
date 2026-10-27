@@ -11,7 +11,7 @@ interface RosterGridProps {
       isUnderstaffed: boolean;
     }[];
   }[];
-  onAssignClick: (shiftDefId: string, date: string) => void;
+  onAssignClick: (shiftDefId: string, date: string, shiftName: string, durationHours: number, minStaff: number, currentAssignments: any[]) => void;
   onRemoveClick: (shiftDefId: string, date: string, volunteerId?: string | null, staffId?: string | null) => void;
 }
 
@@ -42,11 +42,10 @@ export const RosterGrid: React.FC<RosterGridProps> = ({ days, onAssignClick, onR
               <ShiftSlotCell
                 key={`${shift.shiftDefinition.id}-${day.date}`}
                 shiftName={shift.shiftDefinition.name}
-                date={day.date}
                 minStaff={shift.shiftDefinition.minStaff}
                 assignments={shift.assignments}
                 isUnderstaffed={shift.isUnderstaffed}
-                onAssignClick={() => onAssignClick(shift.shiftDefinition.id, day.date)}
+                onAssignClick={() => onAssignClick(shift.shiftDefinition.id, day.date, shift.shiftDefinition.name, shift.shiftDefinition.durationHours, shift.shiftDefinition.minStaff, shift.assignments)}
                 onRemoveClick={(volunteerId, staffId) => onRemoveClick(shift.shiftDefinition.id, day.date, volunteerId, staffId)}
               />
             ))}
