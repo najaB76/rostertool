@@ -13,6 +13,17 @@ interface HeadcountCalendarProps {
   viewScale?: 'month' | 'quarter' | 'year';
 }
 
+// Computes Monday-first weekday index: 0 = Mon, 1 = Tue, 2 = Wed, 3 = Thu, 4 = Fri, 5 = Sat, 6 = Sun
+export function getMondayFirstWeekday(dateStr: string): number {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  const jsDay = date.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+  return (jsDay + 6) % 7;
+}
+
+const WEEKDAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const WEEKDAY_SHORT = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
 export const HeadcountCalendar: React.FC<HeadcountCalendarProps> = ({ 
   days, 
   isCompact = false,
@@ -44,9 +55,8 @@ export const HeadcountCalendar: React.FC<HeadcountCalendarProps> = ({
     return <div style={{ padding: '2rem', textAlign: 'center', color: '#71717a' }}>No headcount data for this period.</div>;
   }
 
-  // --- Compact Heatmap View (Colors only) ---
+  // --- Compact Heatmap View (Colors only, Monday-aligned) ---
   if (isCompact) {
-    // Group days by month if in year or quarter mode
     const monthsMap = new Map<string, HeadcountDay[]>();
     days.forEach(d => {
       const monthKey = d.date.substring(0, 7); // YYYY-MM
@@ -64,18 +74,38 @@ export const HeadcountCalendar: React.FC<HeadcountCalendarProps> = ({
           gap: '1.5rem',
         }}>
           {monthEntries.map(([monthKey, monthDays]) => {
-            const monthLabel = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date(`${monthKey}-01T00:00:00`));
+            const [y, m] = monthKey.split('-').map(Number);
+            const monthLabel = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date(y, m - 1, 1));
+            const leadOffset = getMondayFirstWeekday(monthDays[0].date);
+            const totalCells = leadOffset + monthDays.length;
+            const remainder = totalCells % 7;
+            const trailOffset = remainder === 0 ? 0 : 7 - remainder;
+
             return (
               <div key={monthKey} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#52525b' }}>{monthLabel}</div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#334155' }}>{monthLabel}</div>
+                
+                {/* Weekday indicator headers */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center', fontSize: '0.65rem', color: '#94a3b8', fontWeight: '600' }}>
+                  {WEEKDAY_SHORT.map((w, idx) => (
+                    <span key={idx}>{w}</span>
+                  ))}
+                </div>
+
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(7, 1fr)',
                   gap: '4px',
                   backgroundColor: '#f8fafc',
-                  padding: '8px',
+                  padding: '6px',
                   borderRadius: '6px'
                 }}>
+                  {/* Leading offset cells for Monday-first alignment */}
+                  {Array.from({ length: leadOffset }).map((_, i) => (
+                    <div key={`lead-${i}`} style={{ aspectRatio: '1', opacity: 0 }} />
+                  ))}
+
+                  {/* Day cells */}
                   {monthDays.map(d => {
                     const dayNum = parseInt(d.date.split('-')[2], 10);
                     return (
@@ -100,6 +130,11 @@ export const HeadcountCalendar: React.FC<HeadcountCalendarProps> = ({
                       </div>
                     );
                   })}
+
+                  {/* Trailing padding cells */}
+                  {Array.from({ length: trailOffset }).map((_, i) => (
+                    <div key={`trail-${i}`} style={{ aspectRatio: '1', opacity: 0 }} />
+                  ))}
                 </div>
               </div>
             );
@@ -129,32 +164,80 @@ export const HeadcountCalendar: React.FC<HeadcountCalendarProps> = ({
     );
   }
 
-  // --- Detailed View (Default Month Grid) ---
+  // --- Detailed View (Monday to Sunday Columns) ---
+  const leadOffset = getMondayFirstWeekday(days[0].date);
+  const totalCells = leadOffset + days.length;
+  const remainder = totalCells % 7;
+  const trailOffset = remainder === 0 ? 0 : 7 - remainder;
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.6rem' }}>
-      {days.map(d => (
-        <div 
-          key={d.date} 
-          style={{ 
-            border: `2px solid ${getStatusBorder(d.status)}`, 
-            backgroundColor: getStatusColor(d.status),
-            padding: '0.75rem',
-            borderRadius: '8px',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.35rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-          }}
-          title={d.volunteers?.map(v => v.fullName).join(', ')}
-        >
-          <div style={{ fontSize: '0.8rem', color: '#3f3f46', fontWeight: 'bold' }}>{d.date}</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#18181b', lineHeight: 1 }}>{d.count}</div>
-          <div style={{ fontSize: '0.7rem', fontWeight: '700', color: getStatusBorder(d.status), textTransform: 'uppercase', letterSpacing: '0.025em' }}>
-            {d.status.replace('_', ' ')}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      {/* Monday-to-Sunday Weekday Header Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.6rem', textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' }}>
+        {WEEKDAY_NAMES.map((name, idx) => (
+          <div key={idx} style={{ padding: '0.5rem', backgroundColor: '#e2e8f0', borderRadius: '6px' }}>
+            {name}
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+
+      {/* Calendar Grid with Leading and Trailing Offsets */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.6rem' }}>
+        {/* Leading offset cells */}
+        {Array.from({ length: leadOffset }).map((_, i) => (
+          <div 
+            key={`lead-${i}`} 
+            style={{ 
+              border: '1px dashed #e2e8f0', 
+              borderRadius: '8px', 
+              backgroundColor: '#f8fafc',
+              minHeight: '80px',
+              opacity: 0.5
+            }} 
+          />
+        ))}
+
+        {/* Real day cells */}
+        {days.map(d => (
+          <div 
+            key={d.date} 
+            style={{ 
+              border: `2px solid ${getStatusBorder(d.status)}`, 
+              backgroundColor: getStatusColor(d.status),
+              padding: '0.75rem',
+              borderRadius: '8px',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.35rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              minHeight: '80px',
+              justifyContent: 'center'
+            }}
+            title={d.volunteers?.map(v => v.fullName).join(', ')}
+          >
+            <div style={{ fontSize: '0.8rem', color: '#1e293b', fontWeight: 'bold' }}>{d.date}</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#0f172a', lineHeight: 1 }}>{d.count}</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: '700', color: getStatusBorder(d.status), textTransform: 'uppercase', letterSpacing: '0.025em' }}>
+              {d.status.replace('_', ' ')}
+            </div>
+          </div>
+        ))}
+
+        {/* Trailing offset cells */}
+        {Array.from({ length: trailOffset }).map((_, i) => (
+          <div 
+            key={`trail-${i}`} 
+            style={{ 
+              border: '1px dashed #e2e8f0', 
+              borderRadius: '8px', 
+              backgroundColor: '#f8fafc',
+              minHeight: '80px',
+              opacity: 0.5
+            }} 
+          />
+        ))}
+      </div>
     </div>
   );
 };

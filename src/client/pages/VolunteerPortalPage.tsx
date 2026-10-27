@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { TimeOffModal } from '../components/TimeOffModal.js';
-import { CountryFlag } from '../components/CountryFlag.js';
+import { TimeOffModal } from '../components/TimeOffModal';
+import { CountryFlag } from '../components/CountryFlag';
 
 export const VolunteerPortalPage: React.FC = () => {
   const [searchParams] = useSearchParams();

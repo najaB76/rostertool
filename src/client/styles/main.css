@@ -50,8 +50,18 @@ body {
   box-sizing: border-box;
 }
 
-.country-flag {
-  font-size: 1.2em;
-  margin-left: 0.25rem;
+.country-flag,
+.country-flag-wrapper {
+  font-size: 1.1em;
+  margin-left: 0.35rem;
+  display: inline-flex;
+  align-items: center;
   vertical-align: middle;
+  line-height: 1;
+}
+
+.country-flag-wrapper svg {
+  border-radius: 2px;
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
+  display: inline-block;
 }

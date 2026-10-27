@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShiftSlotCell } from './ShiftSlotCell.js';
+import { ShiftSlotCell } from './ShiftSlotCell';
 
 interface RosterGridProps {
   days: {

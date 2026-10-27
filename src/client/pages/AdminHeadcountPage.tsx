@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HeadcountCalendar, HeadcountDay } from '../components/HeadcountCalendar.js';
+import { HeadcountCalendar, HeadcountDay } from '../components/HeadcountCalendar';
 
 type ViewScale = 'month' | 'quarter' | 'year';
 

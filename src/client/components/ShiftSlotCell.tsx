@@ -1,5 +1,5 @@
 import React from 'react';
-import { CountryFlag } from './CountryFlag.js';
+import { CountryFlag } from './CountryFlag';
 
 interface Assignment {
   assignmentId: string;
@@ -14,6 +14,11 @@ interface ShiftSlotCellProps {
   isUnderstaffed: boolean;
   onAssignClick: () => void;
   onRemoveClick: (volunteerId?: string | null, staffId?: string | null) => void;
+}
+
+export function getFirstName(fullName: string): string {
+  if (!fullName) return '';
+  return fullName.trim().split(/\s+/)[0];
 }
 
 export const ShiftSlotCell: React.FC<ShiftSlotCellProps> = ({
@@ -40,22 +45,27 @@ export const ShiftSlotCell: React.FC<ShiftSlotCellProps> = ({
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <strong style={{ fontSize: '0.85rem', color: '#52525b' }}>{shiftName}</strong>
-        <span style={{ fontSize: '0.75rem', color: isUnderstaffed ? '#ef4444' : '#10b981' }}>
+        <span style={{ fontSize: '0.75rem', color: isUnderstaffed ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>
           {assignments.length} / {minStaff}
         </span>
       </div>
 
-      <div className="assignments-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+      <div className="assignments-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
         {assignments.map((assignment, idx) => (
-          <div key={assignment.assignmentId || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', backgroundColor: '#f4f4f5', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+          <div key={assignment.assignmentId || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', backgroundColor: '#f4f4f5', padding: '0.3rem 0.5rem', borderRadius: '4px' }}>
             <span>
               {assignment.volunteer ? (
-                <>
-                  {assignment.volunteer.fullName}
+                <span 
+                  title={`${assignment.volunteer.fullName} (${assignment.volunteer.primaryRole})`}
+                  style={{ display: 'inline-flex', alignItems: 'center', cursor: 'help', fontWeight: '500' }}
+                >
+                  {getFirstName(assignment.volunteer.fullName)}
                   <CountryFlag countryCode={assignment.volunteer.nationality} />
-                </>
+                </span>
               ) : assignment.staff ? (
-                <>{assignment.staff.fullName} <em>(Staff)</em></>
+                <span title={`${assignment.staff.fullName} (Paid Staff)`} style={{ cursor: 'help', fontWeight: '500' }}>
+                  {getFirstName(assignment.staff.fullName)} <em style={{ fontSize: '0.8rem', color: '#71717a' }}>(Staff)</em>
+                </span>
               ) : (
                 'Unknown'
               )}
@@ -75,7 +85,7 @@ export const ShiftSlotCell: React.FC<ShiftSlotCellProps> = ({
         onClick={onAssignClick}
         style={{
           marginTop: 'auto',
-          padding: '0.25rem',
+          padding: '0.3rem',
           border: '1px dashed #d4d4d8',
           background: 'transparent',
           color: '#71717a',

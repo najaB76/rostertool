@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { RosterGrid } from '../components/RosterGrid.js';
+import { RosterGrid } from '../components/RosterGrid';
 
 export const AdminRosterPage: React.FC = () => {
   const [rosterData, setRosterData] = useState<any>(null);

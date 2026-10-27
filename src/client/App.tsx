@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './styles/main.css';
-import { AdminRosterPage } from './pages/AdminRosterPage.js';
-import { AdminVolunteersPage } from './pages/AdminVolunteersPage.js';
-import { AdminHeadcountPage } from './pages/AdminHeadcountPage.js';
-import { VolunteerPortalPage } from './pages/VolunteerPortalPage.js';
+import { AdminRosterPage } from './pages/AdminRosterPage';
+import { AdminVolunteersPage } from './pages/AdminVolunteersPage';
+import { AdminHeadcountPage } from './pages/AdminHeadcountPage';
+import { VolunteerPortalPage } from './pages/VolunteerPortalPage';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="admin-layout">

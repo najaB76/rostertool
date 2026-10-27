@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { VolunteerModal } from '../components/VolunteerModal.js';
-import { CountryFlag } from '../components/CountryFlag.js';
+import { VolunteerModal } from '../components/VolunteerModal';
+import { CountryFlag } from '../components/CountryFlag';
 
 export const AdminVolunteersPage: React.FC = () => {
   const [volunteers, setVolunteers] = useState<any[]>([]);
   const [filter, setFilter] = useState('Active');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVol, setSelectedVol] = useState<any>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Acceptance Dialog State
   const [acceptingVol, setAcceptingVol] = useState<any>(null);
@@ -25,6 +26,27 @@ export const AdminVolunteersPage: React.FC = () => {
   useEffect(() => {
     fetchVolunteers();
   }, [filter]);
+
+  const handleCopyLink = (token: string, volId: string) => {
+    const url = `${window.location.origin}/portal?token=${token}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopiedId(volId);
+        setTimeout(() => setCopiedId(null), 2000);
+      }).catch(() => {
+        prompt('Copy portal link:', url);
+      });
+    } else {
+      prompt('Copy portal link:', url);
+    }
+  };
+
+  const handleResetToken = async (volId: string) => {
+    if (window.confirm('Regenerate this magic link? The previous link will be immediately invalidated.')) {
+      await fetch(`/api/admin/volunteers/${volId}/reset-token`, { method: 'POST' });
+      fetchVolunteers();
+    }
+  };
 
   const handleSave = async (data: any) => {
     const method = selectedVol ? 'PUT' : 'POST';
@@ -246,6 +268,33 @@ export const AdminVolunteersPage: React.FC = () => {
                 )}
               </div>
             </div>
+
+            {/* Magic Link Section */}
+            {v.magicLinkToken && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f8fafc', padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid #e2e8f0', fontSize: '0.8rem' }}>
+                <span style={{ fontWeight: '600', color: '#475569', minWidth: '75px' }}>Magic Link:</span>
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={`${window.location.origin}/portal?token=${v.magicLinkToken}`} 
+                  style={{ flex: 1, padding: '0.2rem 0.4rem', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.75rem', background: '#fff', color: '#334155' }}
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                />
+                <button 
+                  onClick={() => handleCopyLink(v.magicLinkToken, v.id)}
+                  style={{ padding: '0.25rem 0.6rem', background: copiedId === v.id ? '#10b981' : '#3b82f6', color: '#fff', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '500' }}
+                >
+                  {copiedId === v.id ? '✓ Copied!' : 'Copy Link'}
+                </button>
+                <button 
+                  onClick={() => handleResetToken(v.id)}
+                  style={{ padding: '0.25rem 0.5rem', background: '#fff', border: '1px solid #cbd5e1', color: '#475569', borderRadius: '3px', cursor: 'pointer', fontSize: '0.75rem' }}
+                  title="Generate a new magic link and invalidate previous link"
+                >
+                  🔄 Reset Link
+                </button>
+              </div>
+            )}
 
             {/* Universal Notes Display */}
             {v.notes && (

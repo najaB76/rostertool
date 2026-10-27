@@ -29,6 +29,7 @@
   "dependencies": {
     "@fastify/static": "^10.1.8",
     "better-sqlite3": "^13.0.3",
+    "country-flag-icons": "^1.6.20",
     "drizzle-orm": "^0.45.4",
     "fastify": "^5.12.7",
     "react": "^19.3.1",
