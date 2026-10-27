@@ -9,7 +9,6 @@ interface Assignment {
 
 interface ShiftSlotCellProps {
   shiftName: string;
-  date: string;
   minStaff: number;
   assignments: Assignment[];
   isUnderstaffed: boolean;

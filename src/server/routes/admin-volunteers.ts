@@ -42,6 +42,45 @@ export default async function adminVolunteersRoutes(fastify: FastifyInstance) {
     }
   );
 
+  fastify.get('/sources', async (_request, _reply) => {
+    return await volunteerService.getApplicationSources();
+  });
+
+  fastify.post<{ Params: { id: string }, Body: { arrivalDate: string; departureDate: string; primaryRole?: string; notes?: string } }>(
+    '/:id/accept',
+    async (request, reply) => {
+      const { arrivalDate, departureDate, primaryRole, notes } = request.body;
+      if (!arrivalDate || !departureDate) {
+        return reply.status(400).send({ error: 'arrivalDate and departureDate are required to accept an applicant' });
+      }
+      try {
+        const vol = await volunteerService.acceptVolunteer(request.params.id, { arrivalDate, departureDate, primaryRole, notes });
+        return vol;
+      } catch (e: any) {
+        return reply.status(400).send({ error: e.message });
+      }
+    }
+  );
+
+  fastify.post<{ Params: { id: string } }>('/:id/activate', async (request, reply) => {
+    try {
+      const vol = await volunteerService.activateVolunteer(request.params.id);
+      return vol;
+    } catch (e: any) {
+      return reply.status(400).send({ error: e.message });
+    }
+  });
+
+  fastify.post<{ Params: { id: string }, Body?: { cancellationReason?: string } }>('/:id/cancel', async (request, reply) => {
+    try {
+      const reason = request.body?.cancellationReason;
+      const vol = await volunteerService.cancelVolunteer(request.params.id, reason);
+      return vol;
+    } catch (e: any) {
+      return reply.status(400).send({ error: e.message });
+    }
+  });
+
   fastify.post<{ Params: { id: string } }>('/:id/reset-token', async (request, reply) => {
     try {
       const token = await volunteerService.resetToken(request.params.id);

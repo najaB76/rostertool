@@ -2,6 +2,22 @@ import { db } from '../db/client.js';
 import { shiftDefinitions, shiftAssignments, volunteers, staffUsers } from '../db/schema.js';
 import { eq, and, gte, lte } from 'drizzle-orm';
 
+export function isShiftApplicableToDay(shiftName: string, defDayOfWeek: number | null, dayOfWeek: number): boolean {
+  if (defDayOfWeek !== null) {
+    return defDayOfWeek === dayOfWeek;
+  }
+  const name = shiftName.toLowerCase();
+  if (name.includes('sun-thu') || name.includes('sun–thu')) {
+    // Sunday (0) through Thursday (4)
+    return dayOfWeek >= 0 && dayOfWeek <= 4;
+  }
+  if (name.includes('fri-sat') || name.includes('fri–sat')) {
+    // Friday (5) and Saturday (6)
+    return dayOfWeek === 5 || dayOfWeek === 6;
+  }
+  return true;
+}
+
 export class RosterService {
   /**
    * Retrieves the weekly roster grid for a given Monday-to-Sunday window.
@@ -40,7 +56,7 @@ export class RosterService {
       const dayOfWeek = new Date(date).getDay(); // 0 = Sun, 1 = Mon, etc.
       
       const shiftsForDay = defs
-        .filter(def => def.dayOfWeek === null || def.dayOfWeek === dayOfWeek)
+        .filter(def => isShiftApplicableToDay(def.name, def.dayOfWeek, dayOfWeek))
         .map(def => {
           const slotAssignments = assignments
             .filter(a => a.assignment.shiftDefinitionId === def.id && a.assignment.date === date)

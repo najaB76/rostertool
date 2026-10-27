@@ -17,15 +17,41 @@ describe('Admin Roster API', () => {
     await db.delete(shiftDefinitions);
     await db.delete(volunteers);
 
-    // Seed dummy definitions
-    await db.insert(shiftDefinitions).values({
-      id: 'def-1',
-      name: 'Housekeeping',
-      startTime: '10:00',
-      endTime: '14:00',
-      durationHours: 4.0,
-      minStaff: 3,
-    });
+    // Seed standard shift definitions matching hostel operations
+    await db.insert(shiftDefinitions).values([
+      {
+        id: 'def-hk',
+        name: 'Housekeeping',
+        startTime: '10:00',
+        endTime: '14:00',
+        durationHours: 4.0,
+        minStaff: 3,
+      },
+      {
+        id: 'def-rec-day',
+        name: 'Reception Day',
+        startTime: '08:00',
+        endTime: '18:00',
+        durationHours: 10.0,
+        minStaff: 1,
+      },
+      {
+        id: 'def-rec-eve-sun-thu',
+        name: 'Reception Evening (Sun-Thu)',
+        startTime: '16:00',
+        endTime: '00:00',
+        durationHours: 8.0,
+        minStaff: 1,
+      },
+      {
+        id: 'def-rec-eve-fri-sat',
+        name: 'Reception Evening (Fri-Sat)',
+        startTime: '17:00',
+        endTime: '01:00',
+        durationHours: 8.0,
+        minStaff: 1,
+      }
+    ]);
     
     // Seed dummy volunteer
     await db.insert(volunteers).values({
@@ -40,18 +66,47 @@ describe('Admin Roster API', () => {
     await fastify.close();
   });
 
-  it('GET /api/admin/roster - should return weekly roster grid', async () => {
+  it('GET /api/admin/roster - should return exactly 3 shifts per day with correct evening shifts', async () => {
     const response = await fastify.inject({
       method: 'GET',
       url: '/api/admin/roster',
-      query: { weekStartDate: '2026-10-26' } // A Monday
+      query: { weekStartDate: '2026-10-26' } // Monday 2026-10-26 to Sunday 2026-11-01
     });
     expect(response.statusCode).toBe(200);
     const payload = JSON.parse(response.payload);
     expect(payload.weekStartDate).toBe('2026-10-26');
-    expect(payload.days.length).toBe(7); // Mon-Sun
-    expect(payload.days[0].date).toBe('2026-10-26');
-    expect(payload.days[0].shifts.length).toBeGreaterThan(0);
+    expect(payload.days.length).toBe(7);
+
+    // Every day MUST have exactly 3 shifts
+    for (const day of payload.days) {
+      expect(day.shifts.length).toBe(3);
+    }
+
+    // Monday (2026-10-26) must have Housekeeping, Reception Day, and Reception Evening (Sun-Thu)
+    const monday = payload.days.find((d: any) => d.date === '2026-10-26');
+    const mondayShiftNames = monday.shifts.map((s: any) => s.shiftDefinition.name);
+    expect(mondayShiftNames).toContain('Housekeeping');
+    expect(mondayShiftNames).toContain('Reception Day');
+    expect(mondayShiftNames).toContain('Reception Evening (Sun-Thu)');
+    expect(mondayShiftNames).not.toContain('Reception Evening (Fri-Sat)');
+
+    // Friday (2026-10-30) must have Housekeeping, Reception Day, and Reception Evening (Fri-Sat)
+    const friday = payload.days.find((d: any) => d.date === '2026-10-30');
+    const fridayShiftNames = friday.shifts.map((s: any) => s.shiftDefinition.name);
+    expect(fridayShiftNames).toContain('Housekeeping');
+    expect(fridayShiftNames).toContain('Reception Day');
+    expect(fridayShiftNames).toContain('Reception Evening (Fri-Sat)');
+    expect(fridayShiftNames).not.toContain('Reception Evening (Sun-Thu)');
+
+    // Saturday (2026-10-31) must have Fri-Sat evening
+    const saturday = payload.days.find((d: any) => d.date === '2026-10-31');
+    const satShiftNames = saturday.shifts.map((s: any) => s.shiftDefinition.name);
+    expect(satShiftNames).toContain('Reception Evening (Fri-Sat)');
+
+    // Sunday (2026-11-01) must have Sun-Thu evening
+    const sunday = payload.days.find((d: any) => d.date === '2026-11-01');
+    const sunShiftNames = sunday.shifts.map((s: any) => s.shiftDefinition.name);
+    expect(sunShiftNames).toContain('Reception Evening (Sun-Thu)');
   });
 
   it('POST /api/admin/roster/assign - should assign and then unassign a volunteer', async () => {
@@ -60,7 +115,7 @@ describe('Admin Roster API', () => {
       method: 'POST',
       url: '/api/admin/roster/assign',
       payload: {
-        shiftDefinitionId: 'def-1',
+        shiftDefinitionId: 'def-hk',
         date: '2026-10-26',
         volunteerId: 'vol-1'
       }
@@ -72,9 +127,9 @@ describe('Admin Roster API', () => {
       method: 'POST',
       url: '/api/admin/roster/assign',
       payload: {
-        shiftDefinitionId: 'def-1',
+        shiftDefinitionId: 'def-hk',
         date: '2026-10-26',
-        volunteerId: null // removing assignment
+        volunteerId: null
       }
     });
     expect(unassignResp.statusCode).toBe(200);

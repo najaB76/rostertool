@@ -111,6 +111,53 @@ export class VolunteerService {
     return this.getVolunteerById(id);
   }
 
+  async getApplicationSources() {
+    return await db.select().from(applicationSources).where(eq(applicationSources.isActive, 1));
+  }
+
+  async acceptVolunteer(id: string, data: { arrivalDate: string; departureDate: string; primaryRole?: string; notes?: string }) {
+    const updateData: any = {
+      status: 'Accepted',
+      arrivalDate: data.arrivalDate,
+      departureDate: data.departureDate,
+      updatedAt: new Date().toISOString()
+    };
+    if (data.primaryRole) updateData.primaryRole = data.primaryRole;
+    if (data.notes !== undefined) updateData.notes = data.notes;
+
+    await db.update(volunteers).set(updateData).where(eq(volunteers.id, id));
+    return this.getVolunteerById(id);
+  }
+
+  async activateVolunteer(id: string) {
+    await db.update(volunteers).set({
+      status: 'Active',
+      updatedAt: new Date().toISOString()
+    }).where(eq(volunteers.id, id));
+    return this.getVolunteerById(id);
+  }
+
+  async cancelVolunteer(id: string, cancellationReason?: string) {
+    const vol = await this.getVolunteerById(id);
+    let updatedNotes = vol?.notes || '';
+    if (cancellationReason) {
+      updatedNotes = updatedNotes ? `${updatedNotes}\n[Cancellation]: ${cancellationReason}` : `[Cancellation]: ${cancellationReason}`;
+    }
+
+    // 1. Update status
+    await db.update(volunteers).set({
+      status: 'Cancelled',
+      notes: updatedNotes,
+      updatedAt: new Date().toISOString()
+    }).where(eq(volunteers.id, id));
+
+    // 2. Unassign any future shifts
+    const today = new Date().toISOString().split('T')[0];
+    await db.delete(shiftAssignments).where(and(eq(shiftAssignments.volunteerId, id), gt(shiftAssignments.date, today)));
+
+    return this.getVolunteerById(id);
+  }
+
   async resetToken(id: string) {
     const token = crypto.randomBytes(32).toString('hex');
     await db.update(volunteers).set({ magicLinkToken: token, updatedAt: new Date().toISOString() }).where(eq(volunteers.id, id));

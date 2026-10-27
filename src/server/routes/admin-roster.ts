@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { rosterService } from '../services/roster-service.js';
+import { rosterService, isShiftApplicableToDay } from '../services/roster-service.js';
 import { autoPopulateRoster } from '../../engine/solver.js';
 import { db } from '../db/client.js';
 import { shiftDefinitions, volunteers, timeOffRequests, shiftAssignments } from '../db/schema.js';
@@ -35,7 +35,7 @@ export default async function adminRosterRoutes(fastify: FastifyInstance) {
              const d = new Date(start);
              d.setDate(d.getDate() + i);
              const dateStr = d.toISOString().split('T')[0];
-             if (def.dayOfWeek !== null && def.dayOfWeek !== d.getDay()) return null;
+             if (!isShiftApplicableToDay(def.name, def.dayOfWeek, d.getDay())) return null;
              return {
                  id: `${def.id}-${dateStr}`,
                  shiftDefinitionId: def.id,

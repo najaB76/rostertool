@@ -44,4 +44,26 @@ describe('Admin Headcount API', () => {
     const day2 = payload.find((p: any) => p.date === '2026-10-10');
     expect(day2.count).toBe(2);
   });
+
+  it('GET /api/admin/headcount - supports quarter and year date ranges', async () => {
+    // Quarter: Oct 1 to Dec 31 (92 days)
+    const qResp = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/headcount',
+      query: { startDate: '2026-10-01', endDate: '2026-12-31' }
+    });
+    expect(qResp.statusCode).toBe(200);
+    const qPayload = JSON.parse(qResp.payload);
+    expect(qPayload.length).toBe(92);
+
+    // Year: Jan 1 to Dec 31 (365 days)
+    const yResp = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/headcount',
+      query: { startDate: '2026-01-01', endDate: '2026-12-31' }
+    });
+    expect(yResp.statusCode).toBe(200);
+    const yPayload = JSON.parse(yResp.payload);
+    expect(yPayload.length).toBe(365);
+  });
 });

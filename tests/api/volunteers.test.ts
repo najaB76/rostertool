@@ -48,4 +48,54 @@ describe('Admin Volunteers API', () => {
     expect(payload.length).toBeGreaterThan(0);
     expect(payload[0].fullName).toBe('New Applicant');
   });
+
+  it('POST /api/admin/volunteers/:id/accept - advances applicant to Accepted', async () => {
+    // 1. Create applicant
+    const createRes = await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/volunteers',
+      payload: {
+        fullName: 'Lifecycle Test',
+        nationality: 'DE',
+      }
+    });
+    const vol = JSON.parse(createRes.payload);
+
+    // 2. Accept
+    const acceptRes = await fastify.inject({
+      method: 'POST',
+      url: `/api/admin/volunteers/${vol.id}/accept`,
+      payload: {
+        arrivalDate: '2026-11-01',
+        departureDate: '2026-11-28',
+        primaryRole: 'Reception',
+        notes: 'Accepted after video interview'
+      }
+    });
+    expect(acceptRes.statusCode).toBe(200);
+    const acceptedVol = JSON.parse(acceptRes.payload);
+    expect(acceptedVol.status).toBe('Accepted');
+    expect(acceptedVol.arrivalDate).toBe('2026-11-01');
+    expect(acceptedVol.departureDate).toBe('2026-11-28');
+    expect(acceptedVol.primaryRole).toBe('Reception');
+    expect(acceptedVol.notes).toBe('Accepted after video interview');
+
+    // 3. Activate
+    const activateRes = await fastify.inject({
+      method: 'POST',
+      url: `/api/admin/volunteers/${vol.id}/activate`
+    });
+    expect(activateRes.statusCode).toBe(200);
+    const activeVol = JSON.parse(activateRes.payload);
+    expect(activeVol.status).toBe('Active');
+
+    // 4. Cancel
+    const cancelRes = await fastify.inject({
+      method: 'POST',
+      url: `/api/admin/volunteers/${vol.id}/cancel`
+    });
+    expect(cancelRes.statusCode).toBe(200);
+    const cancelledVol = JSON.parse(cancelRes.payload);
+    expect(cancelledVol.status).toBe('Cancelled');
+  });
 });
