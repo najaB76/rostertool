@@ -51,7 +51,7 @@ bash deploy/setup-proxmox-lxc.sh
 
 The script will automatically:
 1. Install system prerequisites (`curl`, `git`, `build-essential`, `python3`, `sqlite3`).
-2. Install Node.js 20 LTS.
+2. Install Node.js 22 LTS.
 3. Create a dedicated unprivileged `rostertool` system user.
 4. Install npm dependencies and build production assets (`npm run build`).
 5. Initialize the SQLite database and seed defaults (`npm run db:migrate && npm run db:seed`).

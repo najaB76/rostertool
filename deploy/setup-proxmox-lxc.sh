@@ -15,13 +15,19 @@ echo "[1/6] Updating package manager and installing build tools..."
 apt-get update -y
 apt-get install -y curl git build-essential python3 sqlite3
 
-# 2. Install Node.js 20 LTS (NodeSource)
-if ! command -v node &> /dev/null; then
-  echo "[2/6] Installing Node.js 20 LTS..."
-  curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+# 2. Install or Upgrade to Node.js 22 LTS (NodeSource)
+NODE_MAJOR=0
+if command -v node &> /dev/null; then
+  NODE_MAJOR=$(node -v | cut -d'.' -f1 | tr -d 'v')
+fi
+
+if [ "$NODE_MAJOR" -lt 22 ]; then
+  echo "[2/6] Installing/Upgrading to Node.js 22 LTS (current: $(node -v 2>/dev/null || echo 'none'))..."
+  curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
   apt-get install -y nodejs
+  echo "Node.js successfully upgraded to $(node -v)"
 else
-  echo "[2/6] Node.js is already installed: $(node -v)"
+  echo "[2/6] Node.js is already installed and supported: $(node -v)"
 fi
 
 # 3. Create service user if not exists
@@ -47,7 +53,7 @@ chown -R rostertool:rostertool "${INSTALL_DIR}"
 
 # 5. Install dependencies, build frontend, and run migrations as service user
 echo "[5/6] Installing dependencies and building production assets..."
-su - rostertool -c "cd ${INSTALL_DIR} && npm ci --omit=dev || npm install"
+su - rostertool -c "cd ${INSTALL_DIR} && npm install"
 su - rostertool -c "cd ${INSTALL_DIR} && npm run build"
 su - rostertool -c "cd ${INSTALL_DIR} && npm run db:migrate"
 su - rostertool -c "cd ${INSTALL_DIR} && npm run db:seed"

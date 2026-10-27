@@ -6,7 +6,7 @@
 
 ## 1. Prerequisites
 
-- **Node.js**: v20.x LTS or v22.x
+- **Node.js**: v22.x LTS (Node.js 22 is required for better-sqlite3 13+ and vitest 5+)
 - **Package Manager**: `npm` (v10+)
 - **System**: Linux, macOS, or Proxmox LXC/VM with standard build tools (`gcc`, `g++`, `make` for `better-sqlite3` native compilation)
 
