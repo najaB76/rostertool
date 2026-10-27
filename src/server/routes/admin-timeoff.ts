@@ -13,14 +13,18 @@ export default async function adminTimeOffRoutes(fastify: FastifyInstance) {
       date: timeOffRequests.date,
       status: timeOffRequests.status,
       reason: timeOffRequests.reason,
+      createdAt: timeOffRequests.createdAt,
+      reviewedAt: timeOffRequests.reviewedAt,
+      reviewedBy: timeOffRequests.reviewedBy,
       volunteerName: volunteers.fullName,
-      volunteerNationality: volunteers.nationality
+      volunteerNationality: volunteers.nationality,
+      volunteerRole: volunteers.primaryRole
     })
     .from(timeOffRequests)
     .leftJoin(volunteers, eq(timeOffRequests.volunteerId, volunteers.id))
     .orderBy(desc(timeOffRequests.createdAt)) as any;
 
-    if (status) {
+    if (status && status !== 'All') {
        query = query.where(eq(timeOffRequests.status, status));
     }
 

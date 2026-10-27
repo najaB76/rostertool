@@ -92,4 +92,40 @@ describe('Volunteer Portal API', () => {
     expect(payload.length).toBeGreaterThan(0);
     expect(payload[0].status).toBe('Pending');
   });
+
+  it('POST /api/portal/time-off/:id/cancel - cancels a time off request by the volunteer', async () => {
+    const createRes = await fastify.inject({
+      method: 'POST',
+      url: '/api/portal/time-off?token=super-secret-token',
+      payload: {
+        date: '2026-11-20',
+        reason: 'To be cancelled'
+      }
+    });
+    expect(createRes.statusCode).toBe(201);
+
+    const meRes = await fastify.inject({
+      method: 'GET',
+      url: '/api/portal/me',
+      query: { token: 'super-secret-token' }
+    });
+    const myData = JSON.parse(meRes.payload);
+    const toCancel = myData.myTimeOffRequests.find((r: any) => r.reason === 'To be cancelled');
+    expect(toCancel).toBeDefined();
+
+    const cancelRes = await fastify.inject({
+      method: 'POST',
+      url: `/api/portal/time-off/${toCancel.id}/cancel?token=super-secret-token`
+    });
+    expect(cancelRes.statusCode).toBe(200);
+
+    const meResAfter = await fastify.inject({
+      method: 'GET',
+      url: '/api/portal/me',
+      query: { token: 'super-secret-token' }
+    });
+    const afterData = JSON.parse(meResAfter.payload);
+    const cancelledItem = afterData.myTimeOffRequests.find((r: any) => r.id === toCancel.id);
+    expect(cancelledItem.status).toBe('Cancelled');
+  });
 });

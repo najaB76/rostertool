@@ -51,6 +51,20 @@ export const VolunteerPortalPage: React.FC = () => {
     }
   };
 
+  const handleCancelTimeOff = async (id: string) => {
+    if (window.confirm('Are you sure you want to cancel this time-off request?')) {
+      try {
+        await fetch(`/api/portal/time-off/${id}/cancel?token=${token}`, {
+          method: 'POST'
+        });
+        fetchPortalData();
+      } catch (e) {
+        console.error(e);
+        alert('Failed to cancel request');
+      }
+    }
+  };
+
   if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading your portal...</div>;
   if (error) return <div style={{ padding: '2rem', color: '#ef4444', textAlign: 'center' }}>{error}</div>;
   if (!data) return null;
@@ -106,15 +120,28 @@ export const VolunteerPortalPage: React.FC = () => {
                   <div style={{ fontWeight: 'bold', color: '#18181b' }}>{req.date}</div>
                   <div style={{ color: '#71717a', fontSize: '0.85rem' }}>{req.reason || 'No reason provided'}</div>
                 </div>
-                <div style={{ 
-                  fontWeight: 'bold', 
-                  fontSize: '0.85rem',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '4px',
-                  backgroundColor: req.status === 'Approved' ? '#bbf7d0' : req.status === 'Denied' ? '#fecaca' : '#fef08a',
-                  color: req.status === 'Approved' ? '#166534' : req.status === 'Denied' ? '#991b1b' : '#854d0e'
-                }}>
-                  {req.status}
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ 
+                    fontWeight: 'bold', 
+                    fontSize: '0.85rem',
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '4px',
+                    backgroundColor: req.status === 'Approved' ? '#dcfce7' : req.status === 'Denied' ? '#fee2e2' : req.status === 'Cancelled' ? '#f1f5f9' : '#fef3c7',
+                    color: req.status === 'Approved' ? '#166534' : req.status === 'Denied' ? '#991b1b' : req.status === 'Cancelled' ? '#64748b' : '#92400e'
+                  }}>
+                    {req.status}
+                  </div>
+
+                  {req.status !== 'Cancelled' && req.status !== 'Denied' && (
+                    <button
+                      onClick={() => handleCancelTimeOff(req.id)}
+                      style={{ padding: '0.25rem 0.5rem', background: '#fff', border: '1px solid #cbd5e1', color: '#64748b', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}
+                      title="Cancel this time-off request"
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

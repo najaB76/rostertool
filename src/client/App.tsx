@@ -4,6 +4,7 @@ import './styles/main.css';
 import { AdminRosterPage } from './pages/AdminRosterPage';
 import { AdminVolunteersPage } from './pages/AdminVolunteersPage';
 import { AdminHeadcountPage } from './pages/AdminHeadcountPage';
+import { AdminTimeOffPage } from './pages/AdminTimeOffPage';
 import { VolunteerPortalPage } from './pages/VolunteerPortalPage';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => (
@@ -14,6 +15,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => (
         <Link to="/admin/roster">Weekly Roster</Link>
         <Link to="/admin/volunteers">Volunteers</Link>
         <Link to="/admin/headcount">Headcount</Link>
+        <Link to="/admin/time-off">Time Off</Link>
       </nav>
     </header>
     <main className="admin-main">{children}</main>
@@ -28,6 +30,7 @@ export function App() {
         <Route path="/admin/roster" element={<AdminLayout><AdminRosterPage /></AdminLayout>} />
         <Route path="/admin/volunteers" element={<AdminLayout><AdminVolunteersPage /></AdminLayout>} />
         <Route path="/admin/headcount" element={<AdminLayout><AdminHeadcountPage /></AdminLayout>} />
+        <Route path="/admin/time-off" element={<AdminLayout><AdminTimeOffPage /></AdminLayout>} />
         <Route path="/portal" element={<VolunteerPortalPage />} />
       </Routes>
     </Router>

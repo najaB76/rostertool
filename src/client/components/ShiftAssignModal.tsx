@@ -62,6 +62,16 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
     return s.fullName.toLowerCase().includes(search.toLowerCase());
   });
 
+  const handleVolunteerAssign = (v: any, hasApprovedTimeOff: boolean) => {
+    if (hasApprovedTimeOff) {
+      const ok = window.confirm(
+        `Warning: ${v.fullName} has APPROVED TIME-OFF on ${shift.date}.\n\nAre you sure you want to override and assign them to this shift anyway?`
+      );
+      if (!ok) return;
+    }
+    onAssign(v.id, null);
+  };
+
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1200 }}>
       <div style={{ background: '#fff', padding: '1.5rem', borderRadius: '8px', width: '600px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -161,12 +171,29 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                       <div>
                         {isAssignedToThisShift ? (
                           <span style={{ fontSize: '0.8rem', color: '#059669', fontWeight: '600' }}>✓ Assigned</span>
-                        ) : (
+                        ) : isDisqualifiedForReception ? (
                           <button
-                            onClick={() => onAssign(v.id, null)}
+                            disabled={true}
                             style={{
                               padding: '0.35rem 0.75rem',
-                              background: '#3b82f6',
+                              background: '#e2e8f0',
+                              color: '#94a3b8',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'not-allowed',
+                              fontSize: '0.8rem',
+                              fontWeight: '500'
+                            }}
+                            title="Volunteer is not reception qualified"
+                          >
+                            Not Qualified
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleVolunteerAssign(v, hasApprovedTimeOff)}
+                            style={{
+                              padding: '0.35rem 0.75rem',
+                              background: hasApprovedTimeOff ? '#f59e0b' : '#3b82f6',
                               color: '#fff',
                               border: 'none',
                               borderRadius: '4px',
@@ -174,8 +201,9 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                               fontSize: '0.8rem',
                               fontWeight: '500'
                             }}
+                            title={hasApprovedTimeOff ? 'Approved time-off on this date - click to override' : undefined}
                           >
-                            Assign
+                            {hasApprovedTimeOff ? 'Override Assign' : 'Assign'}
                           </button>
                         )}
                       </div>

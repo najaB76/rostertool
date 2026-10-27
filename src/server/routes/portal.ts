@@ -91,4 +91,28 @@ export default async function portalRoutes(fastify: FastifyInstance) {
       return reply.status(201).send({ success: true, datesCreated: datesToCreate });
     }
   );
+
+  fastify.post<{ Params: { id: string } }>(
+    '/time-off/:id/cancel',
+    { preHandler: authenticatePortal },
+    async (request, reply) => {
+      const vol = (request as any).volunteer;
+      const { id } = request.params;
+
+      const req = await db.select().from(timeOffRequests).where(eq(timeOffRequests.id, id)).get();
+      if (!req) {
+        return reply.status(404).send({ error: 'Time off request not found' });
+      }
+
+      if (req.volunteerId !== vol.id) {
+        return reply.status(403).send({ error: 'Not authorized to cancel this request' });
+      }
+
+      await db.update(timeOffRequests)
+        .set({ status: 'Cancelled' })
+        .where(eq(timeOffRequests.id, id));
+
+      return { success: true };
+    }
+  );
 }
