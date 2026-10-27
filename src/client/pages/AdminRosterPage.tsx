@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { RosterGrid } from '../components/RosterGrid';
 import { ShiftAssignModal, ShiftSlotInfo } from '../components/ShiftAssignModal';
+import { snapToMonday, addDays, getSunday, formatDate } from '../utils/date-utils';
 
 export const AdminRosterPage: React.FC = () => {
   const [rosterData, setRosterData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSlot, setSelectedSlot] = useState<ShiftSlotInfo | null>(null);
-  
-  // Start with the upcoming Monday or current Monday
-  const getMonday = (d: Date) => {
-    const date = new Date(d);
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(date.setDate(diff)).toISOString().split('T')[0];
-  };
 
-  const [weekStartDate, setWeekStartDate] = useState(getMonday(new Date()));
+  const [weekStartDate, setWeekStartDate] = useState(snapToMonday(new Date()));
+  const weekEndDate = getSunday(weekStartDate);
 
   const fetchRoster = async () => {
     setLoading(true);
@@ -32,6 +26,10 @@ export const AdminRosterPage: React.FC = () => {
   useEffect(() => {
     fetchRoster();
   }, [weekStartDate]);
+
+  const handlePrevWeek = () => setWeekStartDate(prev => addDays(prev, -7));
+  const handleNextWeek = () => setWeekStartDate(prev => addDays(prev, 7));
+  const handleThisWeek = () => setWeekStartDate(snapToMonday(new Date()));
 
   const handleAssignClick = (
     shiftDefinitionId: string,
@@ -106,18 +104,48 @@ export const AdminRosterPage: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h2 style={{ margin: '0 0 0.25rem 0' }}>Weekly Roster</h2>
-          <span style={{ fontSize: '0.85rem', color: '#71717a' }}>Schedule volunteers and paid staff across weekly operational shifts.</span>
+          <div style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '500' }}>
+            🗓️ Week of <strong>Monday, {formatDate(weekStartDate)}</strong> to <strong>Sunday, {formatDate(weekEndDate)}</strong>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+
+        {/* Navigation Toolbar */}
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button 
+            onClick={handlePrevWeek}
+            style={{ padding: '0.45rem 0.75rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
+            title="Go to previous week"
+          >
+            ← Previous Week
+          </button>
+          <button 
+            onClick={handleThisWeek}
+            style={{ padding: '0.45rem 0.75rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '500' }}
+            title="Go to current week"
+          >
+            This Week
+          </button>
+          <button 
+            onClick={handleNextWeek}
+            style={{ padding: '0.45rem 0.75rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
+            title="Go to next week"
+          >
+            Next Week →
+          </button>
+
           <input 
             type="date" 
             value={weekStartDate} 
-            onChange={(e) => setWeekStartDate(e.target.value)} 
-            style={{ padding: '0.45rem', borderRadius: '4px', border: '1px solid #d4d4d8' }}
+            onChange={(e) => {
+              if (e.target.value) setWeekStartDate(snapToMonday(e.target.value));
+            }} 
+            style={{ padding: '0.45rem', borderRadius: '4px', border: '1px solid #d4d4d8', cursor: 'pointer' }}
+            title="Select date (automatically snaps to Monday)"
           />
+
           <button 
             onClick={handleAutoPopulate}
             style={{ padding: '0.5rem 1rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}

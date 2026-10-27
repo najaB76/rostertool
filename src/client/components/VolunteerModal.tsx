@@ -10,6 +10,8 @@ interface VolunteerModalProps {
 export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     fullName: volunteer?.fullName || '',
+    email: volunteer?.email || '',
+    phone: volunteer?.phone || '',
     nationality: volunteer?.nationality || '',
     applicationSourceName: volunteer?.applicationSourceName || 'WorkAway',
     arrivalDate: volunteer?.arrivalDate || '',
@@ -87,6 +89,32 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
               style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8' }} 
             />
           </label>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <strong>Email Address</strong>
+              <input 
+                type="email" 
+                name="email" 
+                value={formData.email} 
+                onChange={handleChange} 
+                placeholder="e.g. maria@example.com"
+                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+              />
+            </label>
+
+            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <strong>Phone / WhatsApp</strong>
+              <input 
+                type="tel" 
+                name="phone" 
+                value={formData.phone} 
+                onChange={handleChange} 
+                placeholder="e.g. +55 11 98765-4321"
+                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+              />
+            </label>
+          </div>
 
           <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             <strong>Nationality</strong>

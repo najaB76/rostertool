@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { VolunteerModal } from '../components/VolunteerModal';
 import { CountryFlag } from '../components/CountryFlag';
+import { formatDate } from '../utils/date-utils';
 
 export const AdminVolunteersPage: React.FC = () => {
   const [volunteers, setVolunteers] = useState<any[]>([]);
@@ -190,7 +191,23 @@ export const AdminVolunteersPage: React.FC = () => {
                 <div style={{ fontSize: '0.85rem', color: '#71717a', display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
                   <span><strong>Role:</strong> {v.primaryRole}</span>
                   <span><strong>Source:</strong> {v.applicationSourceName || 'None'}</span>
-                  <span><strong>Stay Dates:</strong> {v.arrivalDate || 'TBD'} → {v.departureDate || 'TBD'}</span>
+                  <span><strong>Stay Dates:</strong> {v.arrivalDate ? formatDate(v.arrivalDate) : 'TBD'} → {v.departureDate ? formatDate(v.departureDate) : 'TBD'}</span>
+                  {v.email && (
+                    <span>
+                      <strong>Email:</strong>{' '}
+                      <a href={`mailto:${v.email}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
+                        {v.email}
+                      </a>
+                    </span>
+                  )}
+                  {v.phone && (
+                    <span>
+                      <strong>Phone:</strong>{' '}
+                      <a href={`tel:${v.phone}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
+                        {v.phone}
+                      </a>
+                    </span>
+                  )}
                   {v.isTrainer && <span style={{ color: '#059669', fontWeight: '500' }}>✓ Trainer</span>}
                   {v.inTraining && <span style={{ color: '#d97706', fontWeight: '500' }}>• In Training</span>}
                   {v.isReceptionQualified && <span style={{ color: '#2563eb' }}>✓ Reception Qualified</span>}

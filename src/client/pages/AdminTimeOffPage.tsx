@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CountryFlag } from '../components/CountryFlag';
+import { formatDate } from '../utils/date-utils';
 
 export const AdminTimeOffPage: React.FC = () => {
   const [requests, setRequests] = useState<any[]>([]);
@@ -125,7 +126,7 @@ export const AdminTimeOffPage: React.FC = () => {
                   </div>
 
                   <div style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '500' }}>
-                    📅 Requested Date: <strong>{req.date}</strong>
+                    📅 Requested Date: <strong>{formatDate(req.date)}</strong>
                   </div>
 
                   {req.reason && (
@@ -136,7 +137,7 @@ export const AdminTimeOffPage: React.FC = () => {
 
                   {req.createdAt && (
                     <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                      Submitted: {new Date(req.createdAt).toLocaleDateString()}
+                      Submitted: {formatDate(req.createdAt)}
                     </div>
                   )}
                 </div>

@@ -49,6 +49,29 @@ describe('Admin Volunteers API', () => {
     expect(payload[0].fullName).toBe('New Applicant');
   });
 
+  it('POST /api/admin/volunteers - creates volunteer with email and phone and retrieves them', async () => {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/volunteers',
+      payload: {
+        fullName: 'Contact User',
+        nationality: 'ES',
+        email: 'contact@example.com',
+        phone: '+34 600 123 456'
+      }
+    });
+    expect(response.statusCode).toBe(201);
+    const created = JSON.parse(response.payload);
+    expect(created.email).toBe('contact@example.com');
+    expect(created.phone).toBe('+34 600 123 456');
+
+    const listRes = await fastify.inject({ method: 'GET', url: '/api/admin/volunteers' });
+    const list = JSON.parse(listRes.payload);
+    const found = list.find((v: any) => v.id === created.id);
+    expect(found.email).toBe('contact@example.com');
+    expect(found.phone).toBe('+34 600 123 456');
+  });
+
   it('POST /api/admin/volunteers/:id/accept - advances applicant to Accepted', async () => {
     // 1. Create applicant
     const createRes = await fastify.inject({
