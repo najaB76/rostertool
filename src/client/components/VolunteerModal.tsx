@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CountrySelect } from './CountrySelect.js';
+import { CountrySelect } from './CountrySelect';
 
 interface VolunteerModalProps {
   volunteer?: any;
