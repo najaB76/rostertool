@@ -1,0 +1,419 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hostel Volunteer Rostering API",
+    "version": "1.0.0",
+    "description": "REST API contracts for management administration and volunteer portal self-service."
+  },
+  "paths": {
+    "/api/admin/volunteers": {
+      "get": {
+        "summary": "List all volunteers with optional status filter",
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["Applied", "Accepted", "Active", "Departed", "Cancelled"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of volunteers with application source and metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Volunteer" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new volunteer application",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateVolunteerInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Volunteer created",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Volunteer" } } }
+          }
+        }
+      }
+    },
+    "/api/admin/volunteers/{id}": {
+      "get": {
+        "summary": "Get volunteer by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Volunteer" } } } }
+        }
+      },
+      "put": {
+        "summary": "Update volunteer profile, status, dates, or flags",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateVolunteerInput" } } }
+        },
+        "responses": {
+          "200": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Volunteer" } } } }
+        }
+      }
+    },
+    "/api/admin/volunteers/{id}/reset-token": {
+      "post": {
+        "summary": "Generate a new magic link token and invalidate previous token",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "magicLinkToken": { "type": "string" },
+                    "portalUrl": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/volunteers/{id}/depart": {
+      "post": {
+        "summary": "Mark volunteer Departed, record exit rating and future re-acceptance recommendation",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["rating", "futureAcceptanceRecommendation"],
+                "properties": {
+                  "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+                  "reviewNotes": { "type": "string" },
+                  "futureAcceptanceRecommendation": { "type": "string", "enum": ["Accept", "Review Required", "Do Not Accept"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Volunteer marked departed and review archived" }
+        }
+      }
+    },
+    "/api/admin/headcount": {
+      "get": {
+        "summary": "Get daily volunteer headcounts and status flags across a date range",
+        "parameters": [
+          { "name": "startDate", "in": "query", "required": true, "schema": { "type": "string", "format": "date" } },
+          { "name": "endDate", "in": "query", "required": true, "schema": { "type": "string", "format": "date" } }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/DailyHeadcount" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/roster": {
+      "get": {
+        "summary": "Get weekly roster grid for a specific Monday-to-Sunday window",
+        "parameters": [
+          { "name": "weekStartDate", "in": "query", "required": true, "schema": { "type": "string", "format": "date" } }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WeeklyRosterResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/roster/assign": {
+      "post": {
+        "summary": "Manually create, update or remove a shift assignment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["shiftDefinitionId", "date"],
+                "properties": {
+                  "shiftDefinitionId": { "type": "string" },
+                  "date": { "type": "string", "format": "date" },
+                  "volunteerId": { "type": "string", "nullable": true },
+                  "staffId": { "type": "string", "nullable": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Assignment updated" }
+        }
+      }
+    },
+    "/api/admin/roster/auto-populate": {
+      "post": {
+        "summary": "Execute auto-scheduling constraint solver for the selected week",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["weekStartDate"],
+                "properties": {
+                  "weekStartDate": { "type": "string", "format": "date" },
+                  "overwriteManual": { "type": "boolean", "default": false }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AutoPopulateResult" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/time-off": {
+      "get": {
+        "summary": "List volunteer time-off requests",
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["Pending", "Approved", "Denied"] } }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/TimeOffRequest" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/time-off/{id}/review": {
+      "post": {
+        "summary": "Approve or deny a volunteer time-off request",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status"],
+                "properties": {
+                  "status": { "type": "string", "enum": ["Approved", "Denied"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Time-off status updated" }
+        }
+      }
+    },
+    "/api/portal/me": {
+      "get": {
+        "summary": "Get volunteer profile and upcoming shifts via magic link token",
+        "parameters": [
+          { "name": "token", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/VolunteerPortalData" }
+              }
+            }
+          },
+          "401": { "description": "Invalid or revoked magic link token" }
+        }
+      }
+    },
+    "/api/portal/time-off": {
+      "post": {
+        "summary": "Submit a time-off request from the volunteer portal",
+        "parameters": [
+          { "name": "token", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["date"],
+                "properties": {
+                  "date": { "type": "string", "format": "date" },
+                  "reason": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Request submitted with status Pending" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Volunteer": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "fullName": { "type": "string" },
+          "email": { "type": "string", "nullable": true },
+          "phone": { "type": "string", "nullable": true },
+          "nationality": { "type": "string", "description": "ISO 3166-1 alpha-2" },
+          "status": { "type": "string", "enum": ["Applied", "Accepted", "Active", "Departed", "Cancelled"] },
+          "arrivalDate": { "type": "string", "format": "date", "nullable": true },
+          "departureDate": { "type": "string", "format": "date", "nullable": true },
+          "primaryRole": { "type": "string", "enum": ["Housekeeping", "Reception"] },
+          "isReceptionQualified": { "type": "boolean" },
+          "isTrainer": { "type": "boolean" },
+          "inTraining": { "type": "boolean" },
+          "applicationSource": { "type": "string" },
+          "futureAcceptance": { "type": "string", "enum": ["Accept", "Review Required", "Do Not Accept"] },
+          "magicLinkToken": { "type": "string" },
+          "notes": { "type": "string", "nullable": true }
+        }
+      },
+      "CreateVolunteerInput": {
+        "type": "object",
+        "required": ["fullName", "nationality"],
+        "properties": {
+          "fullName": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "nationality": { "type": "string" },
+          "arrivalDate": { "type": "string", "format": "date" },
+          "departureDate": { "type": "string", "format": "date" },
+          "primaryRole": { "type": "string", "enum": ["Housekeeping", "Reception"], "default": "Housekeeping" },
+          "applicationSourceName": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      },
+      "UpdateVolunteerInput": {
+        "type": "object",
+        "properties": {
+          "fullName": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "nationality": { "type": "string" },
+          "status": { "type": "string", "enum": ["Applied", "Accepted", "Active", "Departed", "Cancelled"] },
+          "arrivalDate": { "type": "string", "format": "date" },
+          "departureDate": { "type": "string", "format": "date" },
+          "primaryRole": { "type": "string", "enum": ["Housekeeping", "Reception"] },
+          "isReceptionQualified": { "type": "boolean" },
+          "isTrainer": { "type": "boolean" },
+          "inTraining": { "type": "boolean" },
+          "applicationSourceName": { "type": "string" },
+          "futureAcceptance": { "type": "string", "enum": ["Accept", "Review Required", "Do Not Accept"] },
+          "notes": { "type": "string" }
+        }
+      },
+      "DailyHeadcount": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "count": { "type": "integer" },
+          "status": { "type": "string", "enum": ["OPTIMAL", "LOW_WARNING", "OVERLAP_WARNING", "CRITICAL_LOW", "CRITICAL_HIGH"] },
+          "volunteers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "fullName": { "type": "string" },
+                "nationality": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "WeeklyRosterResponse": {
+        "type": "object",
+        "properties": {
+          "weekStartDate": { "type": "string" },
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": { "type": "string" },
+                "dayOfWeek": { "type": "string" },
+                "shifts": { "type": "array", "items": { "type": "object" } },
+                "isUnderstaffed": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      },
+      "AutoPopulateResult": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "assignmentsCreated": { "type": "integer" },
+          "unfilledSlotsCount": { "type": "integer" },
+          "unfilledSlots": { "type": "array", "items": { "type": "object" } }
+        }
+      },
+      "TimeOffRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "volunteerId": { "type": "string" },
+          "volunteerName": { "type": "string" },
+          "volunteerNationality": { "type": "string" },
+          "date": { "type": "string", "format": "date" },
+          "status": { "type": "string", "enum": ["Pending", "Approved", "Denied"] },
+          "reason": { "type": "string" }
+        }
+      },
+      "VolunteerPortalData": {
+        "type": "object",
+        "properties": {
+          "volunteer": { "$ref": "#/components/schemas/Volunteer" },
+          "myUpcomingShifts": { "type": "array", "items": { "type": "object" } },
+          "hostelWeeklyRoster": { "$ref": "#/components/schemas/WeeklyRosterResponse" },
+          "myTimeOffRequests": { "type": "array", "items": { "$ref": "#/components/schemas/TimeOffRequest" } }
+        }
+      }
+    }
+  }
+}

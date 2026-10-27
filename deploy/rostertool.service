@@ -1,0 +1,27 @@
+[Unit]
+Description=Hostel Volunteer Rostering Web Service
+After=network.target
+
+[Service]
+Type=simple
+User=rostertool
+Group=rostertool
+WorkingDirectory=/opt/rostertool
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOST=0.0.0.0
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=rostertool
+
+# Security Sandbox
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+ReadWritePaths=/opt/rostertool/data
+
+[Install]
+WantedBy=multi-user.target

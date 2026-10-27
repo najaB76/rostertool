@@ -1,0 +1,57 @@
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f5;
+  color: #18181b;
+}
+
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.admin-header {
+  background-color: #18181b;
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.admin-header nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.admin-header nav a {
+  color: #d4d4d8;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.admin-header nav a:hover {
+  color: #fff;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.country-flag {
+  font-size: 1.2em;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+}
