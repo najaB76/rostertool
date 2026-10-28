@@ -42,6 +42,7 @@ export const staffUsers = sqliteTable('staff_users', {
   id: text('id').primaryKey(),
   fullName: text('full_name').notNull(),
   role: text('role').notNull().default('Receptionist'),
+  nationality: text('nationality').notNull().default('ES'),
   contactInfo: text('contact_info'),
   isActive: integer('is_active').notNull().default(1),
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),

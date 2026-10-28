@@ -71,6 +71,8 @@ export class RosterService {
               staff: a.staff ? {
                 id: a.staff.id,
                 fullName: a.staff.fullName,
+                nationality: a.staff.nationality,
+                role: a.staff.role
               } : null,
               isTrainingShift: a.assignment.isTrainingShift
             }));

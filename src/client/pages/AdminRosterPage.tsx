@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { RosterGrid } from '../components/RosterGrid';
 import { ShiftAssignModal, ShiftSlotInfo } from '../components/ShiftAssignModal';
+import { PrintableRosterView } from '../components/PrintableRosterView';
 import { snapToMonday, addDays, getSunday, formatDate } from '../utils/date-utils';
 
 export const AdminRosterPage: React.FC = () => {
   const [rosterData, setRosterData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSlot, setSelectedSlot] = useState<ShiftSlotInfo | null>(null);
+  const [isPrintViewOpen, setIsPrintViewOpen] = useState(false);
 
   const [weekStartDate, setWeekStartDate] = useState(snapToMonday(new Date()));
   const weekEndDate = getSunday(weekStartDate);
@@ -152,6 +154,14 @@ export const AdminRosterPage: React.FC = () => {
           >
             ⚡ Auto-Populate
           </button>
+
+          <button
+            onClick={() => setIsPrintViewOpen(true)}
+            style={{ padding: '0.5rem 0.85rem', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer', fontWeight: '600', color: '#0f172a' }}
+            title="Open portrait roster view formatted for WhatsApp screenshot"
+          >
+            📱 WhatsApp View
+          </button>
         </div>
       </div>
 
@@ -172,6 +182,16 @@ export const AdminRosterPage: React.FC = () => {
           shift={selectedSlot}
           onAssign={handleCandidateAssign}
           onClose={() => setSelectedSlot(null)}
+        />
+      )}
+
+      {/* WhatsApp / Screenshot Portrait Roster View */}
+      {isPrintViewOpen && (
+        <PrintableRosterView
+          rosterDays={rosterData?.days}
+          weekStartDate={weekStartDate}
+          weekEndDate={weekEndDate}
+          onClose={() => setIsPrintViewOpen(false)}
         />
       )}
     </div>
