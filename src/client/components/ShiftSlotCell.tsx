@@ -3,8 +3,8 @@ import { CountryFlag } from './CountryFlag';
 
 interface Assignment {
   assignmentId: string;
-  volunteer?: { id: string; fullName: string; nationality: string; primaryRole: string } | null;
-  staff?: { id: string; fullName: string } | null;
+  volunteer?: { id: string; fullName: string; preferredName?: string; nationality: string; primaryRole: string } | null;
+  staff?: { id: string; fullName: string; nationality?: string } | null;
 }
 
 interface ShiftSlotCellProps {
@@ -16,7 +16,8 @@ interface ShiftSlotCellProps {
   onRemoveClick: (volunteerId?: string | null, staffId?: string | null) => void;
 }
 
-export function getFirstName(fullName: string): string {
+export function getDisplayName(fullName?: string, preferredName?: string): string {
+  if (preferredName?.trim()) return preferredName.trim();
   if (!fullName) return '';
   return fullName.trim().split(/\s+/)[0];
 }
@@ -59,12 +60,14 @@ export const ShiftSlotCell: React.FC<ShiftSlotCellProps> = ({
                   title={`${assignment.volunteer.fullName} (${assignment.volunteer.primaryRole})`}
                   style={{ display: 'inline-flex', alignItems: 'center', cursor: 'help', fontWeight: '500' }}
                 >
-                  {getFirstName(assignment.volunteer.fullName)}
+                  {getDisplayName(assignment.volunteer.fullName, assignment.volunteer.preferredName)}
                   <CountryFlag countryCode={assignment.volunteer.nationality} />
                 </span>
               ) : assignment.staff ? (
-                <span title={`${assignment.staff.fullName} (Paid Staff)`} style={{ cursor: 'help', fontWeight: '500' }}>
-                  {getFirstName(assignment.staff.fullName)} <em style={{ fontSize: '0.8rem', color: '#71717a' }}>(Staff)</em>
+                <span title={`${assignment.staff.fullName} (Paid Staff)`} style={{ display: 'inline-flex', alignItems: 'center', cursor: 'help', fontWeight: '500' }}>
+                  {getDisplayName(assignment.staff.fullName)}
+                  {assignment.staff.nationality && <CountryFlag countryCode={assignment.staff.nationality} />}
+                  <em style={{ fontSize: '0.75rem', color: '#71717a', marginLeft: '0.25rem' }}>(Staff)</em>
                 </span>
               ) : (
                 'Unknown'

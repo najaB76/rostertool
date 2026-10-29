@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import adminRosterRoutes from '../../src/server/routes/admin-roster.js';
 import { db } from '../../src/server/db/client.js';
-import { shiftDefinitions, shiftAssignments, volunteers } from '../../src/server/db/schema.js';
+import { shiftDefinitions, shiftAssignments, volunteers, staffUsers } from '../../src/server/db/schema.js';
 
 describe('Admin Roster API', () => {
   let fastify: FastifyInstance;
@@ -16,6 +16,7 @@ describe('Admin Roster API', () => {
     await db.delete(shiftAssignments);
     await db.delete(shiftDefinitions);
     await db.delete(volunteers);
+    await db.delete(staffUsers);
 
     // Seed standard shift definitions matching hostel operations
     await db.insert(shiftDefinitions).values([
@@ -59,6 +60,14 @@ describe('Admin Roster API', () => {
       fullName: 'Test Vol',
       nationality: 'US',
       magicLinkToken: 'token-123',
+    });
+
+    // Seed dummy staff
+    await db.insert(staffUsers).values({
+      id: 'staff-1',
+      fullName: 'Hervé Staff',
+      nationality: 'FR',
+      role: 'Receptionist',
     });
   });
 
@@ -133,5 +142,51 @@ describe('Admin Roster API', () => {
       }
     });
     expect(unassignResp.statusCode).toBe(200);
+  });
+
+  it('POST /api/admin/roster/assign - should assign staff member to a shift and retrieve it', async () => {
+    const res = await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/roster/assign',
+      payload: {
+        shiftDefinitionId: 'def-rec-day',
+        date: '2026-10-26',
+        staffId: 'staff-1',
+        volunteerId: null
+      }
+    });
+    expect(res.statusCode).toBe(200);
+
+    const rosterRes = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/roster',
+      query: { weekStartDate: '2026-10-26' }
+    });
+    const roster = JSON.parse(rosterRes.payload);
+    const monday = roster.days.find((d: any) => d.date === '2026-10-26');
+    const recDay = monday.shifts.find((s: any) => s.shiftDefinition.id === 'def-rec-day');
+    expect(recDay.assignments.length).toBe(1);
+    expect(recDay.assignments[0].staff.id).toBe('staff-1');
+    expect(recDay.assignments[0].staff.fullName).toBe('Hervé Staff');
+  });
+
+  it('POST /api/admin/roster/auto-populate - copies previous week reception shifts forward', async () => {
+    const autoRes = await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/roster/auto-populate',
+      payload: { weekStartDate: '2026-11-02' }
+    });
+    expect(autoRes.statusCode).toBe(200);
+
+    const rosterRes = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/roster',
+      query: { weekStartDate: '2026-11-02' }
+    });
+    const roster = JSON.parse(rosterRes.payload);
+    const nextMonday = roster.days.find((d: any) => d.date === '2026-11-02');
+    const recDay = nextMonday.shifts.find((s: any) => s.shiftDefinition.id === 'def-rec-day');
+    expect(recDay.assignments.length).toBe(1);
+    expect(recDay.assignments[0].staff.id).toBe('staff-1');
   });
 });

@@ -18,6 +18,16 @@ try {
     sqlite.exec("ALTER TABLE staff_users ADD COLUMN nationality TEXT DEFAULT 'ES' NOT NULL;");
   }
 
+  const volCols = sqlite.pragma('table_info(volunteers)').map((c: any) => c.name);
+  if (volCols.length > 0) {
+    if (!volCols.includes('preferred_name')) {
+      sqlite.exec("ALTER TABLE volunteers ADD COLUMN preferred_name TEXT;");
+    }
+    if (!volCols.includes('date_of_birth')) {
+      sqlite.exec("ALTER TABLE volunteers ADD COLUMN date_of_birth TEXT;");
+    }
+  }
+
   // Create admin_users table if not exists
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS admin_users (

@@ -65,6 +65,7 @@ export class RosterService {
               volunteer: a.volunteer ? {
                 id: a.volunteer.id,
                 fullName: a.volunteer.fullName,
+                preferredName: a.volunteer.preferredName,
                 nationality: a.volunteer.nationality,
                 primaryRole: a.volunteer.primaryRole
               } : null,

@@ -15,8 +15,10 @@ export const PrintableRosterView: React.FC<PrintableRosterViewProps> = ({
   weekEndDate,
   onClose
 }) => {
-  const getFirstName = (fullName: string | undefined): string => {
-    if (!fullName) return '';
+  const getDisplayName = (person: any): string => {
+    if (!person) return '';
+    if (person.preferredName?.trim()) return person.preferredName.trim();
+    const fullName = person.fullName || '';
     return fullName.trim().split(' ')[0];
   };
 
@@ -143,7 +145,7 @@ export const PrintableRosterView: React.FC<PrintableRosterViewProps> = ({
                   <td style={{ border: '1px solid #000', padding: '0.4rem', background: '#fff' }}>
                     {dayReceptionAssignee ? (
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: '600', fontSize: '1rem', color: '#0f172a' }}>
-                        <span>{getFirstName(dayReceptionAssignee.volunteer?.fullName || dayReceptionAssignee.staff?.fullName)}</span>
+                        <span>{getDisplayName(dayReceptionAssignee.volunteer || dayReceptionAssignee.staff)}</span>
                         <CountryFlag countryCode={dayReceptionAssignee.volunteer?.nationality || dayReceptionAssignee.staff?.nationality} style={{ fontSize: '1.2rem' }} />
                       </div>
                     ) : (
@@ -155,7 +157,7 @@ export const PrintableRosterView: React.FC<PrintableRosterViewProps> = ({
                   <td style={{ border: '1px solid #000', padding: '0.4rem', background: '#fff' }}>
                     {nightReceptionAssignee ? (
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: '600', fontSize: '1rem', color: '#0f172a' }}>
-                        <span>{getFirstName(nightReceptionAssignee.volunteer?.fullName || nightReceptionAssignee.staff?.fullName)}</span>
+                        <span>{getDisplayName(nightReceptionAssignee.volunteer || nightReceptionAssignee.staff)}</span>
                         <CountryFlag countryCode={nightReceptionAssignee.volunteer?.nationality || nightReceptionAssignee.staff?.nationality} style={{ fontSize: '1.2rem' }} />
                       </div>
                     ) : (
@@ -168,7 +170,7 @@ export const PrintableRosterView: React.FC<PrintableRosterViewProps> = ({
                     {housekeepers.length > 0 ? (
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', width: '100%', height: '100%' }}>
                         {housekeepers.map((h: any, idx: number) => {
-                          const name = getFirstName(h.volunteer?.fullName || h.staff?.fullName);
+                          const name = getDisplayName(h.volunteer || h.staff);
                           const country = h.volunteer?.nationality || h.staff?.nationality;
                           return (
                             <div 

@@ -56,6 +56,8 @@ export class VolunteerService {
     await db.insert(volunteers).values({
       id,
       fullName: data.fullName,
+      preferredName: data.preferredName || null,
+      dateOfBirth: data.dateOfBirth || null,
       email: data.email,
       phone: data.phone,
       nationality: data.nationality,
@@ -85,6 +87,8 @@ export class VolunteerService {
 
     const updateData: any = {
       fullName: data.fullName,
+      preferredName: data.preferredName !== undefined ? data.preferredName : undefined,
+      dateOfBirth: data.dateOfBirth !== undefined ? data.dateOfBirth : undefined,
       email: data.email,
       phone: data.phone,
       nationality: data.nationality,

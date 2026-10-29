@@ -10,6 +10,8 @@ interface VolunteerModalProps {
 export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     fullName: volunteer?.fullName || '',
+    preferredName: volunteer?.preferredName || '',
+    dateOfBirth: volunteer?.dateOfBirth || '',
     email: volunteer?.email || '',
     phone: volunteer?.phone || '',
     nationality: volunteer?.nationality || '',
@@ -79,7 +81,7 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <strong>Full Name</strong>
+            <strong>Full Name (Official) *</strong>
             <input 
               type="text" 
               name="fullName" 
@@ -87,8 +89,34 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
               onChange={handleChange} 
               placeholder="e.g. Maria Silva"
               style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8' }} 
+              required
             />
           </label>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <strong>Preferred Name (Optional)</strong>
+              <input 
+                type="text" 
+                name="preferredName" 
+                value={formData.preferredName} 
+                onChange={handleChange} 
+                placeholder="e.g. Mari"
+                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+              />
+            </label>
+
+            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <strong>Date of Birth</strong>
+              <input 
+                type="date" 
+                name="dateOfBirth" 
+                value={formData.dateOfBirth} 
+                onChange={handleChange} 
+                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+              />
+            </label>
+          </div>
 
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>

@@ -38,6 +38,24 @@ describe('Admin Volunteers API', () => {
     expect(payload.magicLinkToken).toBeDefined();
   });
 
+  it('POST /api/admin/volunteers - creates volunteer with preferredName and dateOfBirth', async () => {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/volunteers',
+      payload: {
+        fullName: 'Guilherme Silveira',
+        preferredName: 'Gui',
+        dateOfBirth: '1998-11-03',
+        nationality: 'BR'
+      }
+    });
+    expect(response.statusCode).toBe(201);
+    const payload = JSON.parse(response.payload);
+    expect(payload.fullName).toBe('Guilherme Silveira');
+    expect(payload.preferredName).toBe('Gui');
+    expect(payload.dateOfBirth).toBe('1998-11-03');
+  });
+
   it('GET /api/admin/volunteers - lists volunteers', async () => {
     const response = await fastify.inject({
       method: 'GET',

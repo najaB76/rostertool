@@ -4,6 +4,8 @@ import { sql } from 'drizzle-orm';
 export const volunteers = sqliteTable('volunteers', {
   id: text('id').primaryKey(),
   fullName: text('full_name').notNull(),
+  preferredName: text('preferred_name'),
+  dateOfBirth: text('date_of_birth'),
   email: text('email'),
   phone: text('phone'),
   nationality: text('nationality').notNull(),

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { VolunteerModal } from '../components/VolunteerModal';
 import { CountryFlag } from '../components/CountryFlag';
-import { formatDate } from '../utils/date-utils';
+import { formatDate, getBirthdayAlert } from '../utils/date-utils';
 
 export const AdminVolunteersPage: React.FC = () => {
   const [volunteers, setVolunteers] = useState<any[]>([]);
@@ -171,12 +171,15 @@ export const AdminVolunteersPage: React.FC = () => {
       </div>
 
       <div style={{ display: 'grid', gap: '1rem' }}>
-        {volunteers.map(v => (
+        {volunteers.map(v => {
+          const bdayAlert = getBirthdayAlert(v.dateOfBirth);
+          return (
           <div key={v.id} style={{ background: '#fff', padding: '1.25rem', borderRadius: '8px', border: '1px solid #e4e4e7', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <h3 style={{ margin: '0 0 0.35rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  {v.fullName} <CountryFlag countryCode={v.nationality} />
+                <h3 style={{ margin: '0 0 0.35rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <span>{v.preferredName ? `${v.preferredName} (${v.fullName})` : v.fullName}</span>
+                  <CountryFlag countryCode={v.nationality} />
                   <span style={{ 
                     fontSize: '0.75rem', 
                     padding: '0.2rem 0.5rem', 
@@ -187,6 +190,25 @@ export const AdminVolunteersPage: React.FC = () => {
                   }}>
                     {v.status}
                   </span>
+                  {bdayAlert?.isUpcoming && (
+                    <span 
+                      style={{ 
+                        fontSize: '0.75rem', 
+                        padding: '0.2rem 0.5rem', 
+                        borderRadius: '4px', 
+                        backgroundColor: '#fdf2f8', 
+                        color: '#db2777', 
+                        border: '1px solid #fbcfe8', 
+                        fontWeight: 'bold',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
+                      }}
+                      title={`Birthday: ${bdayAlert.birthdayFormatted}`}
+                    >
+                      🎂 {bdayAlert.daysUntil === 0 ? 'Birthday Today! 🎉' : `Birthday in ${bdayAlert.daysUntil} day${bdayAlert.daysUntil > 1 ? 's' : ''}!`}
+                    </span>
+                  )}
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.25rem' }}>
                   {/* Line 1: Role, Source, Stay Dates & Badges */}
@@ -194,6 +216,7 @@ export const AdminVolunteersPage: React.FC = () => {
                     <span><strong>Role:</strong> {v.primaryRole}</span>
                     <span><strong>Source:</strong> {v.applicationSourceName || 'None'}</span>
                     <span><strong>Stay Dates:</strong> {v.arrivalDate ? formatDate(v.arrivalDate) : 'TBD'} → {v.departureDate ? formatDate(v.departureDate) : 'TBD'}</span>
+                    {v.dateOfBirth && <span><strong>DOB:</strong> {formatDate(v.dateOfBirth)}</span>}
                     {v.isTrainer && <span style={{ color: '#059669', fontWeight: '500' }}>✓ Trainer</span>}
                     {v.inTraining && <span style={{ color: '#d97706', fontWeight: '500' }}>• In Training</span>}
                     {v.isReceptionQualified && <span style={{ color: '#2563eb' }}>✓ Reception Qualified</span>}
@@ -331,7 +354,8 @@ export const AdminVolunteersPage: React.FC = () => {
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
         
         {volunteers.length === 0 && <div style={{ color: '#a1a1aa', padding: '2rem', textAlign: 'center' }}>No volunteers found in "{filter}" status.</div>}
       </div>
