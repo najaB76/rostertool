@@ -188,30 +188,41 @@ export const AdminVolunteersPage: React.FC = () => {
                     {v.status}
                   </span>
                 </h3>
-                <div style={{ fontSize: '0.85rem', color: '#71717a', display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
-                  <span><strong>Role:</strong> {v.primaryRole}</span>
-                  <span><strong>Source:</strong> {v.applicationSourceName || 'None'}</span>
-                  <span><strong>Stay Dates:</strong> {v.arrivalDate ? formatDate(v.arrivalDate) : 'TBD'} → {v.departureDate ? formatDate(v.departureDate) : 'TBD'}</span>
-                  {v.email && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.25rem' }}>
+                  {/* Line 1: Role, Source, Stay Dates & Badges */}
+                  <div style={{ fontSize: '0.85rem', color: '#71717a', display: 'flex', flexWrap: 'wrap', gap: '1.25rem', alignItems: 'center' }}>
+                    <span><strong>Role:</strong> {v.primaryRole}</span>
+                    <span><strong>Source:</strong> {v.applicationSourceName || 'None'}</span>
+                    <span><strong>Stay Dates:</strong> {v.arrivalDate ? formatDate(v.arrivalDate) : 'TBD'} → {v.departureDate ? formatDate(v.departureDate) : 'TBD'}</span>
+                    {v.isTrainer && <span style={{ color: '#059669', fontWeight: '500' }}>✓ Trainer</span>}
+                    {v.inTraining && <span style={{ color: '#d97706', fontWeight: '500' }}>• In Training</span>}
+                    {v.isReceptionQualified && <span style={{ color: '#2563eb' }}>✓ Reception Qualified</span>}
+                    {v.status === 'Departed' && <span><strong>Re-hire:</strong> {v.futureAcceptance}</span>}
+                  </div>
+
+                  {/* Line 2: Email & Phone Number */}
+                  <div style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', flexWrap: 'wrap', gap: '1.25rem', alignItems: 'center' }}>
                     <span>
                       <strong>Email:</strong>{' '}
-                      <a href={`mailto:${v.email}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
-                        {v.email}
-                      </a>
+                      {v.email ? (
+                        <a href={`mailto:${v.email}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
+                          {v.email}
+                        </a>
+                      ) : (
+                        <span style={{ color: '#a1a1aa' }}>None</span>
+                      )}
                     </span>
-                  )}
-                  {v.phone && (
                     <span>
                       <strong>Phone:</strong>{' '}
-                      <a href={`tel:${v.phone}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
-                        {v.phone}
-                      </a>
+                      {v.phone ? (
+                        <a href={`tel:${v.phone}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
+                          {v.phone}
+                        </a>
+                      ) : (
+                        <span style={{ color: '#a1a1aa' }}>None</span>
+                      )}
                     </span>
-                  )}
-                  {v.isTrainer && <span style={{ color: '#059669', fontWeight: '500' }}>✓ Trainer</span>}
-                  {v.inTraining && <span style={{ color: '#d97706', fontWeight: '500' }}>• In Training</span>}
-                  {v.isReceptionQualified && <span style={{ color: '#2563eb' }}>✓ Reception Qualified</span>}
-                  {v.status === 'Departed' && <span><strong>Re-hire:</strong> {v.futureAcceptance}</span>}
+                  </div>
                 </div>
               </div>
 

@@ -17,8 +17,25 @@ try {
   if (staffCols.length > 0 && !staffCols.includes('nationality')) {
     sqlite.exec("ALTER TABLE staff_users ADD COLUMN nationality TEXT DEFAULT 'ES' NOT NULL;");
   }
+
+  // Create admin_users table if not exists
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS admin_users (
+      id TEXT PRIMARY KEY,
+      username TEXT NOT NULL UNIQUE,
+      pin TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Seed default admin account if table is empty
+  const count = sqlite.prepare('SELECT count(*) as count FROM admin_users').get() as { count: number };
+  if (count && count.count === 0) {
+    sqlite.prepare('INSERT INTO admin_users (id, username, pin) VALUES (?, ?, ?)')
+      .run('admin-default-id', 'admin', '1234');
+  }
 } catch (e) {
-  // Ignore if table doesn't exist yet
+  // Ignore
 }
 
 // Initialize Drizzle ORM

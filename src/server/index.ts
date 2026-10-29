@@ -10,6 +10,7 @@ import adminTimeOffRoutes from './routes/admin-timeoff.js';
 import adminStaffRoutes from './routes/admin-staff.js';
 import portalRoutes from './routes/portal.js';
 import authRoutes from './routes/auth.js';
+import adminUsersRoutes from './routes/admin-users.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -20,6 +21,7 @@ fastify.get('/api/health', async () => {
 
 // Register all API modules
 await fastify.register(authRoutes, { prefix: '/api/auth' });
+await fastify.register(adminUsersRoutes, { prefix: '/api/admin/users' });
 await fastify.register(adminRosterRoutes, { prefix: '/api/admin/roster' });
 await fastify.register(adminVolunteersRoutes, { prefix: '/api/admin/volunteers' });
 await fastify.register(adminHeadcountRoutes, { prefix: '/api/admin/headcount' });

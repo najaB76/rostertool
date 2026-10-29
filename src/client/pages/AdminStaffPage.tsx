@@ -202,8 +202,8 @@ export const AdminStaffPage: React.FC = () => {
               >
                 <option value="Receptionist">Receptionist</option>
                 <option value="Senior Receptionist">Senior Receptionist</option>
+                <option value="Assistant Manager">Assistant Manager</option>
                 <option value="Hostel Manager">Hostel Manager</option>
-                <option value="Shift Supervisor">Shift Supervisor</option>
                 <option value="General Staff">General Staff</option>
               </select>
             </label>
