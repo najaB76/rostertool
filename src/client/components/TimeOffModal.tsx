@@ -34,8 +34,9 @@ export const TimeOffModal: React.FC<TimeOffModalProps> = ({ onSubmit, onClose })
                 type="date" 
                 value={startDate} 
                 onChange={(e) => {
-                  setStartDate(e.target.value);
-                  if (!endDate) setEndDate(e.target.value);
+                  const val = e.target.value;
+                  setStartDate(val);
+                  setEndDate(val);
                 }} 
                 style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', width: '100%', boxSizing: 'border-box' }} 
               />

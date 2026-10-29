@@ -43,8 +43,8 @@ body {
 
 .admin-main {
   flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
+  padding: 1.5rem;
+  max-width: 95%;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;

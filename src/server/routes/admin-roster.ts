@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { rosterService, isShiftApplicableToDay } from '../services/roster-service.js';
 import { autoPopulateRoster } from '../../engine/solver.js';
 import { db } from '../db/client.js';
-import { shiftDefinitions, volunteers, timeOffRequests, shiftAssignments, staffUsers, staffPto } from '../db/schema.js';
+import { shiftDefinitions, volunteers, timeOffRequests, shiftAssignments, staffUsers, staffPto, systemSettings } from '../db/schema.js';
 import { eq, and, gte, lte } from 'drizzle-orm';
 
 export default async function adminRosterRoutes(fastify: FastifyInstance) {
@@ -124,6 +124,13 @@ export default async function adminRosterRoutes(fastify: FastifyInstance) {
           }).filter(s => s !== null);
       }) as any[];
 
+      const settingsRows = await db.select().from(systemSettings);
+      const settingsMap = new Map(settingsRows.map(r => [r.key, r.value]));
+      const shiftsPerWeek = parseInt(settingsMap.get('housekeeping_shifts_per_week') || '4', 10);
+      const hkDef = defs.find(d => d.name.toLowerCase().includes('housekeeping'));
+      const hkDuration = hkDef?.durationHours || 4;
+      const computedTargetHours = shiftsPerWeek * hkDuration;
+
       const vols = activeVolunteers.map(v => ({
          id: v.id,
          fullName: v.preferredName || v.fullName,
@@ -134,7 +141,7 @@ export default async function adminRosterRoutes(fastify: FastifyInstance) {
          isReceptionQualified: v.isReceptionQualified,
          isTrainer: v.isTrainer,
          inTraining: v.inTraining,
-         targetWeeklyHours: 16
+         targetWeeklyHours: computedTargetHours
       }));
 
       // Existing assignments now include the copied reception shifts
@@ -189,6 +196,23 @@ export default async function adminRosterRoutes(fastify: FastifyInstance) {
         } else {
            await rosterService.assignShift(shiftDefinitionId, date, volunteerId || null, staffId || null);
         }
+        return { success: true };
+      } catch (error: any) {
+        return reply.status(400).send({ error: error.message });
+      }
+    }
+  );
+
+  fastify.post<{ Body: { shiftDefinitionId: string; date: string; volunteerId?: string | null; staffId?: string | null } }>(
+    '/unassign',
+    async (request, reply) => {
+      const { shiftDefinitionId, date, volunteerId, staffId } = request.body;
+      if (!shiftDefinitionId || !date) {
+        return reply.status(400).send({ error: 'shiftDefinitionId and date are required' });
+      }
+
+      try {
+        await rosterService.unassignShift(shiftDefinitionId, date, volunteerId || null, staffId || null);
         return { success: true };
       } catch (error: any) {
         return reply.status(400).send({ error: error.message });

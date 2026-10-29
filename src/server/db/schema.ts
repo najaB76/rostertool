@@ -78,6 +78,7 @@ export const shiftAssignments = sqliteTable('shift_assignments', {
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 }, (t) => ({
   unq: unique('unq_shift_date_vol').on(t.shiftDefinitionId, t.date, t.volunteerId),
+  unqStaff: unique('unq_shift_date_staff').on(t.shiftDefinitionId, t.date, t.staffId),
 }));
 
 export const timeOffRequests = sqliteTable('time_off_requests', {
@@ -96,4 +97,9 @@ export const adminUsers = sqliteTable('admin_users', {
   username: text('username').notNull().unique(),
   pin: text('pin').notNull(),
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const systemSettings = sqliteTable('system_settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
 });

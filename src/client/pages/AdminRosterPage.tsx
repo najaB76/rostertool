@@ -74,7 +74,7 @@ export const AdminRosterPage: React.FC = () => {
 
   const handleRemoveClick = (shiftDefId: string, date: string, volunteerId?: string | null, staffId?: string | null) => {
     if (window.confirm("Remove this assignment?")) {
-      fetch('/api/admin/roster/assign', {
+      fetch('/api/admin/roster/unassign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ shiftDefinitionId: shiftDefId, date, volunteerId: volunteerId || null, staffId: staffId || null })

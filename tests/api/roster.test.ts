@@ -189,4 +189,76 @@ describe('Admin Roster API', () => {
     expect(recDay.assignments.length).toBe(1);
     expect(recDay.assignments[0].staff.id).toBe('staff-1');
   });
+
+  it('POST /api/admin/roster/unassign - unassigns staff and volunteer cleanly', async () => {
+    // 1. Assign staff
+    await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/roster/assign',
+      payload: {
+        shiftDefinitionId: 'def-rec-day',
+        date: '2026-10-26',
+        staffId: 'staff-1'
+      }
+    });
+
+    // 2. Unassign staff via /unassign
+    const unassignRes = await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/roster/unassign',
+      payload: {
+        shiftDefinitionId: 'def-rec-day',
+        date: '2026-10-26',
+        staffId: 'staff-1'
+      }
+    });
+    expect(unassignRes.statusCode).toBe(200);
+
+    // 3. Verify slot is empty
+    const rosterRes = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/roster',
+      query: { weekStartDate: '2026-10-26' }
+    });
+    const roster = JSON.parse(rosterRes.payload);
+    const monday = roster.days.find((d: any) => d.date === '2026-10-26');
+    const recDay = monday.shifts.find((s: any) => s.shiftDefinition.id === 'def-rec-day');
+    expect(recDay.assignments.some((a: any) => a.staff?.id === 'staff-1')).toBe(false);
+  });
+
+  it('POST /api/admin/roster/assign - prevents duplicate assignments of same person to same shift', async () => {
+    // 1. Assign staff-1
+    await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/roster/assign',
+      payload: {
+        shiftDefinitionId: 'def-rec-day',
+        date: '2026-10-26',
+        staffId: 'staff-1'
+      }
+    });
+
+    // 2. Assign staff-1 AGAIN
+    await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/roster/assign',
+      payload: {
+        shiftDefinitionId: 'def-rec-day',
+        date: '2026-10-26',
+        staffId: 'staff-1'
+      }
+    });
+
+    // 3. Verify exactly 1 assignment exists
+    const rosterRes = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/roster',
+      query: { weekStartDate: '2026-10-26' }
+    });
+    const roster = JSON.parse(rosterRes.payload);
+    const monday = roster.days.find((d: any) => d.date === '2026-10-26');
+    const recDay = monday.shifts.find((s: any) => s.shiftDefinition.id === 'def-rec-day');
+    const staffAssignments = recDay.assignments.filter((a: any) => a.staff?.id === 'staff-1');
+    expect(staffAssignments.length).toBe(1);
+  });
 });

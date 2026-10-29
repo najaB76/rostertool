@@ -103,33 +103,39 @@ export class RosterService {
    */
   async assignShift(shiftDefinitionId: string, date: string, volunteerId: string | null, staffId: string | null) {
     if (!volunteerId && !staffId) {
-      // Find and delete the existing assignment to clear the slot? 
-      // Wait, the API spec says "Manually create, update or remove".
-      // If we are removing, we typically need the assignment ID, but here the input is defId + date + vol/staff null.
-      // Let's assume the API expects us to clear any assignment for that slot if volunteerId/staffId is null.
-      // But a slot can have multiple assignments (e.g. 3 housekeepers).
-      // If we want to remove a specific one, we need to know who to remove.
-      // Actually, if volunteerId is passed as null, we can't tell which to remove unless we pass the assignmentId.
-      throw new Error('Must provide either volunteerId or staffId to assign. Use delete for removing.');
+      throw new Error('Must provide either volunteerId or staffId to assign.');
     }
 
     if (volunteerId) {
-      await db.insert(shiftAssignments).values({
-        id: crypto.randomUUID(),
-        shiftDefinitionId,
-        date,
-        volunteerId,
-      }).onConflictDoUpdate({
-        target: [shiftAssignments.shiftDefinitionId, shiftAssignments.date, shiftAssignments.volunteerId],
-        set: { volunteerId }
-      });
+      const existing = await db.select().from(shiftAssignments).where(and(
+        eq(shiftAssignments.shiftDefinitionId, shiftDefinitionId),
+        eq(shiftAssignments.date, date),
+        eq(shiftAssignments.volunteerId, volunteerId)
+      )).get();
+
+      if (!existing) {
+        await db.insert(shiftAssignments).values({
+          id: crypto.randomUUID(),
+          shiftDefinitionId,
+          date,
+          volunteerId,
+        });
+      }
     } else if (staffId) {
-       await db.insert(shiftAssignments).values({
-        id: crypto.randomUUID(),
-        shiftDefinitionId,
-        date,
-        staffId,
-      }).onConflictDoNothing(); // Simplified for now
+      const existing = await db.select().from(shiftAssignments).where(and(
+        eq(shiftAssignments.shiftDefinitionId, shiftDefinitionId),
+        eq(shiftAssignments.date, date),
+        eq(shiftAssignments.staffId, staffId)
+      )).get();
+
+      if (!existing) {
+        await db.insert(shiftAssignments).values({
+          id: crypto.randomUUID(),
+          shiftDefinitionId,
+          date,
+          staffId,
+        });
+      }
     }
   }
 

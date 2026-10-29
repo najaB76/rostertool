@@ -7,6 +7,7 @@ import { AdminHeadcountPage } from './pages/AdminHeadcountPage';
 import { AdminTimeOffPage } from './pages/AdminTimeOffPage';
 import { AdminStaffPage } from './pages/AdminStaffPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
+import { AdminSettingsPage } from './pages/AdminSettingsPage';
 import { LoginPage } from './pages/LoginPage';
 import { VolunteerPortalPage } from './pages/VolunteerPortalPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -25,7 +26,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="admin-layout">
       <header className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <h1 style={{ margin: 0, fontSize: '1.25rem' }}>Hostel Roster</h1>
           <nav style={{ display: 'flex', gap: '1rem' }}>
             <Link to="/admin/roster">Weekly Roster</Link>
@@ -34,6 +35,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             <Link to="/admin/time-off">Time Off</Link>
             <Link to="/admin/staff">Staff</Link>
             <Link to="/admin/users">Admin Users</Link>
+            <Link to="/admin/settings">Settings</Link>
           </nav>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
@@ -87,6 +89,7 @@ export function App() {
         <Route path="/admin/time-off" element={<ProtectedRoute><AdminLayout><AdminTimeOffPage /></AdminLayout></ProtectedRoute>} />
         <Route path="/admin/staff" element={<ProtectedRoute><AdminLayout><AdminStaffPage /></AdminLayout></ProtectedRoute>} />
         <Route path="/admin/users" element={<ProtectedRoute><AdminLayout><AdminUsersPage /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute><AdminLayout><AdminSettingsPage /></AdminLayout></ProtectedRoute>} />
         <Route path="/portal" element={<VolunteerPortalPage />} />
       </Routes>
     </Router>
