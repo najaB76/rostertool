@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { CountryFlag } from '../components/CountryFlag';
-import { formatDate } from '../utils/date-utils';
+import { useDateFormat } from '../context/DateFormatContext';
 
 export const AdminTimeOffPage: React.FC = () => {
+  const { formatDate } = useDateFormat();
   const [requests, setRequests] = useState<any[]>([]);
   const [filter, setFilter] = useState('Pending');
   const [loading, setLoading] = useState(false);

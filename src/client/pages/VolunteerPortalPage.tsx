@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TimeOffModal } from '../components/TimeOffModal';
 import { CountryFlag } from '../components/CountryFlag';
-import { formatDate } from '../utils/date-utils';
+import { useDateFormat } from '../context/DateFormatContext';
 
 export const VolunteerPortalPage: React.FC = () => {
+  const { formatDate } = useDateFormat();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   

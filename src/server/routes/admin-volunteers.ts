@@ -2,9 +2,9 @@ import { FastifyInstance } from 'fastify';
 import { volunteerService } from '../services/volunteer-service.js';
 
 export default async function adminVolunteersRoutes(fastify: FastifyInstance) {
-  fastify.get<{ Querystring: { status?: string } }>('/', async (request, _reply) => {
-    const { status } = request.query;
-    const vols = await volunteerService.getVolunteers(status);
+  fastify.get<{ Querystring: { status?: string; inHouseStart?: string; inHouseEnd?: string } }>('/', async (request, _reply) => {
+    const { status, inHouseStart, inHouseEnd } = request.query;
+    const vols = await volunteerService.getVolunteers(status, inHouseStart, inHouseEnd);
     return vols;
   });
 

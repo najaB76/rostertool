@@ -66,4 +66,16 @@ describe('Admin Headcount API', () => {
     const yPayload = JSON.parse(yResp.payload);
     expect(yPayload.length).toBe(365);
   });
+
+  it('GET /api/admin/headcount - dynamically calculates status from system settings', async () => {
+    const res = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/headcount',
+      query: { startDate: '2026-10-10', endDate: '2026-10-10' }
+    });
+    expect(res.statusCode).toBe(200);
+    const [day] = JSON.parse(res.payload);
+    expect(day.count).toBe(2);
+    expect(day.status).toBe('CRITICAL_LOW');
+  });
 });

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDateFormat } from '../context/DateFormatContext';
 
 export interface HeadcountDay {
   date: string;
@@ -29,6 +30,7 @@ export const HeadcountCalendar: React.FC<HeadcountCalendarProps> = ({
   isCompact = false,
   viewScale = 'month'
 }) => {
+  const { formatDate } = useDateFormat();
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'CRITICAL_LOW':
@@ -111,7 +113,7 @@ export const HeadcountCalendar: React.FC<HeadcountCalendarProps> = ({
                     return (
                       <div
                         key={d.date}
-                        title={`${d.date}: ${d.count} volunteers (${d.status.replace('_', ' ')})\nVolunteers: ${d.volunteers?.map(v => v.fullName).join(', ') || 'None'}`}
+                        title={`${formatDate(d.date)}: ${d.count} volunteers (${d.status.replace('_', ' ')})\nVolunteers: ${d.volunteers?.map(v => v.fullName).join(', ') || 'None'}`}
                         style={{
                           aspectRatio: '1',
                           backgroundColor: getStatusColor(d.status),
@@ -216,7 +218,7 @@ export const HeadcountCalendar: React.FC<HeadcountCalendarProps> = ({
             }}
             title={d.volunteers?.map(v => v.fullName).join(', ')}
           >
-            <div style={{ fontSize: '0.8rem', color: '#1e293b', fontWeight: 'bold' }}>{d.date}</div>
+            <div style={{ fontSize: '0.8rem', color: '#1e293b', fontWeight: 'bold' }}>{formatDate(d.date)}</div>
             <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#0f172a', lineHeight: 1 }}>{d.count}</div>
             <div style={{ fontSize: '0.7rem', fontWeight: '700', color: getStatusBorder(d.status), textTransform: 'uppercase', letterSpacing: '0.025em' }}>
               {d.status.replace('_', ' ')}

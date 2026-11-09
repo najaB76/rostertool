@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useDateFormat, DateFormatPreference } from '../context/DateFormatContext';
 
 export const AdminSettingsPage: React.FC = () => {
+  const { setDateFormatPreference } = useDateFormat();
   const [settings, setSettings] = useState({
     housekeepersPerDay: 3,
     housekeepingShiftsPerWeek: 4,
@@ -61,6 +63,9 @@ export const AdminSettingsPage: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to update settings');
       setSettings(data);
+      if (data.dateFormatPreference) {
+        setDateFormatPreference(data.dateFormatPreference as DateFormatPreference);
+      }
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: any) {

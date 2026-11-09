@@ -14,9 +14,7 @@ describe('Admin Staffing Timeline API', () => {
     await fastify.ready();
 
     // Clean up
-    await db.delete(volunteers).where(eq(volunteers.id, 'tl-vol-rec'));
-    await db.delete(volunteers).where(eq(volunteers.id, 'tl-vol-hk'));
-    await db.delete(volunteers).where(eq(volunteers.id, 'tl-vol-app'));
+    await db.delete(volunteers);
     await db.delete(staffUsers).where(eq(staffUsers.id, 'tl-staff-1'));
 
     // Seed reception staff

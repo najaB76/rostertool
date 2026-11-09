@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { formatDate } from '../utils/date-utils';
+import { useDateFormat } from '../context/DateFormatContext';
 
 interface StayHistoryModalProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ export const StayHistoryModal: React.FC<StayHistoryModalProps> = ({
   volunteer,
   onClose
 }) => {
+  const { formatDate } = useDateFormat();
   const [stays, setStays] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 

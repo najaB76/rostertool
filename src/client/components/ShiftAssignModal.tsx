@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CountryFlag } from './CountryFlag';
+import { snapToMonday, addDays } from '../utils/date-utils';
 
 export interface ShiftSlotInfo {
   shiftDefinitionId: string;
@@ -33,11 +34,18 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const weekStart = shift ? snapToMonday(shift.date) : '';
+  const weekEnd = weekStart ? addDays(weekStart, 6) : '';
+
   useEffect(() => {
     if (isOpen && shift) {
       setLoading(true);
+      const volsUrl = weekStart && weekEnd 
+        ? `/api/admin/volunteers?status=Active&inHouseStart=${weekStart}&inHouseEnd=${weekEnd}`
+        : '/api/admin/volunteers?status=Active';
+
       Promise.all([
-        fetch('/api/admin/volunteers?status=Active').then(r => r.json()),
+        fetch(volsUrl).then(r => r.json()),
         fetch('/api/admin/staff').then(r => r.json()),
         fetch('/api/admin/time-off?status=Approved').then(r => r.json()),
       ])
@@ -49,7 +57,7 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
         .catch(err => console.error('Error loading candidates:', err))
         .finally(() => setLoading(false));
     }
-  }, [isOpen, shift]);
+  }, [isOpen, shift, weekStart, weekEnd]);
 
   if (!isOpen || !shift) return null;
 
@@ -60,6 +68,14 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
     if (isReceptionShift && !v.isReceptionQualified && v.primaryRole !== 'Reception') {
       return false;
     }
+    // ONLY include volunteers who will be in-house during the roster week
+    if (weekEnd && v.arrivalDate && v.arrivalDate > weekEnd) {
+      return false;
+    }
+    if (weekStart && !v.noEndDate && v.departureDate && v.departureDate < weekStart) {
+      return false;
+    }
+
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return v.fullName.toLowerCase().includes(q) || v.nationality.toLowerCase().includes(q);

@@ -3,6 +3,7 @@ import Fastify, { FastifyInstance } from 'fastify';
 import adminVolunteersRoutes from '../../src/server/routes/admin-volunteers.js';
 import { db } from '../../src/server/db/client.js';
 import { volunteers, stayReviews } from '../../src/server/db/schema.js';
+import { eq } from 'drizzle-orm';
 
 describe('Admin Volunteers API', () => {
   let fastify: FastifyInstance;
@@ -138,5 +139,34 @@ describe('Admin Volunteers API', () => {
     expect(cancelRes.statusCode).toBe(200);
     const cancelledVol = JSON.parse(cancelRes.payload);
     expect(cancelledVol.status).toBe('Cancelled');
+  });
+
+  it('GET /api/admin/volunteers - filters volunteers by inHouseStart and inHouseEnd', async () => {
+    await db.insert(volunteers).values([
+      { id: 'v-current', fullName: 'Current Vol', nationality: 'FR', status: 'Active', arrivalDate: '2026-11-01', departureDate: '2026-11-30', magicLinkToken: 'tk-cur' },
+      { id: 'v-past', fullName: 'Past Vol', nationality: 'DE', status: 'Active', arrivalDate: '2026-10-01', departureDate: '2026-10-20', magicLinkToken: 'tk-past' },
+      { id: 'v-future', fullName: 'Future Vol', nationality: 'ES', status: 'Active', arrivalDate: '2026-12-01', departureDate: '2026-12-31', magicLinkToken: 'tk-fut' },
+    ]);
+
+    const res = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/volunteers',
+      query: {
+        status: 'Active',
+        inHouseStart: '2026-11-09',
+        inHouseEnd: '2026-11-15'
+      }
+    });
+
+    expect(res.statusCode).toBe(200);
+    const list = JSON.parse(res.payload);
+    const ids = list.map((v: any) => v.id);
+    expect(ids).toContain('v-current');
+    expect(ids).not.toContain('v-past');
+    expect(ids).not.toContain('v-future');
+
+    await db.delete(volunteers).where(eq(volunteers.id, 'v-current'));
+    await db.delete(volunteers).where(eq(volunteers.id, 'v-past'));
+    await db.delete(volunteers).where(eq(volunteers.id, 'v-future'));
   });
 });

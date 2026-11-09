@@ -4,9 +4,11 @@ import { CountryFlag } from '../components/CountryFlag';
 import { DepartureModal } from '../components/DepartureModal';
 import { ReactivateModal } from '../components/ReactivateModal';
 import { StayHistoryModal } from '../components/StayHistoryModal';
-import { formatDate, getBirthdayAlert, calculateAge } from '../utils/date-utils';
+import { getBirthdayAlert, calculateAge } from '../utils/date-utils';
+import { useDateFormat } from '../context/DateFormatContext';
 
 export const AdminVolunteersPage: React.FC = () => {
+  const { formatDate } = useDateFormat();
   const [volunteers, setVolunteers] = useState<any[]>([]);
   const [filter, setFilter] = useState('Active');
   const [isModalOpen, setIsModalOpen] = useState(false);

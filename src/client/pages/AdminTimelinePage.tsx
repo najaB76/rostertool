@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CountryFlag } from '../components/CountryFlag';
-import { snapToMonday, addDays, formatDate } from '../utils/date-utils';
+import { snapToMonday, addDays } from '../utils/date-utils';
+import { useDateFormat } from '../context/DateFormatContext';
 
 const COLOR_PALETTE = [
   '#f97316', // Orange
@@ -30,6 +31,7 @@ function getBarColor(id: string): string {
 }
 
 export const AdminTimelinePage: React.FC = () => {
+  const { formatDate } = useDateFormat();
   const [startDate, setStartDate] = useState(snapToMonday(new Date()));
   const [weeks, setWeeks] = useState(5);
   const [timelineData, setTimelineData] = useState<any>(null);

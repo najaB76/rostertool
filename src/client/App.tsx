@@ -13,6 +13,7 @@ import { LoginPage } from './pages/LoginPage';
 import { VolunteerPortalPage } from './pages/VolunteerPortalPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ChangePinModal } from './components/ChangePinModal';
+import { DateFormatProvider } from './context/DateFormatContext';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
@@ -81,21 +82,23 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
 export function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<ProtectedRoute><AdminLayout><AdminRosterPage /></AdminLayout></ProtectedRoute>} />
-        <Route path="/admin/roster" element={<ProtectedRoute><AdminLayout><AdminRosterPage /></AdminLayout></ProtectedRoute>} />
-        <Route path="/admin/timeline" element={<ProtectedRoute><AdminLayout><AdminTimelinePage /></AdminLayout></ProtectedRoute>} />
-        <Route path="/admin/volunteers" element={<ProtectedRoute><AdminLayout><AdminVolunteersPage /></AdminLayout></ProtectedRoute>} />
-        <Route path="/admin/headcount" element={<ProtectedRoute><AdminLayout><AdminHeadcountPage /></AdminLayout></ProtectedRoute>} />
-        <Route path="/admin/time-off" element={<ProtectedRoute><AdminLayout><AdminTimeOffPage /></AdminLayout></ProtectedRoute>} />
-        <Route path="/admin/staff" element={<ProtectedRoute><AdminLayout><AdminStaffPage /></AdminLayout></ProtectedRoute>} />
-        <Route path="/admin/users" element={<ProtectedRoute><AdminLayout><AdminUsersPage /></AdminLayout></ProtectedRoute>} />
-        <Route path="/admin/settings" element={<ProtectedRoute><AdminLayout><AdminSettingsPage /></AdminLayout></ProtectedRoute>} />
-        <Route path="/portal" element={<VolunteerPortalPage />} />
-      </Routes>
-    </Router>
+    <DateFormatProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<ProtectedRoute><AdminLayout><AdminRosterPage /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/roster" element={<ProtectedRoute><AdminLayout><AdminRosterPage /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/timeline" element={<ProtectedRoute><AdminLayout><AdminTimelinePage /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/volunteers" element={<ProtectedRoute><AdminLayout><AdminVolunteersPage /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/headcount" element={<ProtectedRoute><AdminLayout><AdminHeadcountPage /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/time-off" element={<ProtectedRoute><AdminLayout><AdminTimeOffPage /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/staff" element={<ProtectedRoute><AdminLayout><AdminStaffPage /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute><AdminLayout><AdminUsersPage /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/settings" element={<ProtectedRoute><AdminLayout><AdminSettingsPage /></AdminLayout></ProtectedRoute>} />
+          <Route path="/portal" element={<VolunteerPortalPage />} />
+        </Routes>
+      </Router>
+    </DateFormatProvider>
   );
 }
 

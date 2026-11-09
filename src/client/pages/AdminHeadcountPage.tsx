@@ -1,14 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { HeadcountCalendar, HeadcountDay } from '../components/HeadcountCalendar';
+import { useDateFormat } from '../context/DateFormatContext';
 
 type ViewScale = 'month' | 'quarter' | 'year';
 
 export const AdminHeadcountPage: React.FC = () => {
+  const { formatDate } = useDateFormat();
   const [days, setDays] = useState<HeadcountDay[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewScale, setViewScale] = useState<ViewScale>('month');
   const [isCompact, setIsCompact] = useState(false);
   const [refDate, setRefDate] = useState<Date>(new Date());
+  const [settings, setSettings] = useState({
+    headcountBaseline: 11,
+    headcountLowMin: 8,
+    headcountLowMax: 10,
+    headcountCritical: 8,
+    headcountOverbooked: 11
+  });
+
+  useEffect(() => {
+    fetch('/api/admin/settings')
+      .then(r => r.json())
+      .then(data => {
+        if (data) setSettings(data);
+      })
+      .catch(err => console.error('Failed to load settings:', err));
+  }, []);
 
   // Compute startDate and endDate based on refDate and viewScale
   const computeDateRange = (date: Date, scale: ViewScale) => {
@@ -164,7 +182,7 @@ export const AdminHeadcountPage: React.FC = () => {
         </div>
 
         <div style={{ fontSize: '0.85rem', color: '#71717a' }}>
-          {startDate} to {endDate}
+          {formatDate(startDate)} to {formatDate(endDate)}
         </div>
       </div>
 
@@ -172,10 +190,10 @@ export const AdminHeadcountPage: React.FC = () => {
       {!isCompact && (
         <div style={{ display: 'flex', gap: '1.5rem', padding: '0.75rem 1.25rem', background: '#fff', borderRadius: '8px', border: '1px solid #e4e4e7', fontSize: '0.85rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <strong>Capacity Benchmarks:</strong>
-          <span style={{ color: '#16a34a', fontWeight: '500' }}>• Baseline Target (12 volunteers)</span>
-          <span style={{ color: '#ca8a04', fontWeight: '500' }}>• Turnover Overlap (13–15)</span>
-          <span style={{ color: '#ea580c', fontWeight: '500' }}>• Low Staffing (10–11)</span>
-          <span style={{ color: '#dc2626', fontWeight: '500' }}>• Critical Alert (&lt;10 or &gt;15)</span>
+          <span style={{ color: '#16a34a', fontWeight: '500' }}>• Baseline Target ({settings.headcountBaseline} volunteers)</span>
+          <span style={{ color: '#ea580c', fontWeight: '500' }}>• Low Staffing ({settings.headcountLowMin}–{settings.headcountLowMax})</span>
+          <span style={{ color: '#dc2626', fontWeight: '500' }}>• Critical Alert (&lt;{settings.headcountCritical})</span>
+          <span style={{ color: '#ca8a04', fontWeight: '500' }}>• Overbooked (&gt;{settings.headcountOverbooked})</span>
         </div>
       )}
 

@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { RosterGrid } from '../components/RosterGrid';
 import { ShiftAssignModal, ShiftSlotInfo } from '../components/ShiftAssignModal';
 import { PrintableRosterView } from '../components/PrintableRosterView';
-import { snapToMonday, addDays, getSunday, formatDate } from '../utils/date-utils';
+import { snapToMonday, addDays, getSunday } from '../utils/date-utils';
+import { useDateFormat } from '../context/DateFormatContext';
 
 export const AdminRosterPage: React.FC = () => {
+  const { formatDate } = useDateFormat();
   const [rosterData, setRosterData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSlot, setSelectedSlot] = useState<ShiftSlotInfo | null>(null);

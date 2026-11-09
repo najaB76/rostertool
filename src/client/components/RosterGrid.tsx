@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShiftSlotCell } from './ShiftSlotCell';
+import { useDateFormat } from '../context/DateFormatContext';
 
 interface RosterGridProps {
   days: {
@@ -20,6 +21,7 @@ const getDayName = (dateStr: string) => {
 };
 
 export const RosterGrid: React.FC<RosterGridProps> = ({ days, onAssignClick, onRemoveClick }) => {
+  const { formatDate } = useDateFormat();
   if (!days || days.length === 0) return <div>No roster data available.</div>;
 
   return (
@@ -34,7 +36,7 @@ export const RosterGrid: React.FC<RosterGridProps> = ({ days, onAssignClick, onR
         <div key={day.date} className="roster-day-column" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <div style={{ textAlign: 'center', padding: '0.5rem', backgroundColor: '#e4e4e7', borderRadius: '4px' }}>
             <div style={{ fontWeight: 'bold' }}>{getDayName(day.date)}</div>
-            <div style={{ fontSize: '0.85rem', color: '#52525b' }}>{day.date}</div>
+            <div style={{ fontSize: '0.85rem', color: '#52525b' }}>{formatDate(day.date)}</div>
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

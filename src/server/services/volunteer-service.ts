@@ -4,7 +4,7 @@ import { eq, and, gt, desc } from 'drizzle-orm';
 import crypto from 'crypto';
 
 export class VolunteerService {
-  async getVolunteers(status?: string) {
+  async getVolunteers(status?: string, inHouseStart?: string, inHouseEnd?: string) {
     const query = db.select({
       volunteer: volunteers,
       sourceName: applicationSources.name
@@ -16,7 +16,16 @@ export class VolunteerService {
       query.where(eq(volunteers.status, status));
     }
 
-    const rows = await query;
+    let rows = await query;
+
+    if (inHouseStart && inHouseEnd) {
+      rows = rows.filter(r => {
+        const v = r.volunteer;
+        if (v.arrivalDate && v.arrivalDate > inHouseEnd) return false;
+        if (!v.noEndDate && v.departureDate && v.departureDate < inHouseStart) return false;
+        return true;
+      });
+    }
     const allStays = await db.select().from(volunteerStays);
 
     const staysByVol = new Map<string, any[]>();

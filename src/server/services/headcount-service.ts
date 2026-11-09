@@ -1,9 +1,18 @@
 import { db } from '../db/client.js';
-import { volunteers } from '../db/schema.js';
+import { volunteers, systemSettings } from '../db/schema.js';
 import { inArray, lte, gte, and, isNotNull } from 'drizzle-orm';
 
 export class HeadcountService {
   async getDailyHeadcounts(startDate: string, endDate: string) {
+    const settingsRows = await db.select().from(systemSettings);
+    const settingsMap = new Map(settingsRows.map(s => [s.key, s.value]));
+
+    const baseline = parseInt(settingsMap.get('headcount_baseline') || '11', 10);
+    const lowMin = parseInt(settingsMap.get('headcount_low_min') || '8', 10);
+    const lowMax = parseInt(settingsMap.get('headcount_low_max') || '10', 10);
+    const critical = parseInt(settingsMap.get('headcount_critical') || '8', 10);
+    const overbooked = parseInt(settingsMap.get('headcount_overbooked') || '11', 10);
+
     // We only care about volunteers who are Accepted or Active and have dates
     const vols = await db.select({
       id: volunteers.id,
@@ -35,10 +44,15 @@ export class HeadcountService {
 
       let status = 'OPTIMAL';
       const count = activeVols.length;
-      if (count < 10) status = 'CRITICAL_LOW';
-      else if (count >= 10 && count <= 11) status = 'LOW_WARNING';
-      else if (count >= 13 && count <= 15) status = 'OVERLAP_WARNING';
-      else if (count > 15) status = 'CRITICAL_HIGH';
+      if (count < critical) {
+        status = 'CRITICAL_LOW';
+      } else if (count >= lowMin && count <= lowMax) {
+        status = 'LOW_WARNING';
+      } else if (count > overbooked) {
+        status = 'CRITICAL_HIGH';
+      } else {
+        status = 'OPTIMAL';
+      }
 
       days.push({
         date: dateStr,
