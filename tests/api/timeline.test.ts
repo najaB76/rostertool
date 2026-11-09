@@ -104,10 +104,18 @@ describe('Admin Staffing Timeline API', () => {
     expect(body.housekeeping).toBeDefined();
     expect(body.applied).toBeDefined();
 
-    // Verify members in reception (staff + active reception vol)
+    // Verify members in reception (volunteers only, NO paid staff)
     const recIds = body.reception.map((r: any) => r.id);
-    expect(recIds).toContain('tl-staff-1');
+    expect(recIds).not.toContain('tl-staff-1');
     expect(recIds).toContain('tl-vol-rec');
+
+    // Verify no section contains paid staff
+    const allTimelineIds = [
+      ...body.reception.map((r: any) => r.id),
+      ...body.housekeeping.map((h: any) => h.id),
+      ...body.applied.map((a: any) => a.id)
+    ];
+    expect(allTimelineIds).not.toContain('tl-staff-1');
 
     // Verify members in housekeeping (active housekeeping vol)
     const hkIds = body.housekeeping.map((h: any) => h.id);
@@ -117,10 +125,10 @@ describe('Admin Staffing Timeline API', () => {
     const appIds = body.applied.map((a: any) => a.id);
     expect(appIds).toContain('tl-vol-app');
 
-    // Verify daily confirmed staff counts
+    // Verify daily confirmed counts (only confirmed volunteers, excludes paid staff)
     expect(body.dailyConfirmedCounts).toBeDefined();
-    // On 2026-11-03, Steven (staff), Sarah (rec), and Thijs (hk) are all on site => count should be >= 3
-    expect(body.dailyConfirmedCounts['2026-11-03']).toBeGreaterThanOrEqual(3);
+    // On 2026-11-03, Sarah (rec) and Thijs (hk) are on site, staff is excluded
+    expect(body.dailyConfirmedCounts['2026-11-03']).toBe(2);
 
     // Verify headcount thresholds are provided
     expect(body.headcountThresholds).toBeDefined();

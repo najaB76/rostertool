@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { volunteers, staffUsers, systemSettings } from '../db/schema.js';
-import { eq, inArray } from 'drizzle-orm';
+import { volunteers, systemSettings } from '../db/schema.js';
+import { inArray } from 'drizzle-orm';
 
 function calculateAge(dob: string | null | undefined): number | null {
   if (!dob) return null;
@@ -55,15 +55,12 @@ export default async function adminTimelineRoutes(fastify: FastifyInstance) {
       const timelineStart = days[0].date;
       const timelineEnd = days[days.length - 1].date;
 
-      // 1. Fetch Staff
-      const staffList = await db.select().from(staffUsers).where(eq(staffUsers.isActive, 1));
-
-      // 2. Fetch Volunteers: Active, Accepted, and Applied
+      // Fetch Volunteers: Active, Accepted, and Applied (Paid staff are excluded)
       const volList = await db.select().from(volunteers).where(
         inArray(volunteers.status, ['Active', 'Accepted', 'Applied'])
       );
 
-      // 3. Fetch System Settings for headcount thresholds
+      // Fetch System Settings for headcount thresholds
       const settingsRows = await db.select().from(systemSettings);
       const settingsMap = new Map(settingsRows.map(s => [s.key, s.value]));
 
@@ -75,7 +72,7 @@ export default async function adminTimelineRoutes(fastify: FastifyInstance) {
         overbooked: parseInt(settingsMap.get('headcount_overbooked') || '11', 10)
       };
 
-      // Helper to compute stay days for a person
+      // Helper to compute stay days for a volunteer
       const getActiveDates = (arrDate: string | null, depDate: string | null, noEnd: boolean) => {
         const activeDates: string[] = [];
         if (!arrDate) return activeDates;
@@ -91,31 +88,6 @@ export default async function adminTimelineRoutes(fastify: FastifyInstance) {
       const receptionEntries: any[] = [];
       const housekeepingEntries: any[] = [];
       const appliedEntries: any[] = [];
-
-      for (const s of staffList) {
-        const activeDates = days.map(d => d.date);
-        const entry = {
-          id: s.id,
-          isStaff: true,
-          gender: 'Unspecified',
-          preferredName: s.fullName,
-          fullName: s.fullName,
-          nationality: s.nationality,
-          age: null,
-          source: 'Permanent staff',
-          status: 'Active',
-          role: s.role.toLowerCase().includes('reception') ? 'Reception' : 'Housekeeping',
-          arrivalDate: null,
-          departureDate: null,
-          noEndDate: true,
-          activeDates
-        };
-        if (entry.role === 'Reception') {
-          receptionEntries.push(entry);
-        } else {
-          housekeepingEntries.push(entry);
-        }
-      }
 
       for (const v of volList) {
         const activeDates = getActiveDates(v.arrivalDate, v.departureDate, v.noEndDate);
@@ -150,11 +122,10 @@ export default async function adminTimelineRoutes(fastify: FastifyInstance) {
         }
       }
 
-      // Calculate Daily Confirmed Counts (Active & Accepted staff/volunteers)
+      // Calculate Daily Confirmed Counts (Active & Accepted volunteers only)
       const dailyConfirmedCounts: Record<string, number> = {};
       for (const day of days) {
         let count = 0;
-        for (const _s of staffList) count++;
         for (const v of volList) {
           if (v.status === 'Active' || v.status === 'Accepted') {
             if (v.arrivalDate && v.arrivalDate <= day.date && (v.noEndDate || !v.departureDate || v.departureDate >= day.date)) {

@@ -103,14 +103,9 @@ export const AdminTimelinePage: React.FC = () => {
         {/* Col B: Name with Flag */}
         <td style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #e2e8f0', whiteSpace: 'nowrap', fontWeight: '600', fontSize: '0.875rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span>{person.preferredName || person.fullName}</span>
             <CountryFlag countryCode={person.nationality} />
+            <span>{person.preferredName || person.fullName}</span>
           </div>
-        </td>
-
-        {/* Col C: Country */}
-        <td style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #e2e8f0', fontSize: '0.8rem', color: '#475569', whiteSpace: 'nowrap' }}>
-          {person.nationality}
         </td>
 
         {/* Col D: Age */}
@@ -252,7 +247,7 @@ export const AdminTimelinePage: React.FC = () => {
             <thead>
               {/* Row 1: Month Groups */}
               <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                <th colSpan={8} style={{ padding: '0.5rem', textAlign: 'left', borderRight: '2px solid #cbd5e1', fontWeight: 'bold', color: '#334155' }}>
+                <th colSpan={7} style={{ padding: '0.5rem', textAlign: 'left', borderRight: '2px solid #cbd5e1', fontWeight: 'bold', color: '#334155' }}>
                   Personnel Details
                 </th>
                 {monthGroups.map((mg, idx) => (
@@ -279,7 +274,6 @@ export const AdminTimelinePage: React.FC = () => {
               <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
                 <th style={{ padding: '0.4rem 0.5rem', width: '32px', borderRight: '1px solid #cbd5e1' }}>Sex</th>
                 <th style={{ padding: '0.4rem 0.6rem', textAlign: 'left', borderRight: '1px solid #cbd5e1' }}>Name</th>
-                <th style={{ padding: '0.4rem 0.6rem', textAlign: 'left', borderRight: '1px solid #cbd5e1' }}>Country</th>
                 <th style={{ padding: '0.4rem 0.5rem', width: '36px', borderRight: '1px solid #cbd5e1' }}>Age</th>
                 <th style={{ padding: '0.4rem 0.6rem', textAlign: 'left', borderRight: '1px solid #cbd5e1' }}>Source</th>
                 <th style={{ padding: '0.4rem 0.6rem', textAlign: 'left', borderRight: '1px solid #cbd5e1' }}>Status</th>
@@ -316,40 +310,40 @@ export const AdminTimelinePage: React.FC = () => {
             </thead>
 
             <tbody>
-              {/* SECTION 1: RECEPTION STAFF */}
+              {/* SECTION 1: RECEPTION VOLUNTEERS */}
               <tr style={{ backgroundColor: '#e2e8f0', borderTop: '2px solid #94a3b8', borderBottom: '1px solid #cbd5e1' }}>
-                <td colSpan={8 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#0f172a', letterSpacing: '0.025em' }}>
-                  🛎️ Reception
+                <td colSpan={7 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#0f172a', letterSpacing: '0.025em' }}>
+                  🛎️ Reception (Volunteers)
                 </td>
               </tr>
               {timelineData?.reception?.map(renderTimelineRow)}
               {timelineData?.reception?.length === 0 && (
                 <tr>
-                  <td colSpan={8 + days.length} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
-                    No reception staff currently scheduled in this window.
+                  <td colSpan={7 + days.length} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
+                    No reception volunteers currently scheduled in this window.
                   </td>
                 </tr>
               )}
 
-              {/* SECTION 2: HOUSEKEEPING STAFF */}
+              {/* SECTION 2: HOUSEKEEPING VOLUNTEERS */}
               <tr style={{ backgroundColor: '#e2e8f0', borderTop: '2px solid #94a3b8', borderBottom: '1px solid #cbd5e1' }}>
-                <td colSpan={8 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#0f172a', letterSpacing: '0.025em' }}>
-                  🧹 Housekeeping
+                <td colSpan={7 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#0f172a', letterSpacing: '0.025em' }}>
+                  🧹 Housekeeping (Volunteers)
                 </td>
               </tr>
               {timelineData?.housekeeping?.map(renderTimelineRow)}
               {timelineData?.housekeeping?.length === 0 && (
                 <tr>
-                  <td colSpan={8 + days.length} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
-                    No housekeeping staff currently scheduled in this window.
+                  <td colSpan={7 + days.length} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
+                    No housekeeping volunteers currently scheduled in this window.
                   </td>
                 </tr>
               )}
 
-              {/* SECTION 3: TOTAL CONFIRMED STAFF MEMBERS ROW */}
+              {/* SECTION 3: TOTAL CONFIRMED VOLUNTEERS ROW */}
               <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #64748b', borderBottom: '2px solid #64748b' }}>
                 <td
-                  colSpan={8}
+                  colSpan={7}
                   style={{
                     padding: '0.6rem 0.75rem',
                     textAlign: 'right',
@@ -360,7 +354,7 @@ export const AdminTimelinePage: React.FC = () => {
                     letterSpacing: '0.025em'
                   }}
                 >
-                  Total CONFIRMED Staff Members
+                  Total CONFIRMED Volunteers
                 </td>
                 {days.map((day) => {
                   const count = timelineData?.dailyConfirmedCounts?.[day.date] || 0;
@@ -381,7 +375,7 @@ export const AdminTimelinePage: React.FC = () => {
                         backgroundColor: style.bg,
                         color: style.text
                       }}
-                      title={`${count} confirmed staff members on ${day.date}`}
+                      title={`${count} confirmed volunteers on ${day.date}`}
                     >
                       {count}
                     </td>
@@ -391,14 +385,14 @@ export const AdminTimelinePage: React.FC = () => {
 
               {/* SECTION 4: APPLIED (UNCONFIRMED CANDIDATES) */}
               <tr style={{ backgroundColor: '#e2e8f0', borderTop: '2px solid #94a3b8', borderBottom: '1px solid #cbd5e1' }}>
-                <td colSpan={8 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#475569', letterSpacing: '0.025em' }}>
+                <td colSpan={7 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#475569', letterSpacing: '0.025em' }}>
                   📋 Unconfirmed (Applied Candidates)
                 </td>
               </tr>
               {timelineData?.applied?.map(renderTimelineRow)}
               {timelineData?.applied?.length === 0 && (
                 <tr>
-                  <td colSpan={8 + days.length} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
+                  <td colSpan={7 + days.length} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
                     No applied candidates in this date window.
                   </td>
                 </tr>
