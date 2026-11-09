@@ -13,6 +13,8 @@ export interface ShiftSlotInfo {
 interface ShiftAssignModalProps {
   isOpen: boolean;
   shift: ShiftSlotInfo | null;
+  volunteerWeeklyHours?: Record<string, number>;
+  targetWeeklyHours?: number;
   onAssign: (volunteerId: string | null, staffId: string | null) => void;
   onClose: () => void;
 }
@@ -20,6 +22,8 @@ interface ShiftAssignModalProps {
 export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
   isOpen,
   shift,
+  volunteerWeeklyHours = {},
+  targetWeeklyHours = 16,
   onAssign,
   onClose,
 }) => {
@@ -52,6 +56,10 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
   const isReceptionShift = shift.shiftName.toLowerCase().includes('reception');
 
   const filteredVolunteers = volunteers.filter(v => {
+    // When selecting receptionists, do not show non-reception trained volunteers
+    if (isReceptionShift && !v.isReceptionQualified && v.primaryRole !== 'Reception') {
+      return false;
+    }
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return v.fullName.toLowerCase().includes(q) || v.nationality.toLowerCase().includes(q);
@@ -62,13 +70,21 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
     return s.fullName.toLowerCase().includes(search.toLowerCase());
   });
 
-  const handleVolunteerAssign = (v: any, hasApprovedTimeOff: boolean) => {
+  const handleVolunteerAssign = (v: any, hasApprovedTimeOff: boolean, currentHours: number) => {
     if (hasApprovedTimeOff) {
       const ok = window.confirm(
         `Warning: ${v.fullName} has APPROVED TIME-OFF on ${shift.date}.\n\nAre you sure you want to override and assign them to this shift anyway?`
       );
       if (!ok) return;
     }
+
+    if (currentHours >= targetWeeklyHours) {
+      const ok = window.confirm(
+        `Notice: ${v.fullName} currently has ${currentHours} assigned hours this week (target is ${targetWeeklyHours}h).\n\nDo you want to override and assign this additional shift anyway (e.g. to recover a shift)?`
+      );
+      if (!ok) return;
+    }
+
     onAssign(v.id, null);
   };
 
@@ -114,7 +130,10 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                 {filteredVolunteers.map(v => {
                   const isAssignedToThisShift = shift.currentAssignments.some(a => a.volunteer?.id === v.id);
                   const hasApprovedTimeOff = timeOff.some(to => to.volunteerId === v.id && to.date === shift.date);
-                  const isDisqualifiedForReception = isReceptionShift && !v.isReceptionQualified && v.primaryRole !== 'Reception';
+                  const isBeforeArrival = v.arrivalDate && shift.date < v.arrivalDate;
+                  const isAfterDeparture = !v.noEndDate && v.departureDate && shift.date > v.departureDate;
+                  const isOutsideStayDates = isBeforeArrival || isAfterDeparture;
+                  const currentHours = volunteerWeeklyHours[v.id] || 0;
 
                   return (
                     <div
@@ -155,15 +174,27 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                           </span>
                         )}
 
+                        {/* Weekly assigned hours badge */}
+                        <span style={{ 
+                          fontSize: '0.7rem', 
+                          padding: '0.1rem 0.35rem', 
+                          borderRadius: '3px', 
+                          backgroundColor: currentHours >= targetWeeklyHours ? '#fee2e2' : '#f8fafc', 
+                          color: currentHours >= targetWeeklyHours ? '#991b1b' : '#64748b',
+                          border: '1px solid #e2e8f0'
+                        }}>
+                          {currentHours}h / {targetWeeklyHours}h
+                        </span>
+
                         {hasApprovedTimeOff && (
                           <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '3px', backgroundColor: '#fee2e2', color: '#991b1b', fontWeight: 'bold' }}>
                             ⚠️ Time Off Approved
                           </span>
                         )}
 
-                        {isDisqualifiedForReception && (
-                          <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '3px', backgroundColor: '#f3f4f6', color: '#6b7280' }}>
-                            Not Reception Qualified
+                        {isOutsideStayDates && (
+                          <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '3px', backgroundColor: '#fee2e2', color: '#991b1b' }}>
+                            {isBeforeArrival ? `Arrives ${v.arrivalDate}` : `Departs ${v.departureDate}`}
                           </span>
                         )}
                       </div>
@@ -171,7 +202,7 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                       <div>
                         {isAssignedToThisShift ? (
                           <span style={{ fontSize: '0.8rem', color: '#059669', fontWeight: '600' }}>✓ Assigned</span>
-                        ) : isDisqualifiedForReception ? (
+                        ) : isOutsideStayDates ? (
                           <button
                             disabled={true}
                             style={{
@@ -184,16 +215,16 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                               fontSize: '0.8rem',
                               fontWeight: '500'
                             }}
-                            title="Volunteer is not reception qualified"
+                            title={isBeforeArrival ? `Cannot assign: Volunteer arrives on ${v.arrivalDate}` : `Cannot assign: Volunteer departed on ${v.departureDate}`}
                           >
-                            Not Qualified
+                            Outside Stay
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleVolunteerAssign(v, hasApprovedTimeOff)}
+                            onClick={() => handleVolunteerAssign(v, hasApprovedTimeOff, currentHours)}
                             style={{
                               padding: '0.35rem 0.75rem',
-                              background: hasApprovedTimeOff ? '#f59e0b' : '#3b82f6',
+                              background: hasApprovedTimeOff ? '#f59e0b' : currentHours >= targetWeeklyHours ? '#6366f1' : '#3b82f6',
                               color: '#fff',
                               border: 'none',
                               borderRadius: '4px',
@@ -203,7 +234,7 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                             }}
                             title={hasApprovedTimeOff ? 'Approved time-off on this date - click to override' : undefined}
                           >
-                            {hasApprovedTimeOff ? 'Override Assign' : 'Assign'}
+                            {hasApprovedTimeOff ? 'Override Assign' : currentHours >= targetWeeklyHours ? 'Assign (+)' : 'Assign'}
                           </button>
                         )}
                       </div>
@@ -212,12 +243,14 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                 })}
 
                 {filteredVolunteers.length === 0 && (
-                  <div style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>No active volunteers available.</div>
+                  <div style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
+                    {isReceptionShift ? 'No reception-qualified active volunteers available.' : 'No active volunteers available.'}
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* Paid Staff Section (Available for Reception shifts or all shifts) */}
+            {/* Paid Staff Section (Available for Reception shifts) */}
             {isReceptionShift && (
               <div>
                 <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.025em' }}>
@@ -240,9 +273,12 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                           borderRadius: '6px'
                         }}
                       >
-                        <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <span style={{ fontWeight: '600', color: '#1e293b' }}>{s.fullName}</span>
-                          <span style={{ fontSize: '0.8rem', color: '#64748b', marginLeft: '0.5rem' }}>({s.role || 'Staff'})</span>
+                          <CountryFlag countryCode={s.nationality} />
+                          <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', backgroundColor: '#f1f5f9', color: '#475569' }}>
+                            {s.role}
+                          </span>
                         </div>
 
                         <div>
@@ -253,7 +289,7 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                               onClick={() => onAssign(null, s.id)}
                               style={{
                                 padding: '0.35rem 0.75rem',
-                                background: '#10b981',
+                                background: '#3b82f6',
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: '4px',
@@ -262,7 +298,7 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
                                 fontWeight: '500'
                               }}
                             >
-                              Assign Staff
+                              Assign
                             </button>
                           )}
                         </div>
@@ -274,15 +310,6 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
             )}
           </div>
         )}
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid #e4e4e7', paddingTop: '0.75rem' }}>
-          <button
-            onClick={onClose}
-            style={{ padding: '0.4rem 1rem', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
-          >
-            Close
-          </button>
-        </div>
       </div>
     </div>
   );

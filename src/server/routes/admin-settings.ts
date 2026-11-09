@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { systemSettings, shiftDefinitions } from '../db/schema.js';
-import { eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 
 function calculateDuration(start: string, end: string): number {
   const [sh, sm] = start.split(':').map(Number);
@@ -21,7 +21,13 @@ export default async function adminSettingsRoutes(fastify: FastifyInstance) {
       housekeepersPerDay: parseInt(map.get('housekeepers_per_day') || '3', 10),
       housekeepingShiftsPerWeek: parseInt(map.get('housekeeping_shifts_per_week') || '4', 10),
       housekeepingStartTime: map.get('housekeeping_start_time') || '10:00',
-      housekeepingEndTime: map.get('housekeeping_end_time') || '14:00'
+      housekeepingEndTime: map.get('housekeeping_end_time') || '14:00',
+      headcountBaseline: parseInt(map.get('headcount_baseline') || '11', 10),
+      headcountLowMin: parseInt(map.get('headcount_low_min') || '8', 10),
+      headcountLowMax: parseInt(map.get('headcount_low_max') || '10', 10),
+      headcountCritical: parseInt(map.get('headcount_critical') || '8', 10),
+      headcountOverbooked: parseInt(map.get('headcount_overbooked') || '11', 10),
+      dateFormatPreference: map.get('date_format_preference') || 'YYYY-MM-DD'
     };
   });
 
@@ -30,8 +36,25 @@ export default async function adminSettingsRoutes(fastify: FastifyInstance) {
     housekeepingShiftsPerWeek?: number;
     housekeepingStartTime?: string;
     housekeepingEndTime?: string;
-  } }>('/', async (request, reply) => {
-    const { housekeepersPerDay, housekeepingShiftsPerWeek, housekeepingStartTime, housekeepingEndTime } = request.body || {};
+    headcountBaseline?: number;
+    headcountLowMin?: number;
+    headcountLowMax?: number;
+    headcountCritical?: number;
+    headcountOverbooked?: number;
+    dateFormatPreference?: string;
+  } }>('/', async (request, _reply) => {
+    const { 
+      housekeepersPerDay, 
+      housekeepingShiftsPerWeek, 
+      housekeepingStartTime, 
+      housekeepingEndTime,
+      headcountBaseline,
+      headcountLowMin,
+      headcountLowMax,
+      headcountCritical,
+      headcountOverbooked,
+      dateFormatPreference
+    } = request.body || {};
 
     const updates: { key: string; value: string }[] = [];
 
@@ -46,6 +69,25 @@ export default async function adminSettingsRoutes(fastify: FastifyInstance) {
     }
     if (housekeepingEndTime) {
       updates.push({ key: 'housekeeping_end_time', value: housekeepingEndTime });
+    }
+
+    if (headcountBaseline !== undefined) {
+      updates.push({ key: 'headcount_baseline', value: String(headcountBaseline) });
+    }
+    if (headcountLowMin !== undefined) {
+      updates.push({ key: 'headcount_low_min', value: String(headcountLowMin) });
+    }
+    if (headcountLowMax !== undefined) {
+      updates.push({ key: 'headcount_low_max', value: String(headcountLowMax) });
+    }
+    if (headcountCritical !== undefined) {
+      updates.push({ key: 'headcount_critical', value: String(headcountCritical) });
+    }
+    if (headcountOverbooked !== undefined) {
+      updates.push({ key: 'headcount_overbooked', value: String(headcountOverbooked) });
+    }
+    if (dateFormatPreference) {
+      updates.push({ key: 'date_format_preference', value: dateFormatPreference });
     }
 
     for (const u of updates) {
@@ -80,7 +122,13 @@ export default async function adminSettingsRoutes(fastify: FastifyInstance) {
       housekeepersPerDay: minStaff,
       housekeepingShiftsPerWeek: parseInt(map.get('housekeeping_shifts_per_week') || '4', 10),
       housekeepingStartTime: startTime,
-      housekeepingEndTime: endTime
+      housekeepingEndTime: endTime,
+      headcountBaseline: parseInt(map.get('headcount_baseline') || '11', 10),
+      headcountLowMin: parseInt(map.get('headcount_low_min') || '8', 10),
+      headcountLowMax: parseInt(map.get('headcount_low_max') || '10', 10),
+      headcountCritical: parseInt(map.get('headcount_critical') || '8', 10),
+      headcountOverbooked: parseInt(map.get('headcount_overbooked') || '11', 10),
+      dateFormatPreference: map.get('date_format_preference') || 'YYYY-MM-DD'
     };
   });
 }

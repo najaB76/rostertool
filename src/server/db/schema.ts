@@ -12,6 +12,9 @@ export const volunteers = sqliteTable('volunteers', {
   status: text('status').notNull().default('Applied'), // Applied, Accepted, Active, Departed, Cancelled
   arrivalDate: text('arrival_date'),
   departureDate: text('departure_date'),
+  noEndDate: integer('no_end_date', { mode: 'boolean' }).notNull().default(false),
+  gender: text('gender').notNull().default('Unspecified'), // Male, Female, Neutral, Unspecified
+  source: text('source').notNull().default('Other'), // Worldpackers, HelpX, Former staff, Email, Friend, Direct, Other
   primaryRole: text('primary_role').notNull().default('Housekeeping'), // Housekeeping, Reception
   isReceptionQualified: integer('is_reception_qualified', { mode: 'boolean' }).notNull().default(false),
   isTrainer: integer('is_trainer', { mode: 'boolean' }).notNull().default(false),
@@ -24,6 +27,18 @@ export const volunteers = sqliteTable('volunteers', {
   updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const volunteerStays = sqliteTable('volunteer_stays', {
+  id: text('id').primaryKey(),
+  volunteerId: text('volunteer_id').notNull().references(() => volunteers.id, { onDelete: 'cascade' }),
+  arrivalDate: text('arrival_date').notNull(),
+  departureDate: text('departure_date'),
+  noEndDate: integer('no_end_date', { mode: 'boolean' }).notNull().default(false),
+  departureRating: integer('departure_rating'), // 1 to 5 stars
+  departureNotes: text('departure_notes'),
+  rehireStatus: text('rehire_status'), // 'Accept' | 'Possible' | 'Don\'t Accept'
+  createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
 export const applicationSources = sqliteTable('application_sources', {
   id: text('id').primaryKey(),
   name: text('name').notNull().unique(), // e.g. WorkAway, HelpEx, Worldpackers
@@ -33,8 +48,9 @@ export const applicationSources = sqliteTable('application_sources', {
 export const stayReviews = sqliteTable('stay_reviews', {
   id: text('id').primaryKey(),
   volunteerId: text('volunteer_id').notNull().references(() => volunteers.id, { onDelete: 'cascade' }),
-  futureAcceptance: text('future_acceptance').notNull(),
-  notes: text('notes'),
+  rating: integer('rating').notNull().default(5),
+  reviewNotes: text('review_notes'),
+  futureAcceptanceRecommendation: text('future_acceptance_recommendation').notNull().default('Accept'),
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 

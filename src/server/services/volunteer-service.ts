@@ -1,6 +1,6 @@
 import { db } from '../db/client.js';
-import { volunteers, applicationSources, stayReviews, shiftAssignments } from '../db/schema.js';
-import { eq, and, gt } from 'drizzle-orm';
+import { volunteers, applicationSources, stayReviews, shiftAssignments, volunteerStays } from '../db/schema.js';
+import { eq, and, gt, desc } from 'drizzle-orm';
 import crypto from 'crypto';
 
 export class VolunteerService {
@@ -17,10 +17,30 @@ export class VolunteerService {
     }
 
     const rows = await query;
-    return rows.map(r => ({
-      ...r.volunteer,
-      applicationSourceName: r.sourceName
-    }));
+    const allStays = await db.select().from(volunteerStays);
+
+    const staysByVol = new Map<string, any[]>();
+    for (const s of allStays) {
+      if (!staysByVol.has(s.volunteerId)) {
+        staysByVol.set(s.volunteerId, []);
+      }
+      staysByVol.get(s.volunteerId)!.push(s);
+    }
+
+    return rows.map(r => {
+      const volStays = (staysByVol.get(r.volunteer.id) || []).sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      const latestStayWithReview = volStays.find(s => s.departureRating !== null);
+
+      return {
+        ...r.volunteer,
+        applicationSourceName: r.sourceName,
+        latestRating: latestStayWithReview?.departureRating ?? null,
+        latestRehireStatus: latestStayWithReview?.rehireStatus ?? (r.volunteer.futureAcceptance || null),
+        staysCount: volStays.length
+      };
+    });
   }
 
   async getVolunteerById(id: string) {
@@ -34,7 +54,21 @@ export class VolunteerService {
     .get();
 
     if (!row) return null;
-    return { ...row.volunteer, applicationSourceName: row.sourceName };
+
+    const stays = await db.select().from(volunteerStays)
+      .where(eq(volunteerStays.volunteerId, id))
+      .orderBy(desc(volunteerStays.createdAt));
+
+    const latestStayWithReview = stays.find(s => s.departureRating !== null);
+
+    return {
+      ...row.volunteer,
+      applicationSourceName: row.sourceName,
+      latestRating: latestStayWithReview?.departureRating ?? null,
+      latestRehireStatus: latestStayWithReview?.rehireStatus ?? (row.volunteer.futureAcceptance || null),
+      staysCount: stays.length,
+      stays
+    };
   }
 
   async createVolunteer(data: any) {
@@ -61,13 +95,30 @@ export class VolunteerService {
       email: data.email,
       phone: data.phone,
       nationality: data.nationality,
-      arrivalDate: data.arrivalDate,
-      departureDate: data.departureDate,
+      gender: data.gender || 'Unspecified',
+      source: data.source || data.applicationSourceName || 'Other',
+      arrivalDate: data.arrivalDate || null,
+      departureDate: data.noEndDate ? null : (data.departureDate || null),
+      noEndDate: Boolean(data.noEndDate),
       primaryRole: data.primaryRole || 'Housekeeping',
+      isReceptionQualified: Boolean(data.isReceptionQualified),
+      isTrainer: Boolean(data.isTrainer),
+      inTraining: Boolean(data.inTraining),
       applicationSourceId: sourceId,
       magicLinkToken: token,
       notes: data.notes
     });
+
+    if (data.arrivalDate) {
+      await db.insert(volunteerStays).values({
+        id: crypto.randomUUID(),
+        volunteerId: id,
+        arrivalDate: data.arrivalDate,
+        departureDate: data.noEndDate ? null : (data.departureDate || null),
+        noEndDate: Boolean(data.noEndDate),
+        departureNotes: data.notes || null
+      });
+    }
 
     return this.getVolunteerById(id);
   }
@@ -92,9 +143,12 @@ export class VolunteerService {
       email: data.email,
       phone: data.phone,
       nationality: data.nationality,
+      gender: data.gender !== undefined ? data.gender : undefined,
+      source: data.source !== undefined ? data.source : undefined,
       status: data.status,
-      arrivalDate: data.arrivalDate,
-      departureDate: data.departureDate,
+      arrivalDate: data.arrivalDate !== undefined ? data.arrivalDate : undefined,
+      departureDate: data.noEndDate ? null : (data.departureDate !== undefined ? data.departureDate : undefined),
+      noEndDate: data.noEndDate !== undefined ? Boolean(data.noEndDate) : undefined,
       primaryRole: data.primaryRole,
       isReceptionQualified: data.isReceptionQualified,
       isTrainer: data.isTrainer,
@@ -119,17 +173,32 @@ export class VolunteerService {
     return await db.select().from(applicationSources).where(eq(applicationSources.isActive, 1));
   }
 
-  async acceptVolunteer(id: string, data: { arrivalDate: string; departureDate: string; primaryRole?: string; notes?: string }) {
+  async acceptVolunteer(id: string, data: { arrivalDate: string; departureDate?: string; noEndDate?: boolean; primaryRole?: string; notes?: string }) {
     const updateData: any = {
       status: 'Accepted',
       arrivalDate: data.arrivalDate,
-      departureDate: data.departureDate,
+      departureDate: data.noEndDate ? null : (data.departureDate || null),
+      noEndDate: Boolean(data.noEndDate),
       updatedAt: new Date().toISOString()
     };
     if (data.primaryRole) updateData.primaryRole = data.primaryRole;
     if (data.notes !== undefined) updateData.notes = data.notes;
 
     await db.update(volunteers).set(updateData).where(eq(volunteers.id, id));
+
+    // Ensure stay record exists
+    const existingStays = await db.select().from(volunteerStays).where(eq(volunteerStays.volunteerId, id));
+    if (existingStays.length === 0) {
+      await db.insert(volunteerStays).values({
+        id: crypto.randomUUID(),
+        volunteerId: id,
+        arrivalDate: data.arrivalDate,
+        departureDate: data.noEndDate ? null : (data.departureDate || null),
+        noEndDate: Boolean(data.noEndDate),
+        departureNotes: data.notes || null
+      });
+    }
+
     return this.getVolunteerById(id);
   }
 
@@ -148,14 +217,12 @@ export class VolunteerService {
       updatedNotes = updatedNotes ? `${updatedNotes}\n[Cancellation]: ${cancellationReason}` : `[Cancellation]: ${cancellationReason}`;
     }
 
-    // 1. Update status
     await db.update(volunteers).set({
       status: 'Cancelled',
       notes: updatedNotes,
       updatedAt: new Date().toISOString()
     }).where(eq(volunteers.id, id));
 
-    // 2. Unassign any future shifts
     const today = new Date().toISOString().split('T')[0];
     await db.delete(shiftAssignments).where(and(eq(shiftAssignments.volunteerId, id), gt(shiftAssignments.date, today)));
 
@@ -168,26 +235,90 @@ export class VolunteerService {
     return token;
   }
 
-  async departVolunteer(id: string, rating: number, reviewNotes: string, futureAcceptanceRecommendation: string) {
-    // 1. Update status
+  async departVolunteer(id: string, departureRating: number, departureNotes?: string, rehireStatus: string = 'Accept') {
+    const vol = await db.select().from(volunteers).where(eq(volunteers.id, id)).get();
+    if (!vol) throw new Error('Volunteer not found');
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // 1. Update volunteer status
     await db.update(volunteers).set({
       status: 'Departed',
-      futureAcceptance: futureAcceptanceRecommendation,
+      futureAcceptance: rehireStatus,
       updatedAt: new Date().toISOString()
     }).where(eq(volunteers.id, id));
 
     // 2. Unassign future shifts
-    const today = new Date().toISOString().split('T')[0];
     await db.delete(shiftAssignments).where(and(eq(shiftAssignments.volunteerId, id), gt(shiftAssignments.date, today)));
 
-    // 3. Create review
+    // 3. Update or create stay review in volunteer_stays
+    const latestStay = await db.select().from(volunteerStays)
+      .where(eq(volunteerStays.volunteerId, id))
+      .orderBy(desc(volunteerStays.createdAt))
+      .get();
+
+    if (latestStay) {
+      await db.update(volunteerStays).set({
+        departureRating,
+        departureNotes: departureNotes || null,
+        rehireStatus,
+        departureDate: latestStay.departureDate || today
+      }).where(eq(volunteerStays.id, latestStay.id));
+    } else {
+      await db.insert(volunteerStays).values({
+        id: crypto.randomUUID(),
+        volunteerId: id,
+        arrivalDate: vol.arrivalDate || today,
+        departureDate: vol.departureDate || today,
+        noEndDate: vol.noEndDate || false,
+        departureRating,
+        departureNotes: departureNotes || null,
+        rehireStatus
+      });
+    }
+
+    // Keep legacy stayReviews populated for backward compatibility
     await db.insert(stayReviews).values({
       id: crypto.randomUUID(),
       volunteerId: id,
-      rating,
-      reviewNotes,
-      futureAcceptanceRecommendation
+      rating: departureRating,
+      reviewNotes: departureNotes || '',
+      futureAcceptanceRecommendation: rehireStatus
     });
+
+    return this.getVolunteerById(id);
+  }
+
+  async reactivateVolunteer(id: string, data: { arrivalDate: string; departureDate?: string | null; noEndDate?: boolean }) {
+    const vol = await db.select().from(volunteers).where(eq(volunteers.id, id)).get();
+    if (!vol) throw new Error('Volunteer not found');
+
+    const updateData: any = {
+      status: 'Active',
+      arrivalDate: data.arrivalDate,
+      departureDate: data.noEndDate ? null : (data.departureDate || null),
+      noEndDate: Boolean(data.noEndDate),
+      updatedAt: new Date().toISOString()
+    };
+
+    await db.update(volunteers).set(updateData).where(eq(volunteers.id, id));
+
+    // Insert new stay record
+    await db.insert(volunteerStays).values({
+      id: crypto.randomUUID(),
+      volunteerId: id,
+      arrivalDate: data.arrivalDate,
+      departureDate: data.noEndDate ? null : (data.departureDate || null),
+      noEndDate: Boolean(data.noEndDate)
+    });
+
+    return this.getVolunteerById(id);
+  }
+
+  async getVolunteerStays(volunteerId: string) {
+    return await db.select().from(volunteerStays)
+      .where(eq(volunteerStays.volunteerId, volunteerId))
+      .orderBy(desc(volunteerStays.createdAt));
   }
 }
 

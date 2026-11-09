@@ -15,7 +15,9 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
     email: volunteer?.email || '',
     phone: volunteer?.phone || '',
     nationality: volunteer?.nationality || '',
-    applicationSourceName: volunteer?.applicationSourceName || 'WorkAway',
+    gender: volunteer?.gender || 'Unspecified',
+    noEndDate: volunteer?.noEndDate || false,
+    applicationSourceName: volunteer?.applicationSourceName || volunteer?.source || 'WorkAway',
     arrivalDate: volunteer?.arrivalDate || '',
     departureDate: volunteer?.departureDate || '',
     primaryRole: volunteer?.primaryRole || 'Housekeeping',
@@ -93,19 +95,19 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
             />
           </label>
 
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <strong>Preferred Name (Optional)</strong>
-              <input 
-                type="text" 
-                name="preferredName" 
-                value={formData.preferredName} 
-                onChange={handleChange} 
-                placeholder="e.g. Mari"
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
-              />
-            </label>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <strong>Preferred Name (Optional)</strong>
+            <input 
+              type="text" 
+              name="preferredName" 
+              value={formData.preferredName} 
+              onChange={handleChange} 
+              placeholder="e.g. Mari"
+              style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+            />
+          </label>
 
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
             <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               <strong>Date of Birth</strong>
               <input 
@@ -115,6 +117,21 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
                 onChange={handleChange} 
                 style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
               />
+            </label>
+
+            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <strong>Gender</strong>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', backgroundColor: '#fff', boxSizing: 'border-box' }}
+              >
+                <option value="Unspecified">⚪ Unspecified</option>
+                <option value="Male">♂ Male</option>
+                <option value="Female">♀ Female</option>
+                <option value="Neutral">⚧ Neutral</option>
+              </select>
             </label>
           </div>
 
@@ -203,19 +220,31 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
                 name="arrivalDate" 
                 value={formData.arrivalDate} 
                 onChange={handleChange} 
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8' }} 
+                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
               />
             </label>
-            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <strong>Departure Date</strong>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <strong>Departure Date</strong>
+                <label style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    name="noEndDate" 
+                    checked={formData.noEndDate} 
+                    onChange={handleChange} 
+                  />
+                  No end date
+                </label>
+              </div>
               <input 
                 type="date" 
                 name="departureDate" 
-                value={formData.departureDate} 
+                value={formData.noEndDate ? '' : formData.departureDate} 
+                disabled={formData.noEndDate}
                 onChange={handleChange} 
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8' }} 
+                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', backgroundColor: formData.noEndDate ? '#f4f4f5' : '#fff', cursor: formData.noEndDate ? 'not-allowed' : 'text', boxSizing: 'border-box' }} 
               />
-            </label>
+            </div>
           </div>
 
           {capacityPreview.length > 0 && (

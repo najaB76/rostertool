@@ -42,9 +42,11 @@ describe('Admin Settings API', () => {
     expect(body.housekeepingShiftsPerWeek).toBeGreaterThanOrEqual(1);
     expect(body.housekeepingStartTime).toBeDefined();
     expect(body.housekeepingEndTime).toBeDefined();
+    expect(body.headcountBaseline).toBe(11);
+    expect(body.dateFormatPreference).toBe('YYYY-MM-DD');
   });
 
-  it('POST /api/admin/settings - updates settings and syncs shift definition', async () => {
+  it('POST /api/admin/settings - updates settings, headcount thresholds, date format and syncs shift definition', async () => {
     const res = await fastify.inject({
       method: 'POST',
       url: '/api/admin/settings',
@@ -52,7 +54,13 @@ describe('Admin Settings API', () => {
         housekeepersPerDay: 5,
         housekeepingShiftsPerWeek: 4,
         housekeepingStartTime: '09:00',
-        housekeepingEndTime: '13:00'
+        housekeepingEndTime: '13:00',
+        headcountBaseline: 12,
+        headcountLowMin: 9,
+        headcountLowMax: 11,
+        headcountCritical: 9,
+        headcountOverbooked: 12,
+        dateFormatPreference: 'DD-MM-YYYY'
       }
     });
     expect(res.statusCode).toBe(200);
@@ -60,6 +68,8 @@ describe('Admin Settings API', () => {
     expect(body.housekeepersPerDay).toBe(5);
     expect(body.housekeepingStartTime).toBe('09:00');
     expect(body.housekeepingEndTime).toBe('13:00');
+    expect(body.headcountBaseline).toBe(12);
+    expect(body.dateFormatPreference).toBe('DD-MM-YYYY');
 
     // Verify shiftDefinitions was updated
     const hkDef = await db.select().from(shiftDefinitions).where(eq(shiftDefinitions.id, 'test-hk-def')).get();
@@ -68,7 +78,7 @@ describe('Admin Settings API', () => {
     expect(hkDef?.endTime).toBe('13:00');
     expect(hkDef?.durationHours).toBe(4.0);
 
-    // Reset back to 3
+    // Reset back to baseline 11 and YYYY-MM-DD
     await fastify.inject({
       method: 'POST',
       url: '/api/admin/settings',
@@ -76,7 +86,13 @@ describe('Admin Settings API', () => {
         housekeepersPerDay: 3,
         housekeepingShiftsPerWeek: 4,
         housekeepingStartTime: '10:00',
-        housekeepingEndTime: '14:00'
+        housekeepingEndTime: '14:00',
+        headcountBaseline: 11,
+        headcountLowMin: 8,
+        headcountLowMax: 10,
+        headcountCritical: 8,
+        headcountOverbooked: 11,
+        dateFormatPreference: 'YYYY-MM-DD'
       }
     });
   });

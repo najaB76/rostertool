@@ -26,6 +26,50 @@ try {
     if (!volCols.includes('date_of_birth')) {
       sqlite.exec("ALTER TABLE volunteers ADD COLUMN date_of_birth TEXT;");
     }
+    if (!volCols.includes('gender')) {
+      sqlite.exec("ALTER TABLE volunteers ADD COLUMN gender TEXT DEFAULT 'Unspecified' NOT NULL;");
+    }
+    if (!volCols.includes('source')) {
+      sqlite.exec("ALTER TABLE volunteers ADD COLUMN source TEXT DEFAULT 'Other' NOT NULL;");
+    }
+    if (!volCols.includes('no_end_date')) {
+      sqlite.exec("ALTER TABLE volunteers ADD COLUMN no_end_date INTEGER DEFAULT 0 NOT NULL;");
+    }
+  }
+
+  // Create volunteer_stays table if not exists
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS volunteer_stays (
+      id TEXT PRIMARY KEY,
+      volunteer_id TEXT NOT NULL REFERENCES volunteers(id) ON DELETE CASCADE,
+      arrival_date TEXT NOT NULL,
+      departure_date TEXT,
+      no_end_date INTEGER NOT NULL DEFAULT 0,
+      departure_rating INTEGER,
+      departure_notes TEXT,
+      rehire_status TEXT,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Backfill volunteer_stays from existing volunteers if empty
+  const staysCount = sqlite.prepare('SELECT count(*) as count FROM volunteer_stays').get() as { count: number };
+  if (staysCount && staysCount.count === 0) {
+    const existingVols = sqlite.prepare("SELECT id, arrival_date, departure_date, no_end_date, notes FROM volunteers WHERE arrival_date IS NOT NULL").all() as any[];
+    const insertStay = sqlite.prepare(`
+      INSERT INTO volunteer_stays (id, volunteer_id, arrival_date, departure_date, no_end_date, departure_notes)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+    for (const v of existingVols) {
+      insertStay.run(
+        `stay-${v.id}-${Date.now()}`,
+        v.id,
+        v.arrival_date,
+        v.departure_date || null,
+        v.no_end_date || 0,
+        v.notes || null
+      );
+    }
   }
 
   // Create admin_users table if not exists
@@ -73,7 +117,13 @@ try {
     { key: 'housekeepers_per_day', value: '3' },
     { key: 'housekeeping_shifts_per_week', value: '4' },
     { key: 'housekeeping_start_time', value: '10:00' },
-    { key: 'housekeeping_end_time', value: '14:00' }
+    { key: 'housekeeping_end_time', value: '14:00' },
+    { key: 'headcount_baseline', value: '11' },
+    { key: 'headcount_low_min', value: '8' },
+    { key: 'headcount_low_max', value: '10' },
+    { key: 'headcount_critical', value: '8' },
+    { key: 'headcount_overbooked', value: '11' },
+    { key: 'date_format_preference', value: 'YYYY-MM-DD' }
   ];
 
   const insertSetting = sqlite.prepare(`

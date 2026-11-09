@@ -99,7 +99,9 @@ export const VolunteerPortalPage: React.FC = () => {
             {data.myUpcomingShifts.map((shift: any) => (
               <div key={shift.id} style={{ padding: '1rem', background: '#fff', borderRadius: '8px', border: '1px solid #e4e4e7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontWeight: 'bold', color: '#18181b' }}>{formatDate(shift.date)}</div>
+                  <div style={{ fontWeight: 'bold', color: '#18181b' }}>
+                    {new Date(shift.date).toLocaleDateString(undefined, { weekday: 'long' })}, {formatDate(shift.date)}
+                  </div>
                   <div style={{ color: '#52525b', fontSize: '0.9rem' }}>{shift.shiftName}</div>
                 </div>
                 <div style={{ fontWeight: 'bold', color: '#3b82f6' }}>
@@ -118,7 +120,9 @@ export const VolunteerPortalPage: React.FC = () => {
             {data.myTimeOffRequests.map((req: any) => (
               <div key={req.id} style={{ padding: '1rem', background: '#fff', borderRadius: '8px', border: '1px solid #e4e4e7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontWeight: 'bold', color: '#18181b' }}>{formatDate(req.date)}</div>
+                  <div style={{ fontWeight: 'bold', color: '#18181b' }}>
+                    {new Date(req.date).toLocaleDateString(undefined, { weekday: 'long' })}, {formatDate(req.date)}
+                  </div>
                   <div style={{ color: '#71717a', fontSize: '0.85rem' }}>{req.reason || 'No reason provided'}</div>
                 </div>
 

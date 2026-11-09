@@ -8,6 +8,7 @@ import { AdminTimeOffPage } from './pages/AdminTimeOffPage';
 import { AdminStaffPage } from './pages/AdminStaffPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
 import { AdminSettingsPage } from './pages/AdminSettingsPage';
+import { AdminTimelinePage } from './pages/AdminTimelinePage';
 import { LoginPage } from './pages/LoginPage';
 import { VolunteerPortalPage } from './pages/VolunteerPortalPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -30,6 +31,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           <h1 style={{ margin: 0, fontSize: '1.25rem' }}>Hostel Roster</h1>
           <nav style={{ display: 'flex', gap: '1rem' }}>
             <Link to="/admin/roster">Weekly Roster</Link>
+            <Link to="/admin/timeline">Timeline</Link>
             <Link to="/admin/volunteers">Volunteers</Link>
             <Link to="/admin/headcount">Headcount</Link>
             <Link to="/admin/time-off">Time Off</Link>
@@ -84,6 +86,7 @@ export function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<ProtectedRoute><AdminLayout><AdminRosterPage /></AdminLayout></ProtectedRoute>} />
         <Route path="/admin/roster" element={<ProtectedRoute><AdminLayout><AdminRosterPage /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/timeline" element={<ProtectedRoute><AdminLayout><AdminTimelinePage /></AdminLayout></ProtectedRoute>} />
         <Route path="/admin/volunteers" element={<ProtectedRoute><AdminLayout><AdminVolunteersPage /></AdminLayout></ProtectedRoute>} />
         <Route path="/admin/headcount" element={<ProtectedRoute><AdminLayout><AdminHeadcountPage /></AdminLayout></ProtectedRoute>} />
         <Route path="/admin/time-off" element={<ProtectedRoute><AdminLayout><AdminTimeOffPage /></AdminLayout></ProtectedRoute>} />

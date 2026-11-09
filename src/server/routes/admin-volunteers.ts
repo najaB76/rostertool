@@ -26,16 +26,51 @@ export default async function adminVolunteersRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.post<{ Params: { id: string }, Body: { rating: number; reviewNotes: string; futureAcceptanceRecommendation: string } }>(
+  fastify.post<{ Params: { id: string }, Body: { 
+    departureRating?: number; 
+    departureNotes?: string; 
+    rehireStatus?: string;
+    rating?: number;
+    reviewNotes?: string;
+    futureAcceptanceRecommendation?: string;
+  } }>(
     '/:id/depart',
     async (request, reply) => {
-      const { rating, reviewNotes, futureAcceptanceRecommendation } = request.body;
-      if (!rating || !futureAcceptanceRecommendation) {
-        return reply.status(400).send({ error: 'rating and futureAcceptanceRecommendation required' });
+      const rating = request.body.departureRating ?? request.body.rating;
+      const notes = request.body.departureNotes ?? request.body.reviewNotes ?? '';
+      const rehire = request.body.rehireStatus ?? request.body.futureAcceptanceRecommendation ?? 'Accept';
+
+      if (!rating) {
+        return reply.status(400).send({ error: 'departureRating (1-5) is required' });
       }
       try {
-        await volunteerService.departVolunteer(request.params.id, rating, reviewNotes, futureAcceptanceRecommendation);
+        await volunteerService.departVolunteer(request.params.id, rating, notes, rehire);
         return { success: true };
+      } catch (e: any) {
+        return reply.status(400).send({ error: e.message });
+      }
+    }
+  );
+
+  fastify.get<{ Params: { id: string } }>('/:id/stays', async (request, reply) => {
+    try {
+      const stays = await volunteerService.getVolunteerStays(request.params.id);
+      return stays;
+    } catch (e: any) {
+      return reply.status(400).send({ error: e.message });
+    }
+  });
+
+  fastify.post<{ Params: { id: string }, Body: { arrivalDate: string; departureDate?: string | null; noEndDate?: boolean } }>(
+    '/:id/reactivate',
+    async (request, reply) => {
+      const { arrivalDate, departureDate, noEndDate } = request.body;
+      if (!arrivalDate) {
+        return reply.status(400).send({ error: 'arrivalDate is required to re-activate a volunteer' });
+      }
+      try {
+        const vol = await volunteerService.reactivateVolunteer(request.params.id, { arrivalDate, departureDate, noEndDate });
+        return vol;
       } catch (e: any) {
         return reply.status(400).send({ error: e.message });
       }

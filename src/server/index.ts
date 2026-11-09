@@ -8,6 +8,8 @@ import adminVolunteersRoutes from './routes/admin-volunteers.js';
 import adminHeadcountRoutes from './routes/admin-headcount.js';
 import adminTimeOffRoutes from './routes/admin-timeoff.js';
 import adminStaffRoutes from './routes/admin-staff.js';
+import adminTimelineRoutes from './routes/admin-timeline.js';
+import adminBackupRoutes from './routes/admin-backup.js';
 import portalRoutes from './routes/portal.js';
 import authRoutes from './routes/auth.js';
 import adminUsersRoutes from './routes/admin-users.js';
@@ -29,6 +31,8 @@ await fastify.register(adminVolunteersRoutes, { prefix: '/api/admin/volunteers' 
 await fastify.register(adminHeadcountRoutes, { prefix: '/api/admin/headcount' });
 await fastify.register(adminTimeOffRoutes, { prefix: '/api/admin/time-off' });
 await fastify.register(adminStaffRoutes, { prefix: '/api/admin/staff' });
+await fastify.register(adminTimelineRoutes, { prefix: '/api/admin/timeline' });
+await fastify.register(adminBackupRoutes, { prefix: '/api/admin/backup' });
 await fastify.register(portalRoutes, { prefix: '/api/portal' });
 
 // In production, serve the Vite static assets

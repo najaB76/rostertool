@@ -33,6 +33,22 @@ export const AdminRosterPage: React.FC = () => {
   const handleNextWeek = () => setWeekStartDate(prev => addDays(prev, 7));
   const handleThisWeek = () => setWeekStartDate(snapToMonday(new Date()));
 
+  const volunteerWeeklyHours = React.useMemo(() => {
+    const map: Record<string, number> = {};
+    if (!rosterData?.days) return map;
+    for (const day of rosterData.days) {
+      for (const s of day.shifts || []) {
+        const hours = s.shiftDefinition?.durationHours || 4;
+        for (const a of s.assignments || []) {
+          if (a.volunteer?.id) {
+            map[a.volunteer.id] = (map[a.volunteer.id] || 0) + hours;
+          }
+        }
+      }
+    }
+    return map;
+  }, [rosterData]);
+
   const handleAssignClick = (
     shiftDefinitionId: string,
     date: string,
@@ -180,6 +196,7 @@ export const AdminRosterPage: React.FC = () => {
         <ShiftAssignModal
           isOpen={!!selectedSlot}
           shift={selectedSlot}
+          volunteerWeeklyHours={volunteerWeeklyHours}
           onAssign={handleCandidateAssign}
           onClose={() => setSelectedSlot(null)}
         />

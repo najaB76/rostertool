@@ -107,6 +107,24 @@ export class RosterService {
     }
 
     if (volunteerId) {
+      const vol = await db.select().from(volunteers).where(eq(volunteers.id, volunteerId)).get();
+      if (!vol) throw new Error('Volunteer not found');
+
+      // Check stay date boundaries
+      if (vol.arrivalDate && date < vol.arrivalDate) {
+        throw new Error(`Cannot assign shift: Shift date (${date}) is before volunteer arrival date (${vol.arrivalDate}).`);
+      }
+      if (!vol.noEndDate && vol.departureDate && date > vol.departureDate) {
+        throw new Error(`Cannot assign shift: Shift date (${date}) is after volunteer departure date (${vol.departureDate}).`);
+      }
+
+      // Check reception qualification
+      const def = await db.select().from(shiftDefinitions).where(eq(shiftDefinitions.id, shiftDefinitionId)).get();
+      const isReception = def?.name?.toLowerCase().includes('reception');
+      if (isReception && !vol.isReceptionQualified && vol.primaryRole !== 'Reception') {
+        throw new Error('Cannot assign shift: Volunteer is not reception qualified.');
+      }
+
       const existing = await db.select().from(shiftAssignments).where(and(
         eq(shiftAssignments.shiftDefinitionId, shiftDefinitionId),
         eq(shiftAssignments.date, date),
