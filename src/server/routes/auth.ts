@@ -7,18 +7,44 @@ import { eq, sql } from 'drizzle-orm';
 export interface AdminSession {
   userId: string;
   username: string;
+  lastActiveAt: number;
 }
+
+// 30 minutes inactivity timeout
+export const SESSION_INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
 
 // In-memory map of active authentication tokens -> session details
 export const activeSessions = new Map<string, AdminSession>();
 
 export function getSessionFromToken(token: string | undefined): AdminSession | null {
   if (!token) return null;
-  return activeSessions.get(token) || null;
+  const session = activeSessions.get(token);
+  if (!session) return null;
+
+  // Check inactivity timeout
+  const now = Date.now();
+  if (now - session.lastActiveAt > SESSION_INACTIVITY_TIMEOUT_MS) {
+    activeSessions.delete(token);
+    return null;
+  }
+
+  // Refresh sliding expiration
+  session.lastActiveAt = now;
+  return session;
 }
 
 export function isValidAdminToken(token: string | undefined): boolean {
   return !!getSessionFromToken(token);
+}
+
+export async function requireAdminAuth(request: any, reply: any) {
+  const authHeader = request.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : (request.query as any)?.token;
+  const session = getSessionFromToken(token);
+  if (!session) {
+    return reply.status(401).send({ error: 'Unauthorized: Session expired or invalid' });
+  }
+  request.session = session;
 }
 
 export default async function authRoutes(fastify: FastifyInstance) {
@@ -41,7 +67,11 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
     if (user && user.pin === cleanPin) {
       const token = crypto.randomBytes(32).toString('hex');
-      const session: AdminSession = { userId: user.id, username: user.username };
+      const session: AdminSession = { 
+        userId: user.id, 
+        username: user.username,
+        lastActiveAt: Date.now()
+      };
       activeSessions.set(token, session);
 
       return reply.status(200).send({
@@ -61,10 +91,10 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
     const session = getSessionFromToken(token);
     if (session) {
-      return { valid: true, user: session };
+      return { valid: true, user: { userId: session.userId, username: session.username } };
     }
 
-    return reply.status(401).send({ valid: false, error: 'Unauthorized' });
+    return reply.status(401).send({ valid: false, error: 'Unauthorized: Session expired or invalid' });
   });
 
   fastify.post('/logout', async (request, reply) => {

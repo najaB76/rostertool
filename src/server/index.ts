@@ -11,11 +11,18 @@ import adminStaffRoutes from './routes/admin-staff.js';
 import adminTimelineRoutes from './routes/admin-timeline.js';
 import adminBackupRoutes from './routes/admin-backup.js';
 import portalRoutes from './routes/portal.js';
-import authRoutes from './routes/auth.js';
+import authRoutes, { requireAdminAuth } from './routes/auth.js';
 import adminUsersRoutes from './routes/admin-users.js';
 import adminSettingsRoutes from './routes/admin-settings.js';
 
 const fastify = Fastify({ logger: true });
+
+// Centralized authentication guard for all /api/admin/* endpoints
+fastify.addHook('preHandler', async (request, reply) => {
+  if (request.url.startsWith('/api/admin')) {
+    return requireAdminAuth(request, reply);
+  }
+});
 
 // Basic health check route
 fastify.get('/api/health', async () => {

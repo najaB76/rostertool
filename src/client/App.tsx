@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import './styles/main.css';
 import { AdminRosterPage } from './pages/AdminRosterPage';
@@ -15,9 +15,63 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { ChangePinModal } from './components/ChangePinModal';
 import { DateFormatProvider } from './context/DateFormatContext';
 
+// Install transparent fetch interceptor for admin authorization & 401 handling
+if (typeof window !== 'undefined' && !(window as any).__fetchInterceptorInstalled) {
+  (window as any).__fetchInterceptorInstalled = true;
+  const originalFetch = window.fetch;
+  window.fetch = async (input: RequestInfo | URL, init: RequestInit = {}) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : (input as Request).url;
+
+    if (url.startsWith('/api/admin')) {
+      const token = localStorage.getItem('admin_token');
+      const headers = new Headers(init.headers || {});
+      if (token && !headers.has('Authorization')) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+      init = { ...init, headers };
+    }
+
+    const response = await originalFetch(input, init);
+
+    if (response.status === 401 && url.startsWith('/api/admin')) {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_username');
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login?expired=1';
+      }
+    }
+
+    return response;
+  };
+}
+
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const [isChangePinOpen, setIsChangePinOpen] = useState(false);
+
+  // 30-minute inactivity auto-logout timer
+  useEffect(() => {
+    let timeoutId: any;
+    const INACTIVITY_LIMIT_MS = 30 * 60 * 1000;
+
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_username');
+        window.location.href = '/login?expired=1';
+      }, INACTIVITY_LIMIT_MS);
+    };
+
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach(evt => window.addEventListener(evt, resetTimer, { passive: true }));
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach(evt => window.removeEventListener(evt, resetTimer));
+    };
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('admin_token');

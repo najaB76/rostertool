@@ -10,6 +10,8 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from?.pathname || '/admin/roster';
+  const searchParams = new URLSearchParams(location.search);
+  const isExpired = searchParams.get('expired') === '1';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +47,12 @@ export const LoginPage: React.FC = () => {
           <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', color: '#0f172a' }}>🏨 Hostel Manager</h1>
           <p style={{ margin: 0, fontSize: '0.875rem', color: '#64748b' }}>Enter your username and PIN to continue</p>
         </div>
+
+        {isExpired && !error && (
+          <div style={{ padding: '0.75rem', marginBottom: '1rem', backgroundColor: '#fef3c7', border: '1px solid #fde68a', borderRadius: '4px', color: '#92400e', fontSize: '0.85rem' }}>
+            ⏱️ Your session has expired due to inactivity. Please enter your PIN to continue.
+          </div>
+        )}
 
         {error && (
           <div style={{ padding: '0.75rem', marginBottom: '1rem', backgroundColor: '#fee2e2', border: '1px solid #fecaca', borderRadius: '4px', color: '#991b1b', fontSize: '0.85rem' }}>
