@@ -1,0 +1,57 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hostel Volunteer Rostering API - Staff Assignment & Auto-Populate Copy",
+    "version": "1.8.0",
+    "description": "API contract for staff assignment fixes, reception auto-copy, and volunteer profile extensions."
+  },
+  "paths": {
+    "/api/admin/roster/assign": {
+      "post": {
+        "summary": "Assign volunteer or staff to shift slot",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["shiftDefinitionId", "date"],
+                "properties": {
+                  "shiftDefinitionId": { "type": "string" },
+                  "date": { "type": "string", "format": "date" },
+                  "volunteerId": { "type": "string", "nullable": true },
+                  "staffId": { "type": "string", "nullable": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Assignment created or removed" }
+        }
+      }
+    },
+    "/api/admin/roster/auto-populate": {
+      "post": {
+        "summary": "Auto-populate week with reception copy forward from previous week",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["weekStartDate"],
+                "properties": {
+                  "weekStartDate": { "type": "string", "format": "date" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Roster auto-populated with reception copy" }
+        }
+      }
+    }
+  }
+}

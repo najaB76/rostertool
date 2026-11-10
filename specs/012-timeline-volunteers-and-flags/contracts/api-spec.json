@@ -1,0 +1,40 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hostel Volunteer Rostering API - Volunteer Staffing Timeline",
+    "version": "1.12.0",
+    "description": "API contract for Volunteer Staffing Timeline excluding paid staff."
+  },
+  "paths": {
+    "/api/admin/timeline": {
+      "get": {
+        "summary": "Retrieve 5+ week horizontal volunteer staffing timeline data",
+        "description": "Returns volunteer schedule bars segregated into Reception, Housekeeping, and Applied tiers. Excludes paid staff.",
+        "parameters": [
+          { "name": "startDate", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "weeks", "in": "query", "schema": { "type": "integer", "default": 5 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Volunteer timeline data and daily confirmed volunteer counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "days": { "type": "array" },
+                    "reception": { "type": "array" },
+                    "housekeeping": { "type": "array" },
+                    "applied": { "type": "array" },
+                    "dailyConfirmedCounts": { "type": "object" },
+                    "headcountThresholds": { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

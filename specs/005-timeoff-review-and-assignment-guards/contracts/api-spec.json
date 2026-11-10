@@ -1,0 +1,34 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hostel Volunteer Rostering API - Time-Off Cancellation Contract",
+    "version": "1.4.0",
+    "description": "Contract for volunteer self-service time-off cancellation."
+  },
+  "paths": {
+    "/api/portal/time-off/{id}/cancel": {
+      "post": {
+        "summary": "Cancel a pending or upcoming time-off request by the volunteer",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "token", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "success": { "type": "boolean" } }
+                }
+              }
+            }
+          },
+          "403": { "description": "Forbidden: Request does not belong to authenticated volunteer" },
+          "404": { "description": "Time-off request not found" }
+        }
+      }
+    }
+  }
+}

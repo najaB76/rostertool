@@ -1,0 +1,92 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hostel Operations, Timeline & Volunteer Management API",
+    "version": "1.11.0",
+    "description": "API contracts for Staffing Timeline, Multi-Stay Volunteer Lifecycle, Headcount Settings, and Database Backup."
+  },
+  "paths": {
+    "/api/admin/timeline": {
+      "get": {
+        "summary": "Retrieve 5+ week horizontal staffing timeline data",
+        "parameters": [
+          { "name": "startDate", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "weeks", "in": "query", "schema": { "type": "integer", "default": 5 } }
+        ],
+        "responses": {
+          "200": { "description": "Timeline segments and daily confirmed counts" }
+        }
+      }
+    },
+    "/api/admin/volunteers/{id}/depart": {
+      "post": {
+        "summary": "Mark volunteer as departed with star rating, comments, and rehire eligibility",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["departureRating", "rehireStatus"],
+                "properties": {
+                  "departureRating": { "type": "integer", "minimum": 1, "maximum": 5 },
+                  "departureNotes": { "type": "string" },
+                  "rehireStatus": { "type": "string", "enum": ["Accept", "Possible", "Don't Accept"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Volunteer marked departed with stay recorded" } }
+      }
+    },
+    "/api/admin/volunteers/{id}/reactivate": {
+      "post": {
+        "summary": "Re-activate a departed volunteer with new arrival/departure stay dates",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["arrivalDate"],
+                "properties": {
+                  "arrivalDate": { "type": "string", "format": "date" },
+                  "departureDate": { "type": "string", "format": "date", "nullable": true },
+                  "noEndDate": { "type": "boolean", "default": false }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "New stay created and volunteer re-activated" } }
+      }
+    },
+    "/api/admin/volunteers/{id}/stays": {
+      "get": {
+        "summary": "Get all historical stays and reviews for a volunteer",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "List of historical volunteer stays" }
+        }
+      }
+    },
+    "/api/admin/backup/export": {
+      "get": {
+        "summary": "Download complete system database backup file",
+        "responses": {
+          "200": {
+            "description": "SQLite database binary file",
+            "content": {
+              "application/octet-stream": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

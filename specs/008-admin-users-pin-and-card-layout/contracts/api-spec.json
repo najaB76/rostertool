@@ -1,0 +1,115 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hostel Volunteer Rostering API - Admin Users & PIN Management",
+    "version": "1.7.0",
+    "description": "API contract for managing administrator accounts and self-service PIN changes."
+  },
+  "paths": {
+    "/api/auth/change-pin": {
+      "post": {
+        "summary": "Change current user's PIN",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["currentPin", "newPin"],
+                "properties": {
+                  "currentPin": { "type": "string" },
+                  "newPin": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "PIN changed successfully" },
+          "400": { "description": "Current PIN is incorrect or invalid new PIN" }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "summary": "List all admin accounts",
+        "responses": {
+          "200": {
+            "description": "Array of admin users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "username": { "type": "string" },
+                      "createdAt": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new admin account",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "pin"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "pin": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Admin user created" },
+          "400": { "description": "Username already exists or missing fields" }
+        }
+      }
+    },
+    "/api/admin/users/{id}": {
+      "put": {
+        "summary": "Edit admin account or reset PIN",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "pin": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Admin user updated" }
+        }
+      },
+      "delete": {
+        "summary": "Delete admin account",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Admin user deleted" },
+          "400": { "description": "Cannot delete sole admin or currently active user" }
+        }
+      }
+    }
+  }
+}

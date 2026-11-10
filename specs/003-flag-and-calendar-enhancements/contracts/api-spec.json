@@ -1,0 +1,35 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hostel Volunteer Rostering API - Magic Link Reset Contract",
+    "version": "1.2.0",
+    "description": "API contract for volunteer token regeneration."
+  },
+  "paths": {
+    "/api/admin/volunteers/{id}/reset-token": {
+      "post": {
+        "summary": "Generate a new magic link token and invalidate previous token",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "New token and relative portal URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["magicLinkToken", "portalUrl"],
+                  "properties": {
+                    "magicLinkToken": { "type": "string" },
+                    "portalUrl": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

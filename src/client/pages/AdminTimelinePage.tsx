@@ -149,6 +149,20 @@ export const AdminTimelinePage: React.FC = () => {
         {days.map((day) => {
           const isOnSite = activeDateSet.has(day.date);
           const isToday = day.date === todayIso;
+          const isDepartureDay = !person.noEndDate && person.departureDate === day.date;
+
+          let background = 'transparent';
+          if (isOnSite) {
+            if (isDepartureDay) {
+              // Lighter hatched diagonal pattern for departure day
+              background = `repeating-linear-gradient(45deg, ${barColor}, ${barColor} 4px, #ffffff 4px, #ffffff 8px)`;
+            } else {
+              // Solid intense color for main stay
+              background = barColor;
+            }
+          } else if (isToday) {
+            background = '#f0fdf4';
+          }
 
           return (
             <td
@@ -160,16 +174,17 @@ export const AdminTimelinePage: React.FC = () => {
                 maxWidth: '32px',
                 textAlign: 'center',
                 borderRight: '1px solid #e2e8f0',
-                backgroundColor: isOnSite ? barColor : (isToday ? '#f0fdf4' : 'transparent'),
-                color: isOnSite ? '#fff' : 'transparent',
-                fontWeight: 'bold',
-                fontSize: '0.75rem',
+                background,
                 userSelect: 'none'
               }}
-              title={isOnSite ? `${person.preferredName}: On site on ${day.date}` : undefined}
-            >
-              {isOnSite ? '1' : ''}
-            </td>
+              title={
+                isOnSite
+                  ? isDepartureDay
+                    ? `${person.preferredName}: Departure / Checkout on ${day.date} (vacates bed)`
+                    : `${person.preferredName}: On site on ${day.date}`
+                  : undefined
+              }
+            />
           );
         })}
       </tr>

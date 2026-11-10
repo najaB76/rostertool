@@ -1,0 +1,11 @@
+.gemini/
+gha-creds-*.json
+node_modules/
+dist/
+build/
+*.log
+.env*
+data/rostertool.sqlite*
+*.jpeg
+*.jpg
+feedback.txt

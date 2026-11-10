@@ -122,13 +122,14 @@ export default async function adminTimelineRoutes(fastify: FastifyInstance) {
         }
       }
 
-      // Calculate Daily Confirmed Counts (Active & Accepted volunteers only)
+      // Calculate Daily Confirmed Counts (Active & Accepted volunteers only - overnight bed demand)
+      // Volunteers departing on day.date do not need a bed for that night, so they are excluded on their departure date
       const dailyConfirmedCounts: Record<string, number> = {};
       for (const day of days) {
         let count = 0;
         for (const v of volList) {
           if (v.status === 'Active' || v.status === 'Accepted') {
-            if (v.arrivalDate && v.arrivalDate <= day.date && (v.noEndDate || !v.departureDate || v.departureDate >= day.date)) {
+            if (v.arrivalDate && v.arrivalDate <= day.date && (v.noEndDate || !v.departureDate || v.departureDate > day.date)) {
               count++;
             }
           }

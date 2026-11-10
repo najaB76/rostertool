@@ -1,0 +1,107 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hostel Volunteer Rostering API - Refinements",
+    "version": "1.1.0",
+    "description": "Lifecycle transition endpoints and multi-scale headcount querying."
+  },
+  "paths": {
+    "/api/admin/volunteers/{id}/accept": {
+      "post": {
+        "summary": "Advance an applicant from Applied to Accepted",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["arrivalDate", "departureDate", "primaryRole"],
+                "properties": {
+                  "arrivalDate": { "type": "string", "format": "date" },
+                  "departureDate": { "type": "string", "format": "date" },
+                  "primaryRole": { "type": "string", "enum": ["Housekeeping", "Reception"] },
+                  "notes": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Volunteer status updated to Accepted" }
+        }
+      }
+    },
+    "/api/admin/volunteers/{id}/activate": {
+      "post": {
+        "summary": "Mark an Accepted volunteer as Active (arrived)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Volunteer status updated to Active" }
+        }
+      }
+    },
+    "/api/admin/volunteers/{id}/cancel": {
+      "post": {
+        "summary": "Cancel a volunteer stay and unassign future shifts",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cancellationReason": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Volunteer status updated to Cancelled" }
+        }
+      }
+    },
+    "/api/admin/sources": {
+      "get": {
+        "summary": "List all active application sources",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "name": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new custom application source",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": { "name": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Source created" }
+        }
+      }
+    }
+  }
+}

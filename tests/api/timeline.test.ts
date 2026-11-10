@@ -128,6 +128,9 @@ describe('Admin Staffing Timeline API', () => {
     // On 2026-11-03, Sarah (rec) and Thijs (hk) are on site, staff is excluded
     expect(body.dailyConfirmedCounts['2026-11-03']).toBe(2);
 
+    // On 2026-11-07 (Thijs departure day), Thijs vacates bed and does not stay overnight
+    expect(body.dailyConfirmedCounts['2026-11-07']).toBe(1);
+
     // Verify headcount thresholds are provided
     expect(body.headcountThresholds).toBeDefined();
     expect(body.headcountThresholds.baseline).toBeGreaterThanOrEqual(8);

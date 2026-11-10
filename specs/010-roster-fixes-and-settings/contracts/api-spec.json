@@ -1,0 +1,80 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hostel Volunteer Rostering API - Unassign & System Settings",
+    "version": "1.9.0",
+    "description": "API contracts for shift unassignment and operational settings."
+  },
+  "paths": {
+    "/api/admin/roster/unassign": {
+      "post": {
+        "summary": "Remove volunteer or staff from shift slot",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["shiftDefinitionId", "date"],
+                "properties": {
+                  "shiftDefinitionId": { "type": "string" },
+                  "date": { "type": "string", "format": "date" },
+                  "volunteerId": { "type": "string", "nullable": true },
+                  "staffId": { "type": "string", "nullable": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Assignment removed" }
+        }
+      }
+    },
+    "/api/admin/settings": {
+      "get": {
+        "summary": "Get system housekeeping operational settings",
+        "responses": {
+          "200": {
+            "description": "Settings object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "housekeepersPerDay": { "type": "number" },
+                    "housekeepingShiftsPerWeek": { "type": "number" },
+                    "housekeepingStartTime": { "type": "string" },
+                    "housekeepingEndTime": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Update housekeeping operational settings",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "housekeepersPerDay": { "type": "number" },
+                  "housekeepingShiftsPerWeek": { "type": "number" },
+                  "housekeepingStartTime": { "type": "string" },
+                  "housekeepingEndTime": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Settings updated" }
+        }
+      }
+    }
+  }
+}

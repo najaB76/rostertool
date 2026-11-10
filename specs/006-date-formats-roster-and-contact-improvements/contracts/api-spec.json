@@ -1,0 +1,37 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hostel Volunteer Rostering API - Volunteer Contacts & Uniform Dates",
+    "version": "1.5.0",
+    "description": "Contracts for volunteer email/phone capture and date standardization."
+  },
+  "paths": {
+    "/api/admin/volunteers": {
+      "post": {
+        "summary": "Create volunteer with email and phone",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["fullName", "nationality"],
+                "properties": {
+                  "fullName": { "type": "string" },
+                  "nationality": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "phone": { "type": "string" },
+                  "arrivalDate": { "type": "string", "format": "date" },
+                  "departureDate": { "type": "string", "format": "date" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Volunteer created with contact details" }
+        }
+      }
+    }
+  }
+}
