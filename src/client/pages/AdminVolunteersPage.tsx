@@ -417,7 +417,7 @@ export const AdminVolunteersPage: React.FC = () => {
                   {/* Line 1: Role, Source, Stay Dates, Age, and Badges */}
                   <div style={{ fontSize: '0.85rem', color: '#71717a', display: 'flex', flexWrap: 'wrap', gap: '1.25rem', alignItems: 'center' }}>
                     <span><strong>Role:</strong> {v.primaryRole}</span>
-                    <span><strong>Source:</strong> {v.source || v.applicationSourceName || 'None'}</span>
+                    <span><strong>Source:</strong> {v.applicationSourceName || (v.source && v.source !== 'Other' ? v.source : (v.applicationSourceName || v.source || 'None'))}</span>
                     <span>
                       <strong>Stay Dates:</strong> {v.arrivalDate ? formatDate(v.arrivalDate) : 'TBD'} → {v.noEndDate ? 'No end date' : (v.departureDate ? formatDate(v.departureDate) : 'TBD')}
                     </span>

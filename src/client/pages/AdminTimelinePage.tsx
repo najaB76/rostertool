@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { CountryFlag } from '../components/CountryFlag';
 import { snapToMonday, addDays } from '../utils/date-utils';
 import { useDateFormat } from '../context/DateFormatContext';
+import { VolunteerModal } from '../components/VolunteerModal';
+import { DepartureModal } from '../components/DepartureModal';
+import { ReactivateModal } from '../components/ReactivateModal';
 
 const COLOR_PALETTE = [
   '#f97316', // Orange
@@ -37,6 +40,12 @@ export const AdminTimelinePage: React.FC = () => {
   const [timelineData, setTimelineData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // Modals and action menu states
+  const [editingVol, setEditingVol] = useState<any>(null);
+  const [departingVol, setDepartingVol] = useState<any>(null);
+  const [reactivatingVol, setReactivatingVol] = useState<any>(null);
+  const [activeMenuVolId, setActiveMenuVolId] = useState<string | null>(null);
+
   const fetchTimeline = async () => {
     setLoading(true);
     try {
@@ -54,11 +63,122 @@ export const AdminTimelinePage: React.FC = () => {
     fetchTimeline();
   }, [startDate, weeks]);
 
+  // Close status dropdown menu when clicking anywhere else
+  useEffect(() => {
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.timeline-status-menu-container')) {
+        setActiveMenuVolId(null);
+      }
+    };
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
+  }, []);
+
   const handlePrevWeeks = () => setStartDate(prev => addDays(prev, -7 * weeks));
   const handleNextWeeks = () => setStartDate(prev => addDays(prev, 7 * weeks));
   const handlePrevOneWeek = () => setStartDate(prev => addDays(prev, -7));
   const handleNextOneWeek = () => setStartDate(prev => addDays(prev, 7));
   const handleCurrentWeek = () => setStartDate(snapToMonday(new Date()));
+
+  // Handlers for volunteer actions directly from timeline
+  const handleOpenEdit = async (volId: string) => {
+    try {
+      const res = await fetch(`/api/admin/volunteers/${volId}`);
+      if (res.ok) {
+        const fullVol = await res.json();
+        setEditingVol(fullVol);
+      }
+    } catch (e) {
+      console.error('Failed to load volunteer:', e);
+    }
+  };
+
+  const handleSaveVolunteer = async (data: any) => {
+    if (!editingVol) return;
+    try {
+      await fetch(`/api/admin/volunteers/${editingVol.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      setEditingVol(null);
+      fetchTimeline();
+    } catch (e) {
+      console.error('Failed to save volunteer:', e);
+    }
+  };
+
+  const handleMarkArrived = async (id: string) => {
+    try {
+      await fetch(`/api/admin/volunteers/${id}/activate`, { method: 'POST' });
+      setActiveMenuVolId(null);
+      fetchTimeline();
+    } catch (e) {
+      console.error('Failed to activate volunteer:', e);
+    }
+  };
+
+  const handleStatusChange = async (id: string, status: string) => {
+    try {
+      await fetch(`/api/admin/volunteers/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      setActiveMenuVolId(null);
+      fetchTimeline();
+    } catch (e) {
+      console.error('Failed to change status:', e);
+    }
+  };
+
+  const handleCancel = async (id: string) => {
+    const reason = prompt('Cancellation reason (optional):');
+    if (reason !== null) {
+      try {
+        await fetch(`/api/admin/volunteers/${id}/cancel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cancellationReason: reason })
+        });
+        setActiveMenuVolId(null);
+        fetchTimeline();
+      } catch (e) {
+        console.error('Failed to cancel volunteer:', e);
+      }
+    }
+  };
+
+  const handleConfirmDepart = async (data: { departureRating: number; departureNotes: string; rehireStatus: string }) => {
+    if (!departingVol) return;
+    try {
+      await fetch(`/api/admin/volunteers/${departingVol.id}/depart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      setDepartingVol(null);
+      fetchTimeline();
+    } catch (e) {
+      console.error('Failed to depart volunteer:', e);
+    }
+  };
+
+  const handleConfirmReactivate = async (data: { arrivalDate: string; departureDate?: string | null; noEndDate?: boolean }) => {
+    if (!reactivatingVol) return;
+    try {
+      await fetch(`/api/admin/volunteers/${reactivatingVol.id}/reactivate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      setReactivatingVol(null);
+      fetchTimeline();
+    } catch (e) {
+      console.error('Failed to reactivate volunteer:', e);
+    }
+  };
 
   const days: any[] = timelineData?.days || [];
   const todayIso = new Date().toISOString().split('T')[0];
@@ -91,9 +211,10 @@ export const AdminTimelinePage: React.FC = () => {
   const renderTimelineRow = (person: any) => {
     const barColor = getBarColor(person.id);
     const activeDateSet = new Set(person.activeDates || []);
+    const isMenuOpen = activeMenuVolId === person.id;
 
     return (
-      <tr key={person.id} style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff' }}>
+      <tr key={`${person.id}_${person.arrivalDate}`} style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff' }}>
         {/* Col A: Gender */}
         <td style={{ padding: '0.4rem 0.5rem', textAlign: 'center', fontWeight: 'bold', fontSize: '1rem', borderRight: '1px solid #e2e8f0', width: '32px' }}>
           {person.gender === 'Male' && <span style={{ color: '#2563eb' }} title="Male">♂</span>}
@@ -102,11 +223,27 @@ export const AdminTimelinePage: React.FC = () => {
           {(person.gender === 'Unspecified' || !person.gender) && <span style={{ color: '#94a3b8' }} title="Unspecified">⚪</span>}
         </td>
 
-        {/* Col B: Name with Flag */}
+        {/* Col B: Name with Flag (Clickable to Edit) */}
         <td style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #e2e8f0', whiteSpace: 'nowrap', fontWeight: '600', fontSize: '0.875rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <CountryFlag countryCode={person.nationality} />
-            <span>{person.preferredName || person.fullName}</span>
+            <button
+              onClick={() => handleOpenEdit(person.id)}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                color: '#2563eb',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                textAlign: 'left'
+              }}
+              title="Click to edit volunteer details"
+            >
+              {person.preferredName || person.fullName}
+            </button>
           </div>
         </td>
 
@@ -120,19 +257,105 @@ export const AdminTimelinePage: React.FC = () => {
           {person.source || 'Other'}
         </td>
 
-        {/* Col F: Status Badge */}
-        <td style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #e2e8f0', whiteSpace: 'nowrap' }}>
-          <span style={{
-            fontSize: '0.75rem',
-            padding: '0.15rem 0.45rem',
-            borderRadius: '4px',
-            fontWeight: '600',
-            backgroundColor: person.status === 'Active' ? '#dcfce7' : person.status === 'Accepted' ? '#dbeafe' : '#fef9c3',
-            color: person.status === 'Active' ? '#166534' : person.status === 'Accepted' ? '#1e40af' : '#854d0e',
-            border: `1px solid ${person.status === 'Active' ? '#bbf7d0' : person.status === 'Accepted' ? '#bfdbfe' : '#fef08a'}`
-          }}>
-            {person.status === 'Active' ? 'In da house' : person.status === 'Accepted' ? 'Confirmed' : 'Not confirmed'}
-          </span>
+        {/* Col F: Interactive Status Button with Action Menu */}
+        <td style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #e2e8f0', whiteSpace: 'nowrap', position: 'relative' }} className="timeline-status-menu-container">
+          <button
+            onClick={() => setActiveMenuVolId(isMenuOpen ? null : person.id)}
+            style={{
+              fontSize: '0.75rem',
+              padding: '0.2rem 0.5rem',
+              borderRadius: '4px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              backgroundColor: person.status === 'Active' ? '#dcfce7' : person.status === 'Accepted' ? '#dbeafe' : person.status === 'Departed' ? '#fee2e2' : '#fef9c3',
+              color: person.status === 'Active' ? '#166534' : person.status === 'Accepted' ? '#1e40af' : person.status === 'Departed' ? '#991b1b' : '#854d0e',
+              border: `1px solid ${person.status === 'Active' ? '#bbf7d0' : person.status === 'Accepted' ? '#bfdbfe' : person.status === 'Departed' ? '#fecaca' : '#fef08a'}`
+            }}
+            title="Click to change volunteer status"
+          >
+            {person.status === 'Active' ? 'In da house ▾' : person.status === 'Accepted' ? 'Confirmed ▾' : person.status === 'Departed' ? 'Departed ▾' : 'Not confirmed ▾'}
+          </button>
+
+          {/* Action Menu Dropdown */}
+          {isMenuOpen && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: '0.6rem',
+                zIndex: 50,
+                backgroundColor: '#fff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
+                minWidth: '160px',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '0.35rem 0',
+                marginTop: '2px'
+              }}
+            >
+              {(person.status === 'Active' || person.currentStatus === 'Active') && (
+                <>
+                  <button
+                    onClick={() => { setActiveMenuVolId(null); setDepartingVol(person); }}
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#b91c1c' }}
+                  >
+                    🚪 Depart (Checkout)...
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(person.id, 'Accepted')}
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#1e40af' }}
+                  >
+                    ↩ Revert to Confirmed
+                  </button>
+                </>
+              )}
+
+              {person.status === 'Accepted' && (
+                <>
+                  <button
+                    onClick={() => handleMarkArrived(person.id)}
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#15803d', fontWeight: 'bold' }}
+                  >
+                    ✓ Mark Arrived (In da house)
+                  </button>
+                  <button
+                    onClick={() => handleCancel(person.id)}
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#b91c1c' }}
+                  >
+                    ✕ Cancel Application
+                  </button>
+                </>
+              )}
+
+              {person.status === 'Departed' && (
+                <button
+                  onClick={() => { setActiveMenuVolId(null); setReactivatingVol(person); }}
+                  style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#15803d', fontWeight: 'bold' }}
+                >
+                  🔄 Re-activate (New Stay)...
+                </button>
+              )}
+
+              {person.status === 'Applied' && (
+                <>
+                  <button
+                    onClick={() => { setActiveMenuVolId(null); handleOpenEdit(person.id); }}
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#15803d', fontWeight: 'bold' }}
+                  >
+                    ✓ Accept Application...
+                  </button>
+                  <button
+                    onClick={() => handleCancel(person.id)}
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#b91c1c' }}
+                  >
+                    ✕ Cancel Application
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </td>
 
         {/* Col G: Arrival */}
@@ -193,74 +416,76 @@ export const AdminTimelinePage: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', width: '100%' }}>
-      {/* Top Header & Controls */}
+      {/* Top Header & Navigation Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h2 style={{ margin: '0 0 0.25rem 0' }}>Staffing Timeline</h2>
-          <span style={{ fontSize: '0.85rem', color: '#71717a' }}>
-            Multi-week visual occupancy overview across Reception, Housekeeping, and Applicants.
+          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+            5-week operational volunteer spreadsheet showing daily occupancy, arrivals, and departures.
           </span>
         </div>
 
-        {/* Navigation & Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button
+        {/* Navigation Controls */}
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', backgroundColor: '#fff', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+          <button 
             onClick={handlePrevWeeks}
-            style={{ padding: '0.4rem 0.75rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '500' }}
-            title={`Go back ${weeks} weeks`}
+            style={{ padding: '0.35rem 0.6rem', border: '1px solid #cbd5e1', borderRadius: '4px', background: '#f8fafc', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
+            title={`Previous ${weeks} weeks`}
           >
-            &laquo; {weeks}w
+            « {weeks}w
           </button>
-          <button
+          <button 
             onClick={handlePrevOneWeek}
-            style={{ padding: '0.4rem 0.75rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
-            title="Go back 1 week"
+            style={{ padding: '0.35rem 0.6rem', border: '1px solid #cbd5e1', borderRadius: '4px', background: '#f8fafc', cursor: 'pointer', fontSize: '0.8rem' }}
+            title="Previous 1 week"
           >
             ‹ 1w
           </button>
-          <button
+          <button 
             onClick={handleCurrentWeek}
-            style={{ padding: '0.4rem 0.9rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}
+            style={{ padding: '0.35rem 0.75rem', border: '1px solid #cbd5e1', borderRadius: '4px', background: '#e2e8f0', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
           >
-            Today / This Week
+            Today
           </button>
-          <button
+          <button 
             onClick={handleNextOneWeek}
-            style={{ padding: '0.4rem 0.75rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
-            title="Advance 1 week"
+            style={{ padding: '0.35rem 0.6rem', border: '1px solid #cbd5e1', borderRadius: '4px', background: '#f8fafc', cursor: 'pointer', fontSize: '0.8rem' }}
+            title="Next 1 week"
           >
             1w ›
           </button>
-          <button
+          <button 
             onClick={handleNextWeeks}
-            style={{ padding: '0.4rem 0.75rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '500' }}
-            title={`Advance ${weeks} weeks`}
+            style={{ padding: '0.35rem 0.6rem', border: '1px solid #cbd5e1', borderRadius: '4px', background: '#f8fafc', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
+            title={`Next ${weeks} weeks`}
           >
-            {weeks}w &raquo;
+            {weeks}w »
           </button>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', color: '#475569', marginLeft: '0.5rem' }}>
-            Horizon:
+          <span style={{ borderLeft: '1px solid #cbd5e1', height: '1.25rem', margin: '0 0.25rem' }} />
+
+          <label style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            Weeks:
             <select
               value={weeks}
-              onChange={(e) => setWeeks(parseInt(e.target.value, 10) || 5)}
-              style={{ padding: '0.35rem 0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#fff' }}
+              onChange={(e) => setWeeks(parseInt(e.target.value, 10))}
+              style={{ padding: '0.25rem 0.4rem', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#fff', fontSize: '0.8rem' }}
             >
-              <option value={4}>4 Weeks</option>
-              <option value={5}>5 Weeks (Default)</option>
-              <option value={6}>6 Weeks</option>
-              <option value={8}>8 Weeks</option>
+              <option value="3">3 weeks</option>
+              <option value="4">4 weeks</option>
+              <option value="5">5 weeks</option>
+              <option value="6">6 weeks</option>
+              <option value="8">8 weeks</option>
             </select>
           </label>
         </div>
       </div>
 
-      {loading ? (
-        <div style={{ padding: '3rem', textAlign: 'center', color: '#71717a' }}>Loading staffing timeline...</div>
+      {loading && !timelineData ? (
+        <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>Loading staffing timeline...</div>
       ) : (
-        /* Spreadsheet Layout Container */
         <div style={{ background: '#fff', border: '1px solid #cbd5e1', borderRadius: '8px', overflowX: 'auto', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '0.85rem' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'left', minWidth: '950px' }}>
             <thead>
               {/* Row 1: Month Groups */}
               <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
@@ -314,7 +539,7 @@ export const AdminTimelinePage: React.FC = () => {
                         fontWeight: 'bold',
                         borderRight: '1px solid #cbd5e1',
                         backgroundColor: isToday ? '#bbf7d0' : isWeekend ? '#e2e8f0' : '#f1f5f9',
-                        color: isToday ? '#166534' : '#1e293b'
+                        color: isToday ? '#14532d' : isWeekend ? '#334155' : '#0f172a'
                       }}
                       title={`${day.dayName}, ${day.date}`}
                     >
@@ -414,9 +639,80 @@ export const AdminTimelinePage: React.FC = () => {
                   </td>
                 </tr>
               )}
+
+              {/* SECTION 5: TOTAL APPLIED CANDIDATES ROW */}
+              <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #64748b', borderBottom: '2px solid #64748b' }}>
+                <td
+                  colSpan={7}
+                  style={{
+                    padding: '0.6rem 0.75rem',
+                    textAlign: 'right',
+                    fontWeight: 'bold',
+                    fontSize: '0.9rem',
+                    color: '#0f172a',
+                    borderRight: '2px solid #cbd5e1',
+                    letterSpacing: '0.025em'
+                  }}
+                >
+                  Total APPLIED Candidates
+                </td>
+                {days.map((day) => {
+                  const count = timelineData?.dailyAppliedCounts?.[day.date] || 0;
+
+                  return (
+                    <td
+                      key={day.date}
+                      style={{
+                        padding: '0.4rem 0.1rem',
+                        width: '32px',
+                        minWidth: '32px',
+                        maxWidth: '32px',
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        fontSize: '0.85rem',
+                        borderRight: '1px solid #cbd5e1',
+                        backgroundColor: count > 0 ? '#fef9c3' : 'transparent',
+                        color: count > 0 ? '#854d0e' : '#94a3b8'
+                      }}
+                      title={`${count} applied candidates on ${day.date}`}
+                    >
+                      {count}
+                    </td>
+                  );
+                })}
+              </tr>
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Edit Volunteer Modal */}
+      {editingVol && (
+        <VolunteerModal
+          volunteer={editingVol}
+          onSave={handleSaveVolunteer}
+          onClose={() => setEditingVol(null)}
+        />
+      )}
+
+      {/* 5-Star Departure Modal */}
+      {departingVol && (
+        <DepartureModal
+          isOpen={Boolean(departingVol)}
+          volunteer={departingVol}
+          onClose={() => setDepartingVol(null)}
+          onSubmit={handleConfirmDepart}
+        />
+      )}
+
+      {/* Re-activate New Stay Modal */}
+      {reactivatingVol && (
+        <ReactivateModal
+          isOpen={Boolean(reactivatingVol)}
+          volunteer={reactivatingVol}
+          onClose={() => setReactivatingVol(null)}
+          onSubmit={handleConfirmReactivate}
+        />
       )}
     </div>
   );

@@ -41,10 +41,12 @@ export class VolunteerService {
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
       const latestStayWithReview = volStays.find(s => s.departureRating !== null);
+      const resolvedSource = r.sourceName || (r.volunteer.source && r.volunteer.source !== 'Other' ? r.volunteer.source : (r.sourceName || r.volunteer.source || 'Other'));
 
       return {
         ...r.volunteer,
-        applicationSourceName: r.sourceName,
+        source: resolvedSource,
+        applicationSourceName: resolvedSource,
         latestRating: latestStayWithReview?.departureRating ?? null,
         latestRehireStatus: latestStayWithReview?.rehireStatus ?? (r.volunteer.futureAcceptance || null),
         staysCount: volStays.length
@@ -69,10 +71,12 @@ export class VolunteerService {
       .orderBy(desc(volunteerStays.createdAt));
 
     const latestStayWithReview = stays.find(s => s.departureRating !== null);
+    const resolvedSource = row.sourceName || (row.volunteer.source && row.volunteer.source !== 'Other' ? row.volunteer.source : (row.sourceName || row.volunteer.source || 'Other'));
 
     return {
       ...row.volunteer,
-      applicationSourceName: row.sourceName,
+      source: resolvedSource,
+      applicationSourceName: resolvedSource,
       latestRating: latestStayWithReview?.departureRating ?? null,
       latestRehireStatus: latestStayWithReview?.rehireStatus ?? (row.volunteer.futureAcceptance || null),
       staysCount: stays.length,
@@ -153,7 +157,7 @@ export class VolunteerService {
       phone: data.phone,
       nationality: data.nationality,
       gender: data.gender !== undefined ? data.gender : undefined,
-      source: data.source !== undefined ? data.source : undefined,
+      source: data.applicationSourceName !== undefined ? data.applicationSourceName : (data.source !== undefined ? data.source : undefined),
       status: data.status,
       arrivalDate: data.arrivalDate !== undefined ? data.arrivalDate : undefined,
       departureDate: data.noEndDate ? null : (data.departureDate !== undefined ? data.departureDate : undefined),

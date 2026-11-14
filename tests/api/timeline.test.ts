@@ -135,4 +135,39 @@ describe('Admin Staffing Timeline API', () => {
     expect(body.headcountThresholds).toBeDefined();
     expect(body.headcountThresholds.baseline).toBeGreaterThanOrEqual(8);
   });
+
+  it('GET /api/admin/timeline - includes historical departed volunteers when querying past dates and provides dailyAppliedCounts', async () => {
+    // Seed a departed volunteer who stayed from 2026-07-01 to 2026-07-31
+    await db.insert(volunteers).values({
+      id: 'tl-vol-past',
+      fullName: 'Past Alum',
+      preferredName: 'Alum',
+      nationality: 'IT',
+      gender: 'Male',
+      source: 'HelpX',
+      status: 'Departed',
+      primaryRole: 'Reception',
+      arrivalDate: '2026-07-01',
+      departureDate: '2026-07-31',
+      noEndDate: false,
+      magicLinkToken: 'token-tl-past'
+    });
+
+    const res = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/timeline',
+      query: {
+        startDate: '2026-07-06',
+        weeks: '4'
+      }
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.payload);
+    expect(body.reception.map((r: any) => r.id)).toContain('tl-vol-past');
+    expect(body.dailyConfirmedCounts['2026-07-10']).toBe(1);
+    expect(body.dailyAppliedCounts).toBeDefined();
+
+    await db.delete(volunteers).where(eq(volunteers.id, 'tl-vol-past'));
+  });
 });

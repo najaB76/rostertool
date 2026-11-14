@@ -1,0 +1,38 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Staffing Timeline API (Enhanced)",
+    "version": "1.1.0"
+  },
+  "paths": {
+    "/api/admin/timeline": {
+      "get": {
+        "summary": "Get staffing timeline including historical stays and running totals",
+        "parameters": [
+          { "name": "startDate", "in": "query", "schema": { "type": "string" } },
+          { "name": "weeks", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "days": { "type": "array" },
+                    "reception": { "type": "array" },
+                    "housekeeping": { "type": "array" },
+                    "applied": { "type": "array" },
+                    "dailyConfirmedCounts": { "type": "object" },
+                    "dailyAppliedCounts": { "type": "object" },
+                    "headcountThresholds": { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

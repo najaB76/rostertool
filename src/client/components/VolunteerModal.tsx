@@ -33,6 +33,16 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
   const [capacityPreview, setCapacityPreview] = useState<any[]>([]);
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  useEffect(() => {
     fetch('/api/admin/volunteers/sources')
       .then(res => res.json())
       .then(data => {
@@ -78,7 +88,7 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-      <div style={{ background: '#fff', padding: '2rem', borderRadius: '8px', width: '520px', maxHeight: '90vh', overflowY: 'auto' }}>
+      <div style={{ background: '#fff', padding: '2rem', borderRadius: '8px', width: '520px', minWidth: '480px', maxWidth: '90vw', minHeight: '400px', maxHeight: '90vh', resize: 'both', overflow: 'auto', boxSizing: 'border-box' }}>
         <h3 style={{ marginTop: 0 }}>{volunteer ? `Edit Volunteer (${formData.status})` : 'New Volunteer Application'}</h3>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -311,7 +321,7 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
             </button>
             <button 
               type="button" 
-              onClick={() => onSave(formData)} 
+              onClick={() => onSave({ ...formData, source: formData.applicationSourceName })} 
               style={{ background: '#3b82f6', color: '#fff', padding: '0.5rem 1.25rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
             >
               Save Volunteer
