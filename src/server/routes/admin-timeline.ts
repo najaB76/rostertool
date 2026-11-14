@@ -178,7 +178,7 @@ export default async function adminTimelineRoutes(fastify: FastifyInstance) {
             activeDates
           };
 
-          if (v.status === 'Applied') {
+          if (v.status === 'Applied' || v.status === 'Accepted') {
             appliedEntries.push(entry);
           } else if (v.primaryRole === 'Reception') {
             receptionEntries.push(entry);
@@ -188,10 +188,14 @@ export default async function adminTimelineRoutes(fastify: FastifyInstance) {
         }
       }
 
-      // Calculate Daily Confirmed Counts (overnight bed demand for confirmed volunteers)
+      // Calculate Daily Confirmed Counts (overnight bed demand for confirmed volunteers: Active on site & Accepted incoming)
       // Volunteers departing on day.date do not need a bed for that night, so they are excluded on their departure date
       const dailyConfirmedCounts: Record<string, number> = {};
-      const confirmedEntries = [...receptionEntries, ...housekeepingEntries];
+      const confirmedEntries = [
+        ...receptionEntries,
+        ...housekeepingEntries,
+        ...appliedEntries.filter(a => a.currentStatus === 'Accepted' || a.status === 'Accepted')
+      ];
 
       for (const day of days) {
         let count = 0;

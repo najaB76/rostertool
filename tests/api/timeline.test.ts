@@ -170,4 +170,48 @@ describe('Admin Staffing Timeline API', () => {
 
     await db.delete(volunteers).where(eq(volunteers.id, 'tl-vol-past'));
   });
+
+  it('GET /api/admin/timeline - populates incoming accepted volunteers in candidate rows and dailyAppliedCounts', async () => {
+    // Seed an accepted volunteer who is confirmed for upcoming dates
+    await db.insert(volunteers).values({
+      id: 'tl-vol-acc',
+      fullName: 'Lucas Accepted',
+      preferredName: 'Lucas',
+      nationality: 'BR',
+      gender: 'Male',
+      source: 'WorkAway',
+      status: 'Accepted',
+      primaryRole: 'Housekeeping',
+      arrivalDate: '2026-11-20',
+      departureDate: '2026-11-28',
+      noEndDate: false,
+      magicLinkToken: 'token-tl-acc'
+    });
+
+    const res = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/timeline',
+      query: {
+        startDate: '2026-11-02',
+        weeks: '5'
+      }
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.payload);
+
+    // Verify Lucas appears in candidate entries for the dates accepted
+    const appliedIds = body.applied.map((a: any) => a.id);
+    expect(appliedIds).toContain('tl-vol-acc');
+
+    const lucasEntry = body.applied.find((a: any) => a.id === 'tl-vol-acc');
+    expect(lucasEntry.arrivalDate).toBe('2026-11-20');
+    expect(lucasEntry.departureDate).toBe('2026-11-28');
+    expect(lucasEntry.status).toBe('Accepted');
+
+    // Verify running candidate count includes Lucas on 2026-11-22
+    expect(body.dailyAppliedCounts['2026-11-22']).toBeGreaterThanOrEqual(1);
+
+    await db.delete(volunteers).where(eq(volunteers.id, 'tl-vol-acc'));
+  });
 });

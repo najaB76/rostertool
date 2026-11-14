@@ -625,22 +625,22 @@ export const AdminTimelinePage: React.FC = () => {
                 })}
               </tr>
 
-              {/* SECTION 4: APPLIED (UNCONFIRMED CANDIDATES) */}
+              {/* SECTION 4: INCOMING CANDIDATES (ACCEPTED & APPLIED) */}
               <tr style={{ backgroundColor: '#e2e8f0', borderTop: '2px solid #94a3b8', borderBottom: '1px solid #cbd5e1' }}>
                 <td colSpan={7 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#475569', letterSpacing: '0.025em' }}>
-                  📋 Unconfirmed (Applied Candidates)
+                  📋 Incoming Candidates (Accepted & Applied)
                 </td>
               </tr>
               {timelineData?.applied?.map(renderTimelineRow)}
               {timelineData?.applied?.length === 0 && (
                 <tr>
                   <td colSpan={7 + days.length} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
-                    No applied candidates in this date window.
+                    No incoming accepted or applied candidates in this date window.
                   </td>
                 </tr>
               )}
 
-              {/* SECTION 5: TOTAL APPLIED CANDIDATES ROW */}
+              {/* SECTION 5: TOTAL INCOMING CANDIDATES ROW */}
               <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #64748b', borderBottom: '2px solid #64748b' }}>
                 <td
                   colSpan={7}
@@ -654,7 +654,7 @@ export const AdminTimelinePage: React.FC = () => {
                     letterSpacing: '0.025em'
                   }}
                 >
-                  Total APPLIED Candidates
+                  Total INCOMING Candidates
                 </td>
                 {days.map((day) => {
                   const count = timelineData?.dailyAppliedCounts?.[day.date] || 0;

@@ -31,6 +31,8 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
   const [sources, setSources] = useState<string[]>(['HelpEx', 'WorkAway', 'Worldpackers', 'Guest']);
   const [isCustomSource, setIsCustomSource] = useState(false);
   const [capacityPreview, setCapacityPreview] = useState<any[]>([]);
+  const [modalSize, setModalSize] = useState<{ width: number; height: number }>({ width: 560, height: 640 });
+  const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -41,6 +43,42 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
+
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startWidth = modalSize.width;
+    const startHeight = modalSize.height;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+
+      const newWidth = Math.min(
+        Math.max(startWidth + deltaX, 480),
+        window.innerWidth * 0.95
+      );
+      const newHeight = Math.min(
+        Math.max(startHeight + deltaY, 400),
+        window.innerHeight * 0.95
+      );
+
+      setModalSize({ width: newWidth, height: newHeight });
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
 
   useEffect(() => {
     fetch('/api/admin/volunteers/sources')
@@ -87,8 +125,8 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
   const hasCapacityWarnings = capacityPreview.some(d => d.status !== 'OPTIMAL');
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-      <div style={{ background: '#fff', padding: '2rem', borderRadius: '8px', width: '520px', minWidth: '480px', maxWidth: '90vw', minHeight: '400px', maxHeight: '90vh', resize: 'both', overflow: 'auto', boxSizing: 'border-box' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, userSelect: isResizing ? 'none' : 'auto' }}>
+      <div style={{ position: 'relative', background: '#fff', padding: '2rem', borderRadius: '8px', width: `${modalSize.width}px`, height: `${modalSize.height}px`, minWidth: '480px', maxWidth: '95vw', minHeight: '400px', maxHeight: '95vh', overflow: 'auto', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)' }}>
         <h3 style={{ marginTop: 0 }}>{volunteer ? `Edit Volunteer (${formData.status})` : 'New Volunteer Application'}</h3>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -327,6 +365,29 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
               Save Volunteer
             </button>
           </div>
+        </div>
+
+        {/* Interactive Corner Resize Grip Handle */}
+        <div
+          onMouseDown={handleResizeMouseDown}
+          style={{
+            position: 'absolute',
+            bottom: '3px',
+            right: '3px',
+            width: '18px',
+            height: '18px',
+            cursor: 'nwse-resize',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#94a3b8',
+            fontSize: '11px',
+            userSelect: 'none',
+            zIndex: 10
+          }}
+          title="Click and drag to resize modal"
+        >
+          ◢
         </div>
       </div>
     </div>

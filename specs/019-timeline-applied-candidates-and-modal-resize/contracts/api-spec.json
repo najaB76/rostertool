@@ -1,0 +1,19 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Timeline API - Candidate Population",
+    "version": "1.2.0"
+  },
+  "paths": {
+    "/api/admin/timeline": {
+      "get": {
+        "summary": "Fetch timeline sections including accepted and applied candidates in applied tier",
+        "responses": {
+          "200": {
+            "description": "Timeline data with candidate entries and daily counts"
+          }
+        }
+      }
+    }
+  }
+}
