@@ -1,0 +1,31 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Volunteer Detail Endpoint",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/admin/volunteers/{id}": {
+      "get": {
+        "summary": "Get volunteer details by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Volunteer details" },
+          "404": { "description": "Volunteer not found" }
+        }
+      },
+      "post": {
+        "summary": "Update volunteer details by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Volunteer updated" },
+          "400": { "description": "Update failed" }
+        }
+      }
+    }
+  }
+}

@@ -17,6 +17,27 @@ export default async function adminVolunteersRoutes(fastify: FastifyInstance) {
     }
   });
 
+  fastify.get('/sources', async (_request, _reply) => {
+    return await volunteerService.getApplicationSources();
+  });
+
+  fastify.get<{ Params: { id: string } }>('/:id', async (request, reply) => {
+    const vol = await volunteerService.getVolunteerById(request.params.id);
+    if (!vol) {
+      return reply.status(404).send({ error: 'Volunteer not found' });
+    }
+    return vol;
+  });
+
+  fastify.post<{ Params: { id: string }, Body: any }>('/:id', async (request, reply) => {
+    try {
+      const vol = await volunteerService.updateVolunteer(request.params.id, request.body);
+      return vol;
+    } catch (e: any) {
+      return reply.status(400).send({ error: e.message });
+    }
+  });
+
   fastify.put<{ Params: { id: string }, Body: any }>('/:id', async (request, reply) => {
     try {
       const vol = await volunteerService.updateVolunteer(request.params.id, request.body);
@@ -76,10 +97,6 @@ export default async function adminVolunteersRoutes(fastify: FastifyInstance) {
       }
     }
   );
-
-  fastify.get('/sources', async (_request, _reply) => {
-    return await volunteerService.getApplicationSources();
-  });
 
   fastify.post<{ Params: { id: string }, Body: { arrivalDate: string; departureDate: string; primaryRole?: string; notes?: string } }>(
     '/:id/accept',

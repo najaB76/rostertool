@@ -169,4 +169,49 @@ describe('Admin Volunteers API', () => {
     await db.delete(volunteers).where(eq(volunteers.id, 'v-past'));
     await db.delete(volunteers).where(eq(volunteers.id, 'v-future'));
   });
+
+  it('GET /api/admin/volunteers/:id - returns volunteer details by ID and 404 for invalid ID', async () => {
+    const createRes = await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/volunteers',
+      payload: {
+        fullName: 'Detail Tester',
+        preferredName: 'Detailer',
+        nationality: 'ES',
+        applicationSourceName: 'HelpX'
+      }
+    });
+    expect(createRes.statusCode).toBe(201);
+    const created = JSON.parse(createRes.payload);
+
+    const getRes = await fastify.inject({
+      method: 'GET',
+      url: `/api/admin/volunteers/${created.id}`
+    });
+    expect(getRes.statusCode).toBe(200);
+    const fetched = JSON.parse(getRes.payload);
+    expect(fetched.id).toBe(created.id);
+    expect(fetched.fullName).toBe('Detail Tester');
+    expect(fetched.preferredName).toBe('Detailer');
+    expect(fetched.source).toBe('HelpX');
+
+    const postUpdateRes = await fastify.inject({
+      method: 'POST',
+      url: `/api/admin/volunteers/${created.id}`,
+      payload: {
+        notes: 'Updated via POST'
+      }
+    });
+    expect(postUpdateRes.statusCode).toBe(200);
+    const updated = JSON.parse(postUpdateRes.payload);
+    expect(updated.notes).toBe('Updated via POST');
+
+    const notFoundRes = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/volunteers/non-existent-id'
+    });
+    expect(notFoundRes.statusCode).toBe(404);
+
+    await db.delete(volunteers).where(eq(volunteers.id, created.id));
+  });
 });
