@@ -46,6 +46,9 @@ export const AdminTimelinePage: React.FC = () => {
   const [reactivatingVol, setReactivatingVol] = useState<any>(null);
   const [activeMenuVolId, setActiveMenuVolId] = useState<string | null>(null);
 
+  // Clickable date header column highlight
+  const [highlightedDate, setHighlightedDate] = useState<string | null>(null);
+
   const fetchTimeline = async () => {
     setLoading(true);
     try {
@@ -215,16 +218,40 @@ export const AdminTimelinePage: React.FC = () => {
 
     return (
       <tr key={`${person.id}_${person.arrivalDate}`} style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff' }}>
-        {/* Col A: Gender */}
-        <td style={{ padding: '0.4rem 0.5rem', textAlign: 'center', fontWeight: 'bold', fontSize: '1rem', borderRight: '1px solid #e2e8f0', width: '32px' }}>
+        {/* Col A: Gender (Sticky Left 0) */}
+        <td style={{
+          position: 'sticky',
+          left: 0,
+          zIndex: 15,
+          backgroundColor: '#fff',
+          padding: '0.4rem 0.5rem',
+          textAlign: 'center',
+          fontWeight: 'bold',
+          fontSize: '1rem',
+          borderRight: '1px solid #e2e8f0',
+          width: '32px',
+          minWidth: '32px',
+          maxWidth: '32px'
+        }}>
           {person.gender === 'Male' && <span style={{ color: '#2563eb' }} title="Male">♂</span>}
           {person.gender === 'Female' && <span style={{ color: '#db2777' }} title="Female">♀</span>}
           {person.gender === 'Neutral' && <span style={{ color: '#9333ea' }} title="Neutral">⚧</span>}
           {(person.gender === 'Unspecified' || !person.gender) && <span style={{ color: '#94a3b8' }} title="Unspecified">⚪</span>}
         </td>
 
-        {/* Col B: Name with Flag (Clickable to Edit) */}
-        <td style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #e2e8f0', whiteSpace: 'nowrap', fontWeight: '600', fontSize: '0.875rem' }}>
+        {/* Col B: Name with Flag (Sticky Left 32px) */}
+        <td style={{
+          position: 'sticky',
+          left: '32px',
+          zIndex: 15,
+          backgroundColor: '#fff',
+          padding: '0.4rem 0.6rem',
+          borderRight: '1px solid #e2e8f0',
+          whiteSpace: 'nowrap',
+          fontWeight: '600',
+          fontSize: '0.875rem',
+          minWidth: '150px'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <CountryFlag countryCode={person.nationality} />
             <button
@@ -373,6 +400,7 @@ export const AdminTimelinePage: React.FC = () => {
           const isOnSite = activeDateSet.has(day.date);
           const isToday = day.date === todayIso;
           const isDepartureDay = !person.noEndDate && person.departureDate === day.date;
+          const isHighlighted = highlightedDate === day.date;
 
           let background = 'transparent';
           if (isOnSite) {
@@ -383,6 +411,8 @@ export const AdminTimelinePage: React.FC = () => {
               // Solid intense color for main stay
               background = barColor;
             }
+          } else if (isHighlighted) {
+            background = '#eff6ff'; // Soft blue column highlight
           } else if (isToday) {
             background = '#f0fdf4';
           }
@@ -398,7 +428,8 @@ export const AdminTimelinePage: React.FC = () => {
                 textAlign: 'center',
                 borderRight: '1px solid #e2e8f0',
                 background,
-                userSelect: 'none'
+                userSelect: 'none',
+                boxShadow: isHighlighted ? 'inset 0 0 0 2px #3b82f6' : 'none'
               }}
               title={
                 isOnSite
@@ -489,7 +520,17 @@ export const AdminTimelinePage: React.FC = () => {
             <thead>
               {/* Row 1: Month Groups */}
               <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                <th colSpan={7} style={{ padding: '0.5rem', textAlign: 'left', borderRight: '2px solid #cbd5e1', fontWeight: 'bold', color: '#334155' }}>
+                <th colSpan={7} style={{
+                  position: 'sticky',
+                  left: 0,
+                  zIndex: 30,
+                  backgroundColor: '#f8fafc',
+                  padding: '0.5rem',
+                  textAlign: 'left',
+                  borderRight: '2px solid #cbd5e1',
+                  fontWeight: 'bold',
+                  color: '#334155'
+                }}>
                   Personnel Details
                 </th>
                 {monthGroups.map((mg, idx) => (
@@ -514,8 +555,31 @@ export const AdminTimelinePage: React.FC = () => {
 
               {/* Row 2: Columns & Day of Month Numbers */}
               <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
-                <th style={{ padding: '0.4rem 0.5rem', width: '32px', borderRight: '1px solid #cbd5e1' }}>Sex</th>
-                <th style={{ padding: '0.4rem 0.6rem', textAlign: 'left', borderRight: '1px solid #cbd5e1' }}>Name</th>
+                <th style={{
+                  position: 'sticky',
+                  left: 0,
+                  zIndex: 25,
+                  backgroundColor: '#f1f5f9',
+                  padding: '0.4rem 0.5rem',
+                  width: '32px',
+                  minWidth: '32px',
+                  maxWidth: '32px',
+                  borderRight: '1px solid #cbd5e1'
+                }}>
+                  Sex
+                </th>
+                <th style={{
+                  position: 'sticky',
+                  left: '32px',
+                  zIndex: 25,
+                  backgroundColor: '#f1f5f9',
+                  padding: '0.4rem 0.6rem',
+                  textAlign: 'left',
+                  minWidth: '150px',
+                  borderRight: '1px solid #cbd5e1'
+                }}>
+                  Name
+                </th>
                 <th style={{ padding: '0.4rem 0.5rem', width: '36px', borderRight: '1px solid #cbd5e1' }}>Age</th>
                 <th style={{ padding: '0.4rem 0.6rem', textAlign: 'left', borderRight: '1px solid #cbd5e1' }}>Source</th>
                 <th style={{ padding: '0.4rem 0.6rem', textAlign: 'left', borderRight: '1px solid #cbd5e1' }}>Status</th>
@@ -525,10 +589,12 @@ export const AdminTimelinePage: React.FC = () => {
                 {days.map((day) => {
                   const isToday = day.date === todayIso;
                   const isWeekend = day.dayOfWeek === 0 || day.dayOfWeek === 6;
+                  const isHighlighted = highlightedDate === day.date;
 
                   return (
                     <th
                       key={day.date}
+                      onClick={() => setHighlightedDate(prev => prev === day.date ? null : day.date)}
                       style={{
                         padding: '0.35rem 0.1rem',
                         width: '32px',
@@ -538,13 +604,15 @@ export const AdminTimelinePage: React.FC = () => {
                         fontSize: '0.75rem',
                         fontWeight: 'bold',
                         borderRight: '1px solid #cbd5e1',
-                        backgroundColor: isToday ? '#bbf7d0' : isWeekend ? '#e2e8f0' : '#f1f5f9',
-                        color: isToday ? '#14532d' : isWeekend ? '#334155' : '#0f172a'
+                        cursor: 'pointer',
+                        borderTop: isHighlighted ? '3px solid #2563eb' : 'none',
+                        backgroundColor: isHighlighted ? '#bfdbfe' : isToday ? '#bbf7d0' : isWeekend ? '#e2e8f0' : '#f1f5f9',
+                        color: isHighlighted ? '#1e40af' : isToday ? '#14532d' : isWeekend ? '#334155' : '#0f172a'
                       }}
-                      title={`${day.dayName}, ${day.date}`}
+                      title={`Click to highlight: ${day.dayName}, ${day.date}`}
                     >
                       <div>{day.dayOfMonth}</div>
-                      <div style={{ fontSize: '0.65rem', fontWeight: 'normal', color: '#64748b' }}>{day.dayName.slice(0, 1)}</div>
+                      <div style={{ fontSize: '0.65rem', fontWeight: 'normal', color: isHighlighted ? '#1e40af' : '#64748b' }}>{day.dayName.slice(0, 1)}</div>
                     </th>
                   );
                 })}
@@ -555,7 +623,9 @@ export const AdminTimelinePage: React.FC = () => {
               {/* SECTION 1: RECEPTION VOLUNTEERS */}
               <tr style={{ backgroundColor: '#e2e8f0', borderTop: '2px solid #94a3b8', borderBottom: '1px solid #cbd5e1' }}>
                 <td colSpan={7 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#0f172a', letterSpacing: '0.025em' }}>
-                  🛎️ Reception (Volunteers)
+                  <span style={{ position: 'sticky', left: '0.75rem', display: 'inline-block' }}>
+                    🛎️ Reception (Volunteers)
+                  </span>
                 </td>
               </tr>
               {timelineData?.reception?.map(renderTimelineRow)}
@@ -570,7 +640,9 @@ export const AdminTimelinePage: React.FC = () => {
               {/* SECTION 2: HOUSEKEEPING VOLUNTEERS */}
               <tr style={{ backgroundColor: '#e2e8f0', borderTop: '2px solid #94a3b8', borderBottom: '1px solid #cbd5e1' }}>
                 <td colSpan={7 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#0f172a', letterSpacing: '0.025em' }}>
-                  🧹 Housekeeping (Volunteers)
+                  <span style={{ position: 'sticky', left: '0.75rem', display: 'inline-block' }}>
+                    🧹 Housekeeping (Volunteers)
+                  </span>
                 </td>
               </tr>
               {timelineData?.housekeeping?.map(renderTimelineRow)}
@@ -587,6 +659,10 @@ export const AdminTimelinePage: React.FC = () => {
                 <td
                   colSpan={7}
                   style={{
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 15,
+                    backgroundColor: '#f8fafc',
                     padding: '0.6rem 0.75rem',
                     textAlign: 'right',
                     fontWeight: 'bold',
@@ -601,6 +677,7 @@ export const AdminTimelinePage: React.FC = () => {
                 {days.map((day) => {
                   const count = timelineData?.dailyConfirmedCounts?.[day.date] || 0;
                   const style = getCountStyle(count);
+                  const isHighlighted = highlightedDate === day.date;
 
                   return (
                     <td
@@ -615,7 +692,8 @@ export const AdminTimelinePage: React.FC = () => {
                         fontSize: '0.85rem',
                         borderRight: '1px solid #cbd5e1',
                         backgroundColor: style.bg,
-                        color: style.text
+                        color: style.text,
+                        boxShadow: isHighlighted ? 'inset 0 0 0 2px #2563eb' : 'none'
                       }}
                       title={`${count} confirmed volunteers on ${day.date}`}
                     >
@@ -625,26 +703,32 @@ export const AdminTimelinePage: React.FC = () => {
                 })}
               </tr>
 
-              {/* SECTION 4: INCOMING CANDIDATES (ACCEPTED & APPLIED) */}
+              {/* SECTION 4: UNCONFIRMED (APPLIED CANDIDATES) */}
               <tr style={{ backgroundColor: '#e2e8f0', borderTop: '2px solid #94a3b8', borderBottom: '1px solid #cbd5e1' }}>
                 <td colSpan={7 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#475569', letterSpacing: '0.025em' }}>
-                  📋 Incoming Candidates (Accepted & Applied)
+                  <span style={{ position: 'sticky', left: '0.75rem', display: 'inline-block' }}>
+                    📋 Unconfirmed (Applied Candidates)
+                  </span>
                 </td>
               </tr>
               {timelineData?.applied?.map(renderTimelineRow)}
               {timelineData?.applied?.length === 0 && (
                 <tr>
                   <td colSpan={7 + days.length} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
-                    No incoming accepted or applied candidates in this date window.
+                    No applied candidates in this date window.
                   </td>
                 </tr>
               )}
 
-              {/* SECTION 5: TOTAL INCOMING CANDIDATES ROW */}
+              {/* SECTION 5: TOTAL APPLIED CANDIDATES ROW */}
               <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #64748b', borderBottom: '2px solid #64748b' }}>
                 <td
                   colSpan={7}
                   style={{
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 15,
+                    backgroundColor: '#f8fafc',
                     padding: '0.6rem 0.75rem',
                     textAlign: 'right',
                     fontWeight: 'bold',
@@ -654,10 +738,11 @@ export const AdminTimelinePage: React.FC = () => {
                     letterSpacing: '0.025em'
                   }}
                 >
-                  Total INCOMING Candidates
+                  Total APPLIED Candidates
                 </td>
                 {days.map((day) => {
                   const count = timelineData?.dailyAppliedCounts?.[day.date] || 0;
+                  const isHighlighted = highlightedDate === day.date;
 
                   return (
                     <td
@@ -672,7 +757,8 @@ export const AdminTimelinePage: React.FC = () => {
                         fontSize: '0.85rem',
                         borderRight: '1px solid #cbd5e1',
                         backgroundColor: count > 0 ? '#fef9c3' : 'transparent',
-                        color: count > 0 ? '#854d0e' : '#94a3b8'
+                        color: count > 0 ? '#854d0e' : '#94a3b8',
+                        boxShadow: isHighlighted ? 'inset 0 0 0 2px #2563eb' : 'none'
                       }}
                       title={`${count} applied candidates on ${day.date}`}
                     >

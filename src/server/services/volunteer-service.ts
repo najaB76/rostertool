@@ -1,6 +1,6 @@
 import { db } from '../db/client.js';
 import { volunteers, applicationSources, stayReviews, shiftAssignments, volunteerStays } from '../db/schema.js';
-import { eq, and, gt, desc } from 'drizzle-orm';
+import { eq, and, gt, desc, inArray } from 'drizzle-orm';
 import crypto from 'crypto';
 
 export class VolunteerService {
@@ -13,7 +13,12 @@ export class VolunteerService {
     .leftJoin(applicationSources, eq(volunteers.applicationSourceId, applicationSources.id));
 
     if (status) {
-      query.where(eq(volunteers.status, status));
+      if (status.includes(',')) {
+        const statuses = status.split(',').map(s => s.trim());
+        query.where(inArray(volunteers.status, statuses));
+      } else {
+        query.where(eq(volunteers.status, status));
+      }
     }
 
     let rows = await query;

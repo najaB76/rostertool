@@ -41,8 +41,8 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
     if (isOpen && shift) {
       setLoading(true);
       const volsUrl = weekStart && weekEnd 
-        ? `/api/admin/volunteers?status=Active&inHouseStart=${weekStart}&inHouseEnd=${weekEnd}`
-        : '/api/admin/volunteers?status=Active';
+        ? `/api/admin/volunteers?status=Active,Accepted&inHouseStart=${weekStart}&inHouseEnd=${weekEnd}`
+        : '/api/admin/volunteers?status=Active,Accepted';
 
       Promise.all([
         fetch(volsUrl).then(r => r.json()),
@@ -62,17 +62,26 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
   if (!isOpen || !shift) return null;
 
   const isReceptionShift = shift.shiftName.toLowerCase().includes('reception');
+  const shiftDate = shift.date;
 
   const filteredVolunteers = volunteers.filter(v => {
     // When selecting receptionists, do not show non-reception trained volunteers
     if (isReceptionShift && !v.isReceptionQualified && v.primaryRole !== 'Reception') {
       return false;
     }
-    // ONLY include volunteers who will be in-house during the roster week
-    if (weekEnd && v.arrivalDate && v.arrivalDate > weekEnd) {
+
+    // Must be Active or Accepted (exclude Departed or Cancelled)
+    if (v.status !== 'Active' && v.status !== 'Accepted') {
       return false;
     }
-    if (weekStart && !v.noEndDate && v.departureDate && v.departureDate < weekStart) {
+
+    // ONLY and ALL volunteers who are or should be in house on shiftDate:
+    // 1. Arrived on or before shiftDate
+    if (v.arrivalDate && v.arrivalDate > shiftDate) {
+      return false;
+    }
+    // 2. Exclude any volunteers who have already departed by that day
+    if (!v.noEndDate && v.departureDate && v.departureDate < shiftDate) {
       return false;
     }
 
