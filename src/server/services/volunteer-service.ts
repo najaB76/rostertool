@@ -184,6 +184,24 @@ export class VolunteerService {
     Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
 
     await db.update(volunteers).set(updateData).where(eq(volunteers.id, id));
+
+    // Synchronize stay record in volunteerStays if arrivalDate/departureDate/noEndDate were updated
+    if (updateData.arrivalDate !== undefined || updateData.departureDate !== undefined || updateData.noEndDate !== undefined) {
+      const existingStays = await db.select().from(volunteerStays).where(eq(volunteerStays.volunteerId, id));
+      if (existingStays.length > 0) {
+        const matchingStay = existingStays.find(s => s.arrivalDate === (updateData.arrivalDate || s.arrivalDate)) || existingStays[0];
+        if (matchingStay) {
+          const stayUpdates: any = {};
+          if (updateData.arrivalDate !== undefined) stayUpdates.arrivalDate = updateData.arrivalDate;
+          if (updateData.departureDate !== undefined || updateData.noEndDate !== undefined) {
+            stayUpdates.departureDate = updateData.noEndDate ? null : (updateData.departureDate ?? null);
+            stayUpdates.noEndDate = Boolean(updateData.noEndDate);
+          }
+          await db.update(volunteerStays).set(stayUpdates).where(eq(volunteerStays.id, matchingStay.id));
+        }
+      }
+    }
+
     return this.getVolunteerById(id);
   }
 
@@ -337,6 +355,24 @@ export class VolunteerService {
     return await db.select().from(volunteerStays)
       .where(eq(volunteerStays.volunteerId, volunteerId))
       .orderBy(desc(volunteerStays.createdAt));
+  }
+
+  async updateStayReview(stayId: string, data: { departureRating?: number; departureNotes?: string; rehireStatus?: string }) {
+    const stay = await db.select().from(volunteerStays).where(eq(volunteerStays.id, stayId)).get();
+    if (!stay) throw new Error('Stay record not found');
+
+    const updateData: any = {};
+    if (data.departureRating !== undefined) updateData.departureRating = data.departureRating;
+    if (data.departureNotes !== undefined) updateData.departureNotes = data.departureNotes;
+    if (data.rehireStatus !== undefined) updateData.rehireStatus = data.rehireStatus;
+
+    await db.update(volunteerStays).set(updateData).where(eq(volunteerStays.id, stayId));
+
+    if (data.rehireStatus) {
+      await db.update(volunteers).set({ futureAcceptance: data.rehireStatus }).where(eq(volunteers.id, stay.volunteerId));
+    }
+
+    return await db.select().from(volunteerStays).where(eq(volunteerStays.id, stayId)).get();
   }
 }
 

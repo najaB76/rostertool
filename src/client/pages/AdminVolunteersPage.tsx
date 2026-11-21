@@ -628,6 +628,7 @@ export const AdminVolunteersPage: React.FC = () => {
           isOpen={!!stayHistoryVol}
           volunteer={stayHistoryVol}
           onClose={() => setStayHistoryVol(null)}
+          onStayUpdated={loadVolunteers}
         />
       )}
 

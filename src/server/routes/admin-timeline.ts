@@ -120,6 +120,11 @@ export default async function adminTimelineRoutes(fastify: FastifyInstance) {
           });
         }
         for (const s of staysByVol.get(v.id) || []) {
+          // If a stay in volunteer_stays has the same arrival date as the current record,
+          // the volunteer record is authoritative. Skip the duplicate or outdated stay.
+          if (v.arrivalDate && s.arrivalDate === v.arrivalDate) {
+            continue;
+          }
           if (!stays.some(st => st.arrivalDate === s.arrivalDate && st.departureDate === s.departureDate)) {
             stays.push({
               arrivalDate: s.arrivalDate,

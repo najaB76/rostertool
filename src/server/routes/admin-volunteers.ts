@@ -82,6 +82,18 @@ export default async function adminVolunteersRoutes(fastify: FastifyInstance) {
     }
   });
 
+  fastify.put<{ Params: { id: string; stayId: string }, Body: { departureRating?: number; departureNotes?: string; rehireStatus?: string } }>(
+    '/:id/stays/:stayId',
+    async (request, reply) => {
+      try {
+        const updated = await volunteerService.updateStayReview(request.params.stayId, request.body);
+        return updated;
+      } catch (e: any) {
+        return reply.status(400).send({ error: e.message });
+      }
+    }
+  );
+
   fastify.post<{ Params: { id: string }, Body: { arrivalDate: string; departureDate?: string | null; noEndDate?: boolean } }>(
     '/:id/reactivate',
     async (request, reply) => {

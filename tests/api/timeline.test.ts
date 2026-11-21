@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import adminTimelineRoutes from '../../src/server/routes/admin-timeline.js';
 import { db } from '../../src/server/db/client.js';
-import { volunteers, staffUsers } from '../../src/server/db/schema.js';
+import { volunteers, staffUsers, volunteerStays } from '../../src/server/db/schema.js';
 import { eq } from 'drizzle-orm';
 
 describe('Admin Staffing Timeline API', () => {
@@ -216,5 +216,58 @@ describe('Admin Staffing Timeline API', () => {
     expect(body.dailyAppliedCounts['2026-11-22']).toBeGreaterThanOrEqual(1);
 
     await db.delete(volunteers).where(eq(volunteers.id, 'tl-vol-acc'));
+  });
+
+  it('GET /api/admin/timeline - does not let un-synchronized null stays in volunteer_stays overwrite authoritative departure dates when scrolling forward', async () => {
+    const testVolId = 'tl-vol-wy';
+    await db.insert(volunteers).values({
+      id: testVolId,
+      fullName: 'William Yang',
+      preferredName: 'William',
+      nationality: 'US',
+      gender: 'Male',
+      source: 'Worldpackers',
+      status: 'Active',
+      primaryRole: 'Housekeeping',
+      arrivalDate: '2026-11-06',
+      departureDate: '2026-12-05',
+      noEndDate: false,
+      magicLinkToken: 'token-tl-wy'
+    });
+
+    await db.insert(volunteerStays).values({
+      id: 'stay-wy-old',
+      volunteerId: testVolId,
+      arrivalDate: '2026-11-06',
+      departureDate: null,
+      noEndDate: false
+    });
+
+    // Call 0: Within stay window (2026-11-16 to 2026-12-20)
+    const res0 = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/timeline',
+      query: { startDate: '2026-11-16', weeks: '5' }
+    });
+    expect(res0.statusCode).toBe(200);
+    const body0 = JSON.parse(res0.payload);
+    const wy0 = body0.housekeeping.find((h: any) => h.id === testVolId);
+    expect(wy0).toBeDefined();
+    expect(wy0.departureDate).toBe('2026-12-05');
+
+    // Call 1: Scrolled forward past departure (2026-12-21 to 2027-01-24)
+    const res1 = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/timeline',
+      query: { startDate: '2026-12-21', weeks: '5' }
+    });
+    expect(res1.statusCode).toBe(200);
+    const body1 = JSON.parse(res1.payload);
+    const wy1 = body1.housekeeping.find((h: any) => h.id === testVolId);
+    // William Yang departed on 2026-12-05, so he MUST NOT appear in the window starting 2026-12-21!
+    expect(wy1).toBeUndefined();
+
+    await db.delete(volunteerStays).where(eq(volunteerStays.volunteerId, testVolId));
+    await db.delete(volunteers).where(eq(volunteers.id, testVolId));
   });
 });

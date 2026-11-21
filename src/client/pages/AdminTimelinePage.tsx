@@ -703,6 +703,55 @@ export const AdminTimelinePage: React.FC = () => {
                 })}
               </tr>
 
+              {/* SECTION 3B: VACANCIES AVAILABLE ROW */}
+              <tr style={{ backgroundColor: '#f0fdf4', borderBottom: '2px solid #86efac' }}>
+                <td
+                  colSpan={7}
+                  style={{
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 15,
+                    backgroundColor: '#f0fdf4',
+                    padding: '0.5rem 0.75rem',
+                    textAlign: 'right',
+                    fontWeight: 'bold',
+                    fontSize: '0.85rem',
+                    color: '#166534',
+                    borderRight: '2px solid #cbd5e1',
+                    letterSpacing: '0.025em'
+                  }}
+                >
+                  Vacancies (vs Target {thresholds.baseline})
+                </td>
+                {days.map((day) => {
+                  const count = timelineData?.dailyConfirmedCounts?.[day.date] || 0;
+                  const vacancies = Math.max(0, thresholds.baseline - count);
+                  const isHighlighted = highlightedDate === day.date;
+
+                  return (
+                    <td
+                      key={day.date}
+                      style={{
+                        padding: '0.35rem 0.1rem',
+                        width: '32px',
+                        minWidth: '32px',
+                        maxWidth: '32px',
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        fontSize: '0.85rem',
+                        borderRight: '1px solid #cbd5e1',
+                        backgroundColor: vacancies > 0 ? '#dcfce7' : '#f8fafc',
+                        color: vacancies > 0 ? '#15803d' : '#94a3b8',
+                        boxShadow: isHighlighted ? 'inset 0 0 0 2px #2563eb' : 'none'
+                      }}
+                      title={`${vacancies} vacancies available on ${day.date} (Target: ${thresholds.baseline}, Confirmed: ${count})`}
+                    >
+                      {vacancies}
+                    </td>
+                  );
+                })}
+              </tr>
+
               {/* SECTION 4: UNCONFIRMED (APPLIED CANDIDATES) */}
               <tr style={{ backgroundColor: '#e2e8f0', borderTop: '2px solid #94a3b8', borderBottom: '1px solid #cbd5e1' }}>
                 <td colSpan={7 + days.length} style={{ padding: '0.4rem 0.75rem', fontWeight: 'bold', color: '#475569', letterSpacing: '0.025em' }}>

@@ -110,4 +110,28 @@ describe('Volunteer Multi-Stay & Lifecycle API', () => {
     const stays = await db.select().from(volunteerStays).where(eq(volunteerStays.volunteerId, 'stay-test-vol'));
     expect(stays.length).toBe(2);
   });
+
+  it('PUT /:id/stays/:stayId - edits past stay review rating, notes, and rehire recommendation', async () => {
+    const res = await fastify.inject({
+      method: 'PUT',
+      url: '/api/admin/volunteers/stay-test-vol/stays/stay-1',
+      payload: {
+        departureRating: 4,
+        departureNotes: 'Corrected review notes',
+        rehireStatus: 'Conditional'
+      }
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.payload);
+    expect(body.departureRating).toBe(4);
+    expect(body.rehireStatus).toBe('Conditional');
+    expect(body.departureNotes).toBe('Corrected review notes');
+
+    // Verify in database
+    const updatedStay = await db.select().from(volunteerStays).where(eq(volunteerStays.id, 'stay-1')).get();
+    expect(updatedStay?.departureRating).toBe(4);
+    expect(updatedStay?.rehireStatus).toBe('Conditional');
+    expect(updatedStay?.departureNotes).toBe('Corrected review notes');
+  });
 });
