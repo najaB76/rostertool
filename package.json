@@ -12,7 +12,8 @@
     "test:engine": "vitest run tests/engine",
     "db:migrate": "tsx src/server/db/migrate.ts",
     "db:seed": "tsx src/server/db/seed.ts",
-    "import:history": "tsx scripts/import-historical-data.ts"
+    "import:history": "tsx scripts/import-historical-data.ts",
+    "import:residents": "tsx scripts/import-residents.ts"
   },
   "repository": {
     "type": "git",

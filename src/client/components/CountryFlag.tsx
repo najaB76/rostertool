@@ -10,7 +10,8 @@ interface CountryFlagProps {
 export const CountryFlag: React.FC<CountryFlagProps> = ({ countryCode, className = '', style }) => {
   if (!countryCode) return null;
   const code = countryCode.toUpperCase();
-  const FlagComponent = (Flags as Record<string, React.ComponentType<any>>)[code];
+  const normalizedKey = code.replace(/-/g, '_');
+  const FlagComponent = (Flags as Record<string, React.ComponentType<any>>)[normalizedKey] || (Flags as Record<string, React.ComponentType<any>>)[code];
 
   if (FlagComponent) {
     return (

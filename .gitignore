@@ -9,3 +9,6 @@ data/rostertool.sqlite*
 *.jpeg
 *.jpg
 feedback.txt
+residents.json
+*.har
+*.ods
