@@ -139,5 +139,6 @@ try {
 }
 
 // Initialize Drizzle ORM
+export const sqliteDb = sqlite;
 export const db = drizzle(sqlite);
 export default db;

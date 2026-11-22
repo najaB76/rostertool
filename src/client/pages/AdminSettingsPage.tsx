@@ -18,6 +18,7 @@ export const AdminSettingsPage: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,8 +76,39 @@ export const AdminSettingsPage: React.FC = () => {
     }
   };
 
-  const handleDownloadBackup = () => {
-    window.location.href = '/api/admin/backup/export';
+  const handleDownloadBackup = async () => {
+    setExporting(true);
+    try {
+      const res = await fetch('/api/admin/backup/export');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Export failed with status ${res.status}`);
+      }
+
+      // Extract filename from Content-Disposition header if available
+      const disposition = res.headers.get('content-disposition');
+      let filename = `rostertool-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.sqlite`;
+      if (disposition && disposition.includes('filename=')) {
+        const match = disposition.match(/filename="?([^"]+)"?/);
+        if (match && match[1]) {
+          filename = match[1];
+        }
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      a.remove();
+    } catch (err: any) {
+      alert(`Database export failed: ${err.message}`);
+    } finally {
+      setExporting(false);
+    }
   };
 
   if (loading) {
@@ -285,21 +317,22 @@ export const AdminSettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={handleDownloadBackup}
+            disabled={exporting}
             style={{
               padding: '0.6rem 1.25rem',
-              backgroundColor: '#10b981',
+              backgroundColor: exporting ? '#6ee7b7' : '#10b981',
               color: '#fff',
               border: 'none',
               borderRadius: '4px',
               fontWeight: '600',
-              cursor: 'pointer',
+              cursor: exporting ? 'not-allowed' : 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.4rem',
               fontSize: '0.9rem'
             }}
           >
-            📥 Download Database Backup (.sqlite)
+            {exporting ? '⏳ Preparing & Downloading Backup...' : '📥 Download Database Backup (.sqlite)'}
           </button>
         </div>
       </div>
