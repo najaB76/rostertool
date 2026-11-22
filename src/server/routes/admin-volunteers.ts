@@ -94,6 +94,30 @@ export default async function adminVolunteersRoutes(fastify: FastifyInstance) {
     }
   );
 
+  fastify.delete<{ Params: { id: string; stayId: string } }>(
+    '/:id/stays/:stayId',
+    async (request, reply) => {
+      try {
+        const result = await volunteerService.deleteStay(request.params.stayId);
+        return result;
+      } catch (e: any) {
+        return reply.status(400).send({ error: e.message });
+      }
+    }
+  );
+
+  fastify.delete<{ Params: { id: string } }>(
+    '/:id',
+    async (request, reply) => {
+      try {
+        const result = await volunteerService.deleteVolunteer(request.params.id);
+        return result;
+      } catch (e: any) {
+        return reply.status(400).send({ error: e.message });
+      }
+    }
+  );
+
   fastify.post<{ Params: { id: string }, Body: { arrivalDate: string; departureDate?: string | null; noEndDate?: boolean } }>(
     '/:id/reactivate',
     async (request, reply) => {

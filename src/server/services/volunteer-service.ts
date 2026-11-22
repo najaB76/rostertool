@@ -1,5 +1,5 @@
 import { db } from '../db/client.js';
-import { volunteers, applicationSources, stayReviews, shiftAssignments, volunteerStays } from '../db/schema.js';
+import { volunteers, applicationSources, stayReviews, shiftAssignments, volunteerStays, timeOffRequests } from '../db/schema.js';
 import { eq, and, gt, desc, inArray } from 'drizzle-orm';
 import crypto from 'crypto';
 
@@ -373,6 +373,43 @@ export class VolunteerService {
     }
 
     return await db.select().from(volunteerStays).where(eq(volunteerStays.id, stayId)).get();
+  }
+
+  async deleteStay(stayId: string) {
+    const stay = await db.select().from(volunteerStays).where(eq(volunteerStays.id, stayId)).get();
+    if (!stay) throw new Error('Stay record not found');
+
+    await db.delete(volunteerStays).where(eq(volunteerStays.id, stayId));
+
+    // If volunteer's arrival date matches this deleted stay, sync volunteer's dates to remaining latest stay
+    const remainingStays = await db.select().from(volunteerStays)
+      .where(eq(volunteerStays.volunteerId, stay.volunteerId))
+      .orderBy(desc(volunteerStays.createdAt));
+
+    if (remainingStays.length > 0) {
+      const latest = remainingStays[0];
+      await db.update(volunteers).set({
+        arrivalDate: latest.arrivalDate,
+        departureDate: latest.departureDate,
+        noEndDate: latest.noEndDate
+      }).where(eq(volunteers.id, stay.volunteerId));
+    }
+
+    return { success: true };
+  }
+
+  async deleteVolunteer(id: string) {
+    const vol = await db.select().from(volunteers).where(eq(volunteers.id, id)).get();
+    if (!vol) throw new Error('Volunteer not found');
+
+    // Cascading deletion across all related child tables (zero orphans)
+    await db.delete(shiftAssignments).where(eq(shiftAssignments.volunteerId, id));
+    await db.delete(timeOffRequests).where(eq(timeOffRequests.volunteerId, id));
+    await db.delete(stayReviews).where(eq(stayReviews.volunteerId, id));
+    await db.delete(volunteerStays).where(eq(volunteerStays.volunteerId, id));
+    await db.delete(volunteers).where(eq(volunteers.id, id));
+
+    return { success: true };
   }
 }
 

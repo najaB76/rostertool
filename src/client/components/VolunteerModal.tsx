@@ -5,9 +5,10 @@ interface VolunteerModalProps {
   volunteer?: any;
   onSave: (data: any) => void;
   onClose: () => void;
+  onDelete?: (id: string) => void;
 }
 
-export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSave, onClose }) => {
+export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSave, onClose, onDelete }) => {
   const [formData, setFormData] = useState({
     fullName: volunteer?.fullName || '',
     preferredName: volunteer?.preferredName || '',
@@ -349,21 +350,37 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
             />
           </label>
           
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-            <button 
-              type="button" 
-              onClick={onClose}
-              style={{ padding: '0.5rem 1rem', background: '#fff', border: '1px solid #d4d4d8', borderRadius: '4px', cursor: 'pointer' }}
-            >
-              Cancel
-            </button>
-            <button 
-              type="button" 
-              onClick={() => onSave({ ...formData, source: formData.applicationSourceName })} 
-              style={{ background: '#3b82f6', color: '#fff', padding: '0.5rem 1.25rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
-            >
-              Save Volunteer
-            </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+            {volunteer?.id && onDelete ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm(`Are you sure you want to permanently delete ${volunteer.fullName || 'this volunteer'}?\n\nThis will remove all their records, stays, and shift assignments.`)) {
+                    onDelete(volunteer.id);
+                  }
+                }}
+                style={{ padding: '0.5rem 1rem', background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
+              >
+                🗑 Delete Volunteer
+              </button>
+            ) : <span />}
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button 
+                type="button" 
+                onClick={onClose}
+                style={{ padding: '0.5rem 1rem', background: '#fff', border: '1px solid #d4d4d8', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                onClick={() => onSave({ ...formData, source: formData.applicationSourceName })} 
+                style={{ background: '#3b82f6', color: '#fff', padding: '0.5rem 1.25rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
+              >
+                Save Volunteer
+              </button>
+            </div>
           </div>
         </div>
 

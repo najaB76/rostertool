@@ -151,6 +151,22 @@ export const AdminVolunteersPage: React.FC = () => {
     fetchVolunteers();
   };
 
+  const handleDeleteVolunteer = async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/volunteers/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setIsModalOpen(false);
+        setSelectedVol(null);
+        fetchVolunteers();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to delete volunteer: ${data.error || res.statusText}`);
+      }
+    } catch (err: any) {
+      alert(`Error deleting volunteer: ${err.message}`);
+    }
+  };
+
   // Filter volunteers based on multi-parameter filters
   const filteredVolunteers = useMemo(() => {
     return volunteers.filter(v => {
@@ -477,6 +493,17 @@ export const AdminVolunteersPage: React.FC = () => {
                 >
                   Edit / Notes
                 </button>
+                <button 
+                  onClick={() => {
+                    if (window.confirm(`Are you sure you want to permanently delete ${v.fullName}?\n\nThis will remove all their records, stays, and shift assignments.`)) {
+                      handleDeleteVolunteer(v.id);
+                    }
+                  }}
+                  style={{ padding: '0.4rem 0.6rem', background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
+                  title="Permanently delete volunteer"
+                >
+                  🗑 Delete
+                </button>
 
                 {v.status === 'Applied' && (
                   <>
@@ -599,6 +626,7 @@ export const AdminVolunteersPage: React.FC = () => {
           volunteer={selectedVol} 
           onSave={handleSave} 
           onClose={() => setIsModalOpen(false)} 
+          onDelete={handleDeleteVolunteer}
         />
       )}
 

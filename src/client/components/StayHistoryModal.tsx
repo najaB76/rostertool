@@ -83,6 +83,24 @@ export const StayHistoryModal: React.FC<StayHistoryModalProps> = ({
     }
   };
 
+  const handleDeleteStay = async (stayId: string) => {
+    if (!window.confirm('Are you sure you want to delete this stay record?')) return;
+    try {
+      const res = await fetch(`/api/admin/volunteers/${volunteer.id}/stays/${stayId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setStays(prev => prev.filter(s => s.id !== stayId));
+        if (onStayUpdated) onStayUpdated();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to delete stay: ${data.error || res.statusText}`);
+      }
+    } catch (e: any) {
+      alert(`Error deleting stay: ${e.message}`);
+    }
+  };
+
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
       <div style={{ background: '#fff', padding: '1.75rem', borderRadius: '8px', width: '580px', maxWidth: '90vw', maxHeight: '85vh', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -160,6 +178,22 @@ export const StayHistoryModal: React.FC<StayHistoryModalProps> = ({
                           title="Edit rating, review notes, and rehire recommendation"
                         >
                           ✎ Edit Review
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStay(stay.id)}
+                          style={{
+                            background: 'none',
+                            border: '1px solid #fecaca',
+                            borderRadius: '4px',
+                            padding: '0.15rem 0.45rem',
+                            fontSize: '0.75rem',
+                            color: '#991b1b',
+                            cursor: 'pointer',
+                            fontWeight: '500'
+                          }}
+                          title="Delete duplicate or erroneous stay record"
+                        >
+                          🗑 Delete Stay
                         </button>
                       </div>
                     )}
