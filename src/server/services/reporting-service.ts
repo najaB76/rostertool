@@ -40,9 +40,29 @@ export function getAgeBracket(dateOfBirth: string | null): '<22' | '22-25' | '26
 }
 
 export class ReportingService {
-  async getReports() {
-    const allVols = await db.select().from(volunteers);
-    const allStays = await db.select().from(volunteerStays);
+  async getReports(startDate?: string, endDate?: string) {
+    const rawVols = await db.select().from(volunteers);
+    const rawStays = await db.select().from(volunteerStays);
+
+    // Filter stays if date range is specified
+    const allStays = (startDate || endDate)
+      ? rawStays.filter(s => {
+          if (startDate && s.departureDate && s.departureDate < startDate) return false;
+          if (endDate && s.arrivalDate && s.arrivalDate > endDate) return false;
+          return true;
+        })
+      : rawStays;
+
+    // Filter volunteers who were active or had stays in the date range
+    const activeStayVolIds = new Set(allStays.map(s => s.volunteerId));
+    const allVols = (startDate || endDate)
+      ? rawVols.filter(v => {
+          if (activeStayVolIds.has(v.id)) return true;
+          if (startDate && v.departureDate && v.departureDate < startDate) return false;
+          if (endDate && v.arrivalDate && v.arrivalDate > endDate) return false;
+          return true;
+        })
+      : rawVols;
 
     // Map stays by volunteerId
     const staysByVol = new Map<string, typeof allStays>();

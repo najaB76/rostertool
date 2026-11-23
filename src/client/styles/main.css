@@ -1,10 +1,37 @@
+/* CSS Theme Custom Properties */
+:root {
+  --bg-app: #f4f4f5;
+  --bg-card: #ffffff;
+  --bg-muted: #f8fafc;
+  --bg-header: #18181b;
+  --text-main: #0f172a;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+}
+
+html.dark {
+  --bg-app: #0b0f19;
+  --bg-card: #1e293b;
+  --bg-muted: #0f172a;
+  --bg-header: #06090e;
+  --text-main: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  color-scheme: dark;
+}
+
 body {
   font-family: system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
   background-color: #f4f4f5;
   color: #18181b;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+html.dark body {
+  background-color: #0b0f19 !important;
+  color: #f8fafc !important;
 }
 
 .admin-layout {
@@ -20,6 +47,11 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+html.dark .admin-header {
+  background-color: #06090e !important;
+  border-bottom: 1px solid #1e293b;
 }
 
 .admin-header h1 {
@@ -67,25 +99,235 @@ body {
   display: inline-block;
 }
 
-/* Dark Theme Overrides */
-html.dark body {
-  background-color: #0b0f19;
-  color: #f8fafc;
-}
+/* =========================================================
+   DARK MODE OVERRIDES (Guarantee High Contrast Everywhere)
+   ========================================================= */
 
-html.dark .admin-header {
-  background-color: #06090e;
-  border-bottom: 1px solid #1e293b;
-}
-
+/* Dark Mode Country Flag Outline */
 html.dark .country-flag-wrapper svg {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 2px 4px rgba(0, 0, 0, 0.6) !important;
 }
 
+/* Force dark surfaces on any container with white inline backgrounds */
+html.dark div[style*="background: #fff"],
+html.dark div[style*="background:#fff"],
+html.dark div[style*="background: rgb(255, 255, 255)"],
+html.dark div[style*="backgroundColor: #fff"],
+html.dark div[style*="backgroundColor: '#fff'"],
+html.dark div[style*="background-color: #fff"],
+html.dark div[style*="background: white"],
+html.dark div[style*="backgroundColor: white"] {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Force dark backgrounds on light gray panels, card headers and toolbars */
+html.dark div[style*="background: #f8fafc"],
+html.dark div[style*="background:#f8fafc"],
+html.dark div[style*="backgroundColor: #f8fafc"],
+html.dark div[style*="background-color: #f8fafc"],
+html.dark div[style*="background: #f1f5f9"],
+html.dark div[style*="background:#f1f5f9"],
+html.dark div[style*="backgroundColor: #f1f5f9"],
+html.dark div[style*="background-color: #f1f5f9"],
+html.dark div[style*="background: #f4f4f5"],
+html.dark div[style*="background:#f4f4f5"],
+html.dark div[style*="backgroundColor: #f4f4f5"],
+html.dark div[style*="background-color: #f4f4f5"],
+html.dark div[style*="backgroundColor: #e4e4e7"] {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Shift Slot Cells & Roster Day Columns */
+html.dark .shift-slot-cell {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark .shift-slot-cell:not(.understaffed) {
+  background-color: #1e293b !important;
+}
+
+html.dark .shift-slot-cell.understaffed {
+  background-color: #450a0a !important;
+  border-color: #7f1d1d !important;
+}
+
+html.dark .shift-slot-cell strong {
+  color: #94a3b8 !important;
+}
+
+html.dark .assignments-list > div {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155;
+}
+
+html.dark .shift-slot-cell button[style*="border: 1px dashed"] {
+  border-color: #475569 !important;
+  color: #94a3b8 !important;
+}
+
+/* Tables, Rows and Cells */
+html.dark table {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark tr {
+  border-color: #334155 !important;
+}
+
+html.dark th {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark th[style*="background-color: #f8fafc"],
+html.dark th[style*="background-color: #f1f5f9"],
+html.dark th[style*="backgroundColor: #f8fafc"],
+html.dark th[style*="backgroundColor: #f1f5f9"] {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark td {
+  border-color: #334155 !important;
+}
+
+html.dark td[style*="background: #fff"],
+html.dark td[style*="backgroundColor: #fff"],
+html.dark td[style*="background-color: #fff"] {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+html.dark td[style*="background: #f8fafc"],
+html.dark td[style*="backgroundColor: #f8fafc"],
+html.dark td[style*="background-color: #f8fafc"] {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+/* Timeline Sticky Columns */
+html.dark th[style*="position: sticky"],
+html.dark td[style*="position: sticky"] {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark tr[style*="backgroundColor: #f8fafc"] td[style*="position: sticky"],
+html.dark tr[style*="background-color: #f8fafc"] td[style*="position: sticky"] {
+  background-color: #090d16 !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Section Header Dividers */
+html.dark tr[style*="backgroundColor: #e2e8f0"],
+html.dark tr[style*="background-color: #e2e8f0"] {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+html.dark tr[style*="backgroundColor: #e2e8f0"] td,
+html.dark tr[style*="background-color: #e2e8f0"] td {
+  color: #cbd5e1 !important;
+}
+
+/* Vacancies row */
+html.dark tr[style*="backgroundColor: #f0fdf4"],
+html.dark tr[style*="background-color: #f0fdf4"] {
+  background-color: #062414 !important;
+  border-color: #047857 !important;
+}
+
+html.dark tr[style*="backgroundColor: #f0fdf4"] td {
+  color: #6ee7b7 !important;
+}
+
+html.dark tr[style*="backgroundColor: #f0fdf4"] td[style*="backgroundColor: #dcfce7"] {
+  background-color: #064e3b !important;
+  color: #a7f3d0 !important;
+}
+
+html.dark tr[style*="backgroundColor: #f0fdf4"] td[style*="backgroundColor: #f8fafc"] {
+  background-color: #0f172a !important;
+  color: #64748b !important;
+}
+
+/* Total Confirmed & Applied Rows */
+html.dark tr[style*="borderTop: 2px solid #64748b"] {
+  background-color: #0f172a !important;
+}
+
+/* Modals */
+html.dark div[style*="position: fixed"] > div[style*="background: #fff"],
+html.dark div[style*="position: fixed"] > div[style*="backgroundColor: #fff"] {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 10px 10px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark div[style*="position: fixed"] h3 {
+  color: #f8fafc !important;
+}
+
+html.dark div[style*="position: fixed"] label {
+  color: #cbd5e1 !important;
+}
+
+/* Text Contrast Corrections */
+html.dark [style*="color: #0f172a"],
+html.dark [style*="color: #1e293b"],
+html.dark [style*="color: #18181b"],
+html.dark [style*="color: #27272a"],
+html.dark [style*="color: #334155"],
+html.dark [style*="color: #3f3f46"],
+html.dark [style*="color: #52525b"] {
+  color: #f8fafc !important;
+}
+
+html.dark [style*="color: #64748b"],
+html.dark [style*="color: #71717a"],
+html.dark [style*="color: #a1a1aa"] {
+  color: #94a3b8 !important;
+}
+
+/* Buttons in dark mode */
+html.dark button[style*="background: #fff"],
+html.dark button[style*="background: #f4f4f5"],
+html.dark button[style*="background: #f8fafc"],
+html.dark button[style*="background: #f1f5f9"],
+html.dark button[style*="background: #e2e8f0"],
+html.dark button[style*="backgroundColor: #fff"],
+html.dark button[style*="backgroundColor: #f4f4f5"],
+html.dark button[style*="backgroundColor: #f8fafc"],
+html.dark button[style*="backgroundColor: #f1f5f9"],
+html.dark button[style*="backgroundColor: #e2e8f0"] {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Inputs, Selects, and Textareas */
 html.dark input:not([type="checkbox"]):not([type="radio"]),
 html.dark select,
 html.dark textarea {
-  background-color: #1e293b;
-  color: #f8fafc;
-  border-color: #475569;
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Links */
+html.dark a {
+  color: #60a5fa;
 }

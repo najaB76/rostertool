@@ -126,4 +126,22 @@ describe('Volunteer Analytics & Reports API', () => {
     // Verify rehireRatiosByCountry
     expect(Array.isArray(body.rehireRatiosByCountry)).toBe(true);
   });
+
+  it('GET /api/admin/reports - filters analytics by date range', async () => {
+    // 2025 query should include Scottish Reporter (rep-vol-2) but NOT Spanish Reporter (rep-vol-1 arriving Nov 2026)
+    const res2025 = await fastify.inject({
+      method: 'GET',
+      url: '/api/admin/reports',
+      query: {
+        startDate: '2025-01-01',
+        endDate: '2025-12-31'
+      }
+    });
+
+    expect(res2025.statusCode).toBe(200);
+    const body2025 = JSON.parse(res2025.payload);
+    const countries2025 = body2025.byCountry.map((c: any) => c.country);
+    expect(countries2025).toContain('GB-SCT');
+    expect(countries2025).not.toContain('ES');
+  });
 });
