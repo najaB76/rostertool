@@ -21,7 +21,7 @@ export const CountryFlag: React.FC<CountryFlagProps> = ({ countryCode, className
             width: '1.25em', 
             height: '0.85em', 
             borderRadius: '2px', 
-            boxShadow: '0 0 1px rgba(0,0,0,0.4)',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.25), 0 0 2px rgba(0,0,0,0.4)',
             objectFit: 'cover'
           }} 
         />

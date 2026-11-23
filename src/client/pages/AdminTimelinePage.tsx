@@ -496,6 +496,24 @@ export const AdminTimelinePage: React.FC = () => {
           <span style={{ borderLeft: '1px solid #cbd5e1', height: '1.25rem', margin: '0 0.25rem' }} />
 
           <label style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            📅 Jump to:
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                if (e.target.value) {
+                  const targetMonday = snapToMonday(new Date(e.target.value));
+                  setStartDate(targetMonday);
+                }
+              }}
+              style={{ padding: '0.2rem 0.4rem', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#fff', fontSize: '0.8rem' }}
+              title="Select any date to jump to that week's timeline view"
+            />
+          </label>
+
+          <span style={{ borderLeft: '1px solid #cbd5e1', height: '1.25rem', margin: '0 0.25rem' }} />
+
+          <label style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             Weeks:
             <select
               value={weeks}

@@ -10,6 +10,7 @@ import adminTimeOffRoutes from './routes/admin-timeoff.js';
 import adminStaffRoutes from './routes/admin-staff.js';
 import adminTimelineRoutes from './routes/admin-timeline.js';
 import adminBackupRoutes from './routes/admin-backup.js';
+import adminReportsRoutes from './routes/admin-reports.js';
 import portalRoutes from './routes/portal.js';
 import authRoutes, { requireAdminAuth } from './routes/auth.js';
 import adminUsersRoutes from './routes/admin-users.js';
@@ -40,6 +41,7 @@ await fastify.register(adminTimeOffRoutes, { prefix: '/api/admin/time-off' });
 await fastify.register(adminStaffRoutes, { prefix: '/api/admin/staff' });
 await fastify.register(adminTimelineRoutes, { prefix: '/api/admin/timeline' });
 await fastify.register(adminBackupRoutes, { prefix: '/api/admin/backup' });
+await fastify.register(adminReportsRoutes, { prefix: '/api/admin/reports' });
 await fastify.register(portalRoutes, { prefix: '/api/portal' });
 
 // In production, serve the Vite static assets

@@ -4,6 +4,7 @@ body {
   padding: 0;
   background-color: #f4f4f5;
   color: #18181b;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .admin-layout {
@@ -64,4 +65,27 @@ body {
   border-radius: 2px;
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
   display: inline-block;
+}
+
+/* Dark Theme Overrides */
+html.dark body {
+  background-color: #0b0f19;
+  color: #f8fafc;
+}
+
+html.dark .admin-header {
+  background-color: #06090e;
+  border-bottom: 1px solid #1e293b;
+}
+
+html.dark .country-flag-wrapper svg {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-color: #475569;
 }
