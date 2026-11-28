@@ -136,7 +136,7 @@ export const AdminSettingsPage: React.FC = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} style={{ background: '#fff', padding: '1.75rem', borderRadius: '8px', border: '1px solid #e4e4e7', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <form onSubmit={handleSubmit} className="settings-card" style={{ padding: '1.75rem', borderRadius: '8px', border: '1px solid #e4e4e7', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {/* Section 1: Housekeeping */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <h3 style={{ margin: 0, fontSize: '1.05rem', color: '#0f172a', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.5rem' }}>
@@ -305,7 +305,7 @@ export const AdminSettingsPage: React.FC = () => {
       </form>
 
       {/* Section 4: Data Management & Backup */}
-      <div style={{ background: '#fff', padding: '1.75rem', borderRadius: '8px', border: '1px solid #e4e4e7', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="settings-card" style={{ padding: '1.75rem', borderRadius: '8px', border: '1px solid #e4e4e7', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <h3 style={{ margin: 0, fontSize: '1.05rem', color: '#0f172a', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.5rem' }}>
           💾 Data Management & Backup
         </h3>

@@ -155,7 +155,7 @@ export const AdminHeadcountPage: React.FC = () => {
       </div>
 
       {/* Navigation Toolbar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '0.75rem 1.25rem', borderRadius: '8px', border: '1px solid #e4e4e7' }}>
+      <div className="headcount-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1.25rem', borderRadius: '8px', border: '1px solid #e4e4e7' }}>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <button 
             onClick={handlePrev}
@@ -177,18 +177,18 @@ export const AdminHeadcountPage: React.FC = () => {
           </button>
         </div>
 
-        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#18181b' }}>
+        <div className="period-title" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
           {periodTitle}
         </div>
 
-        <div style={{ fontSize: '0.85rem', color: '#71717a' }}>
+        <div style={{ fontSize: '0.85rem' }}>
           {formatDate(startDate)} to {formatDate(endDate)}
         </div>
       </div>
 
       {/* Capacity Indicator Legend Banner */}
       {!isCompact && (
-        <div style={{ display: 'flex', gap: '1.5rem', padding: '0.75rem 1.25rem', background: '#fff', borderRadius: '8px', border: '1px solid #e4e4e7', fontSize: '0.85rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className="legend-banner" style={{ display: 'flex', gap: '1.5rem', padding: '0.75rem 1.25rem', borderRadius: '8px', border: '1px solid #e4e4e7', fontSize: '0.85rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <strong>Capacity Benchmarks:</strong>
           <span style={{ color: '#16a34a', fontWeight: '500' }}>• Baseline Target ({settings.headcountBaseline} volunteers)</span>
           <span style={{ color: '#ea580c', fontWeight: '500' }}>• Low Staffing ({settings.headcountLowMin}–{settings.headcountLowMax})</span>

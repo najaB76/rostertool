@@ -360,7 +360,7 @@ export const AdminVolunteersPage: React.FC = () => {
           const rehireStatus = v.latestRehireStatus || v.futureAcceptance;
 
           return (
-          <div key={v.id} style={{ background: '#fff', padding: '1.25rem', borderRadius: '8px', border: '1px solid #e4e4e7', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div key={v.id} className="volunteer-card" style={{ padding: '1.25rem', borderRadius: '8px', border: '1px solid #e4e4e7', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <h3 style={{ margin: '0 0 0.35rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -578,8 +578,8 @@ export const AdminVolunteersPage: React.FC = () => {
 
             {/* Magic Link Section */}
             {v.magicLinkToken && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f8fafc', padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid #e2e8f0', fontSize: '0.8rem' }}>
-                <span style={{ fontWeight: '600', color: '#475569', minWidth: '75px' }}>Magic Link:</span>
+              <div className="portal-link-box" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid #e2e8f0', fontSize: '0.8rem' }}>
+                <span style={{ fontWeight: '600', minWidth: '75px' }}>Magic Link:</span>
                 <input 
                   type="text" 
                   readOnly 

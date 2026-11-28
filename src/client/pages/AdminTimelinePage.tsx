@@ -217,7 +217,7 @@ export const AdminTimelinePage: React.FC = () => {
     const isMenuOpen = activeMenuVolId === person.id;
 
     return (
-      <tr key={`${person.id}_${person.arrivalDate}`} style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff' }}>
+      <tr key={`${person.id}_${person.arrivalDate}`} className="timeline-row" style={{ borderBottom: '1px solid #e2e8f0' }}>
         {/* Col A: Gender (Sticky Left 0) */}
         <td style={{
           position: 'sticky',
@@ -534,7 +534,7 @@ export const AdminTimelinePage: React.FC = () => {
         <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>Loading staffing timeline...</div>
       ) : (
         <div style={{ background: '#fff', border: '1px solid #cbd5e1', borderRadius: '8px', overflowX: 'auto', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'left', minWidth: '950px' }}>
+          <table className="timeline-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'left', minWidth: '950px' }}>
             <thead>
               {/* Row 1: Month Groups */}
               <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>

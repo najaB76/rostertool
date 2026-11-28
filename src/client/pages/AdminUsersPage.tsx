@@ -140,8 +140,8 @@ export const AdminUsersPage: React.FC = () => {
             return (
               <div
                 key={u.id}
+                className="admin-user-card"
                 style={{
-                  background: '#fff',
                   padding: '1.25rem',
                   borderRadius: '8px',
                   border: '1px solid #e4e4e7',
@@ -153,7 +153,7 @@ export const AdminUsersPage: React.FC = () => {
               >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '1.05rem', color: '#1e293b' }}>👤 {u.username}</span>
+                    <span className="admin-user-name" style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>👤 {u.username}</span>
                     {isSelf && (
                       <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '4px', backgroundColor: '#dcfce7', color: '#166534', fontWeight: '600' }}>
                         (You)

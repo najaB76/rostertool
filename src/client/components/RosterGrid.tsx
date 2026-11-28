@@ -34,9 +34,9 @@ export const RosterGrid: React.FC<RosterGridProps> = ({ days, onAssignClick, onR
     }}>
       {days.map(day => (
         <div key={day.date} className="roster-day-column" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div style={{ textAlign: 'center', padding: '0.5rem', backgroundColor: '#e4e4e7', borderRadius: '4px' }}>
+          <div className="roster-day-header" style={{ textAlign: 'center', padding: '0.5rem', borderRadius: '4px' }}>
             <div style={{ fontWeight: 'bold' }}>{getDayName(day.date)}</div>
-            <div style={{ fontSize: '0.85rem', color: '#52525b' }}>{formatDate(day.date)}</div>
+            <div style={{ fontSize: '0.85rem' }}>{formatDate(day.date)}</div>
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

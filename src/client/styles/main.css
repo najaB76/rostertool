@@ -108,6 +108,134 @@ html.dark .country-flag-wrapper svg {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 2px 4px rgba(0, 0, 0, 0.6) !important;
 }
 
+/* Blanket button styling in dark mode */
+html.dark button:not([style*="background: #3b82f6"]):not([style*="background: #10b981"]):not([style*="background: #ef4444"]):not([style*="background: #dc2626"]):not([style*="background: #16a34a"]):not([style*="background: #f59e0b"]):not([style*="background: #2563eb"]):not([style*="backgroundColor: #3b82f6"]):not([style*="backgroundColor: #10b981"]):not([style*="backgroundColor: #ef4444"]):not([style*="backgroundColor: #dc2626"]):not([style*="backgroundColor: #16a34a"]):not([style*="backgroundColor: #f59e0b"]):not([style*="backgroundColor: #2563eb"]) {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+html.dark button:hover:not([disabled]) {
+  filter: brightness(1.15);
+}
+
+/* Day Header in Roster */
+.roster-day-header {
+  background-color: #e4e4e7;
+  color: #18181b;
+}
+
+html.dark .roster-day-header {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .roster-day-header div {
+  color: #f8fafc !important;
+}
+
+html.dark .roster-day-header div:last-child {
+  color: #94a3b8 !important;
+}
+
+/* Volunteer Cards */
+html.dark .volunteer-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .volunteer-card h3 span {
+  color: #f8fafc !important;
+}
+
+html.dark .portal-link-box {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html.dark .portal-link-box span {
+  color: #94a3b8 !important;
+}
+
+/* Headcount Page */
+html.dark .headcount-toolbar,
+html.dark .legend-banner {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .period-title {
+  color: #f8fafc !important;
+}
+
+/* Admin Users Page */
+html.dark .admin-user-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark .admin-user-name {
+  color: #f8fafc !important;
+}
+
+/* Settings Page */
+html.dark .settings-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .settings-card h3 {
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark .settings-card label {
+  color: #cbd5e1 !important;
+}
+
+html.dark .settings-card p,
+html.dark .settings-card span {
+  color: #94a3b8 !important;
+}
+
+/* Timeline Full Width Columns */
+html.dark .timeline-table {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark .timeline-table th,
+html.dark .timeline-table td {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark .timeline-table thead tr th {
+  background-color: #0f172a !important;
+}
+
+html.dark .timeline-table thead tr:first-child th:first-child {
+  background-color: #090d16 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .timeline-table th[style*="position: sticky"],
+html.dark .timeline-table td[style*="position: sticky"] {
+  background-color: #090d16 !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark .timeline-table tbody tr.timeline-row td {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
 /* Force dark surfaces on any container with white inline backgrounds */
 html.dark div[style*="background: #fff"],
 html.dark div[style*="background:#fff"],
@@ -160,10 +288,11 @@ html.dark .shift-slot-cell strong {
   color: #94a3b8 !important;
 }
 
-html.dark .assignments-list > div {
+html.dark .assignments-list > div,
+html.dark .assignment-item {
   background-color: #0f172a !important;
   color: #f8fafc !important;
-  border: 1px solid #334155;
+  border: 1px solid #334155 !important;
 }
 
 html.dark .shift-slot-cell button[style*="border: 1px dashed"] {
@@ -213,21 +342,6 @@ html.dark td[style*="backgroundColor: #f8fafc"],
 html.dark td[style*="background-color: #f8fafc"] {
   background-color: #0f172a !important;
   color: #f8fafc !important;
-}
-
-/* Timeline Sticky Columns */
-html.dark th[style*="position: sticky"],
-html.dark td[style*="position: sticky"] {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
-}
-
-html.dark tr[style*="backgroundColor: #f8fafc"] td[style*="position: sticky"],
-html.dark tr[style*="background-color: #f8fafc"] td[style*="position: sticky"] {
-  background-color: #090d16 !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
 }
 
 /* Section Header Dividers */
@@ -300,22 +414,6 @@ html.dark [style*="color: #64748b"],
 html.dark [style*="color: #71717a"],
 html.dark [style*="color: #a1a1aa"] {
   color: #94a3b8 !important;
-}
-
-/* Buttons in dark mode */
-html.dark button[style*="background: #fff"],
-html.dark button[style*="background: #f4f4f5"],
-html.dark button[style*="background: #f8fafc"],
-html.dark button[style*="background: #f1f5f9"],
-html.dark button[style*="background: #e2e8f0"],
-html.dark button[style*="backgroundColor: #fff"],
-html.dark button[style*="backgroundColor: #f4f4f5"],
-html.dark button[style*="backgroundColor: #f8fafc"],
-html.dark button[style*="backgroundColor: #f1f5f9"],
-html.dark button[style*="backgroundColor: #e2e8f0"] {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
 }
 
 /* Inputs, Selects, and Textareas */

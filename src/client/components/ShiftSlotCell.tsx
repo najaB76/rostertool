@@ -53,7 +53,7 @@ export const ShiftSlotCell: React.FC<ShiftSlotCellProps> = ({
 
       <div className="assignments-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
         {assignments.map((assignment, idx) => (
-          <div key={assignment.assignmentId || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', backgroundColor: '#f4f4f5', padding: '0.3rem 0.5rem', borderRadius: '4px' }}>
+          <div key={assignment.assignmentId || idx} className="assignment-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', padding: '0.3rem 0.5rem', borderRadius: '4px' }}>
             <span>
               {assignment.volunteer ? (
                 <span 
