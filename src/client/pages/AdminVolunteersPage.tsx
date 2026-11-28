@@ -4,6 +4,7 @@ import { CountryFlag } from '../components/CountryFlag';
 import { DepartureModal } from '../components/DepartureModal';
 import { ReactivateModal } from '../components/ReactivateModal';
 import { StayHistoryModal } from '../components/StayHistoryModal';
+import { ImageLightboxModal } from '../components/ImageLightboxModal';
 import { getBirthdayAlert, calculateAge } from '../utils/date-utils';
 import { useDateFormat } from '../context/DateFormatContext';
 
@@ -14,6 +15,7 @@ export const AdminVolunteersPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVol, setSelectedVol] = useState<any>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<{ url: string; name: string } | null>(null);
 
   // Filter States
   const [search, setSearch] = useState('');
@@ -359,6 +361,15 @@ export const AdminVolunteersPage: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <h3 style={{ margin: '0 0 0.35rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {v.profilePicture && (
+                    <img
+                      src={v.profilePicture}
+                      alt={v.preferredName || v.fullName}
+                      className="profile-thumbnail-sm clickable"
+                      onClick={() => setLightboxImage({ url: v.profilePicture, name: v.preferredName || v.fullName })}
+                      title="Click to view full picture"
+                    />
+                  )}
                   <span>{v.preferredName ? `${v.preferredName} (${v.fullName})` : v.fullName}</span>
                   
                   {/* Gender Symbol */}
@@ -707,6 +718,14 @@ export const AdminVolunteersPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {lightboxImage && (
+        <ImageLightboxModal
+          imageUrl={lightboxImage.url}
+          volunteerName={lightboxImage.name}
+          onClose={() => setLightboxImage(null)}
+        />
       )}
     </div>
   );

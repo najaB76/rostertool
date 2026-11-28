@@ -214,4 +214,50 @@ describe('Admin Volunteers API', () => {
 
     await db.delete(volunteers).where(eq(volunteers.id, created.id));
   });
+
+  it('supports creating, updating, and removing profilePicture', async () => {
+    const mockImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+    
+    // Create with profile picture
+    const createRes = await fastify.inject({
+      method: 'POST',
+      url: '/api/admin/volunteers',
+      payload: {
+        fullName: 'Photo Volunteer',
+        preferredName: 'Photo',
+        nationality: 'DE',
+        profilePicture: mockImage
+      }
+    });
+    expect(createRes.statusCode).toBe(201);
+    const created = JSON.parse(createRes.payload);
+    expect(created.profilePicture).toBe(mockImage);
+
+    // Update profile picture
+    const updatedMockImage = 'data:image/png;base64,updatedImageData';
+    const updateRes = await fastify.inject({
+      method: 'PUT',
+      url: `/api/admin/volunteers/${created.id}`,
+      payload: {
+        profilePicture: updatedMockImage
+      }
+    });
+    expect(updateRes.statusCode).toBe(200);
+    const updated = JSON.parse(updateRes.payload);
+    expect(updated.profilePicture).toBe(updatedMockImage);
+
+    // Remove profile picture
+    const removeRes = await fastify.inject({
+      method: 'PUT',
+      url: `/api/admin/volunteers/${created.id}`,
+      payload: {
+        profilePicture: null
+      }
+    });
+    expect(removeRes.statusCode).toBe(200);
+    const removed = JSON.parse(removeRes.payload);
+    expect(removed.profilePicture).toBeNull();
+
+    await db.delete(volunteers).where(eq(volunteers.id, created.id));
+  });
 });

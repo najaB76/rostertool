@@ -124,6 +124,7 @@ export class VolunteerService {
       inTraining: Boolean(data.inTraining),
       applicationSourceId: sourceId,
       magicLinkToken: token,
+      profilePicture: data.profilePicture || null,
       notes: data.notes
     });
 
@@ -172,6 +173,7 @@ export class VolunteerService {
       isTrainer: data.isTrainer,
       inTraining: data.inTraining,
       futureAcceptance: data.futureAcceptance,
+      profilePicture: data.profilePicture !== undefined ? (data.profilePicture || null) : undefined,
       notes: data.notes,
       updatedAt: new Date().toISOString()
     };

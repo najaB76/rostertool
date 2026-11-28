@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CountrySelect } from './CountrySelect';
+import { ImageLightboxModal } from './ImageLightboxModal';
 
 interface VolunteerModalProps {
   volunteer?: any;
@@ -26,6 +27,7 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
     isTrainer: volunteer?.isTrainer || false,
     inTraining: volunteer?.inTraining || false,
     status: volunteer?.status || 'Applied',
+    profilePicture: volunteer?.profilePicture || null,
     notes: volunteer?.notes || ''
   });
 
@@ -34,16 +36,67 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
   const [capacityPreview, setCapacityPreview] = useState<any[]>([]);
   const [modalSize, setModalSize] = useState<{ width: number; height: number }>({ width: 560, height: 640 });
   const [isResizing, setIsResizing] = useState(false);
+  const [showLightbox, setShowLightbox] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        if (showLightbox) {
+          setShowLightbox(false);
+        } else {
+          onClose();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [onClose, showLightbox]);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (PNG, JPG, WebP).');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 800;
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          setFormData(prev => ({ ...prev, profilePicture: compressedDataUrl }));
+        } else {
+          setFormData(prev => ({ ...prev, profilePicture: dataUrl }));
+        }
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setFormData(prev => ({ ...prev, profilePicture: null }));
+  };
 
   const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -144,17 +197,66 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
             />
           </label>
 
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <strong>Preferred Name (Optional)</strong>
-            <input 
-              type="text" 
-              name="preferredName" 
-              value={formData.preferredName} 
-              onChange={handleChange} 
-              placeholder="e.g. Mari"
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
-            />
-          </label>
+          <div className="preferred-name-photo-row">
+            <div className="preferred-name-field">
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <strong>Preferred Name (Optional)</strong>
+                <input 
+                  type="text" 
+                  name="preferredName" 
+                  value={formData.preferredName} 
+                  onChange={handleChange} 
+                  placeholder="e.g. Mari"
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+                />
+              </label>
+            </div>
+
+            <div className="profile-photo-wrapper">
+              <span className="profile-photo-label">Photo</span>
+              {formData.profilePicture ? (
+                <div className="profile-thumbnail-container">
+                  <img
+                    src={formData.profilePicture}
+                    alt={formData.preferredName || formData.fullName || 'Volunteer'}
+                    className="profile-thumbnail clickable"
+                    onClick={() => setShowLightbox(true)}
+                    title="Click to view full picture"
+                  />
+                  <div className="photo-actions">
+                    <label className="photo-change-btn" title="Change photo">
+                      ✎
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      className="photo-remove-btn"
+                      onClick={handleRemovePhoto}
+                      title="Remove photo"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <label className="photo-upload-placeholder" title="Upload profile photo">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <span className="upload-icon">📷</span>
+                  <span className="upload-text">Upload</span>
+                </label>
+              )}
+            </div>
+          </div>
 
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -410,6 +512,14 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
           ◢
         </div>
       </div>
+
+      {showLightbox && (
+        <ImageLightboxModal
+          imageUrl={formData.profilePicture}
+          volunteerName={formData.preferredName || formData.fullName}
+          onClose={() => setShowLightbox(false)}
+        />
+      )}
     </div>
   );
 };

@@ -35,6 +35,9 @@ try {
     if (!volCols.includes('no_end_date')) {
       sqlite.exec("ALTER TABLE volunteers ADD COLUMN no_end_date INTEGER DEFAULT 0 NOT NULL;");
     }
+    if (!volCols.includes('profile_picture')) {
+      sqlite.exec("ALTER TABLE volunteers ADD COLUMN profile_picture TEXT;");
+    }
   }
 
   // Create volunteer_stays table if not exists

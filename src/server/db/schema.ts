@@ -21,6 +21,7 @@ export const volunteers = sqliteTable('volunteers', {
   inTraining: integer('in_training', { mode: 'boolean' }).notNull().default(false),
   applicationSourceId: text('application_source_id').references(() => applicationSources.id),
   futureAcceptance: text('future_acceptance').notNull().default('YES'), // YES, CONDITIONAL, NO
+  profilePicture: text('profile_picture'),
   notes: text('notes'),
   magicLinkToken: text('magic_link_token').unique(),
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
