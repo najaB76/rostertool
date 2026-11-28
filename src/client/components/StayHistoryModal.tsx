@@ -247,16 +247,20 @@ export const StayHistoryModal: React.FC<StayHistoryModalProps> = ({
 
                       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.25rem' }}>
                         <button
+                          type="button"
+                          className="btn-cancel"
                           onClick={handleCancelEdit}
                           disabled={saving}
-                          style={{ padding: '0.3rem 0.75rem', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '0.8rem', cursor: 'pointer' }}
+                          style={{ padding: '0.3rem 0.75rem', borderRadius: '4px', fontSize: '0.8rem', cursor: 'pointer' }}
                         >
                           Cancel
                         </button>
                         <button
+                          type="button"
+                          className="btn-primary"
                           onClick={() => handleSaveReview(stay.id)}
                           disabled={saving}
-                          style={{ padding: '0.3rem 0.85rem', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer' }}
+                          style={{ padding: '0.3rem 0.85rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer' }}
                         >
                           {saving ? 'Saving...' : 'Save Review'}
                         </button>
@@ -267,7 +271,7 @@ export const StayHistoryModal: React.FC<StayHistoryModalProps> = ({
                       {isRehire && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.1rem' }}>
                           <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Rehire:</span>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 'bold', padding: '0.15rem 0.5rem', borderRadius: '4px', backgroundColor: rehireBg, color: rehireColor }}>
+                          <span className={`rehire-pill rehire-pill-${isRehire === 'Accept' ? 'accept' : isRehire === 'Possible' ? 'possible' : 'no'}`}>
                             {isRehire}
                           </span>
                         </div>
@@ -288,8 +292,10 @@ export const StayHistoryModal: React.FC<StayHistoryModalProps> = ({
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid #e4e4e7', paddingTop: '0.75rem' }}>
           <button
+            type="button"
+            className="btn-primary"
             onClick={onClose}
-            style={{ padding: '0.45rem 1.25rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
+            style={{ padding: '0.45rem 1.25rem', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
           >
             Close
           </button>

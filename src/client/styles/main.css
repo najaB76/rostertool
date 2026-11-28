@@ -100,7 +100,178 @@ html.dark .admin-header {
 }
 
 /* =========================================================
-   DARK MODE OVERRIDES (Guarantee High Contrast Everywhere)
+   BUTTON HIERARCHY (Both Light and Dark Modes)
+   ========================================================= */
+
+.btn-primary {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid #1d4ed8 !important;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: #1d4ed8 !important;
+}
+
+.btn-cancel {
+  background-color: #f4f4f5 !important;
+  color: #3f3f46 !important;
+  border: 1px solid #d4d4d8 !important;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.btn-cancel:hover:not(:disabled) {
+  background-color: #e4e4e7 !important;
+}
+
+html.dark .btn-cancel {
+  background-color: #334155 !important;
+  color: #e2e8f0 !important;
+  border-color: #475569 !important;
+}
+html.dark .btn-cancel:hover:not(:disabled) {
+  background-color: #475569 !important;
+}
+
+.btn-danger {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+  border: 1px solid #b91c1c !important;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: #b91c1c !important;
+}
+
+/* Filter Tabs */
+.filter-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #52525b;
+  cursor: pointer;
+  font-weight: 500;
+}
+.filter-tab.active {
+  color: #2563eb !important;
+  font-weight: bold;
+  border-bottom: 2px solid #2563eb !important;
+}
+
+html.dark .filter-tab {
+  background: transparent !important;
+  color: #94a3b8 !important;
+  border-bottom: 2px solid transparent !important;
+}
+html.dark .filter-tab.active {
+  background: rgba(37, 99, 235, 0.2) !important;
+  color: #60a5fa !important;
+  font-weight: bold;
+  border-bottom: 2px solid #60a5fa !important;
+  border-radius: 4px 4px 0 0;
+}
+
+/* =========================================================
+   STATUS PILLS & REHIRE PILLS
+   ========================================================= */
+
+.status-pill {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-pill-active { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.status-pill-accepted { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.status-pill-applied { background-color: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+.status-pill-departed { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+.status-pill-cancelled { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+html.dark .status-pill-active { background-color: #14532d !important; color: #86efac !important; border-color: #166534 !important; }
+html.dark .status-pill-accepted { background-color: #1e3a8a !important; color: #93c5fd !important; border-color: #1d4ed8 !important; }
+html.dark .status-pill-applied { background-color: #713f12 !important; color: #fde047 !important; border-color: #854d0e !important; }
+html.dark .status-pill-departed { background-color: #334155 !important; color: #cbd5e1 !important; border-color: #475569 !important; }
+html.dark .status-pill-cancelled { background-color: #450a0a !important; color: #fca5a5 !important; border-color: #7f1d1d !important; }
+
+.rehire-pill {
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+.rehire-pill-accept { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.rehire-pill-possible { background-color: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+.rehire-pill-no { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+html.dark .rehire-pill-accept { background-color: #14532d !important; color: #86efac !important; border-color: #166534 !important; }
+html.dark .rehire-pill-possible { background-color: #713f12 !important; color: #fde047 !important; border-color: #854d0e !important; }
+html.dark .rehire-pill-no { background-color: #450a0a !important; color: #fca5a5 !important; border-color: #7f1d1d !important; }
+
+/* =========================================================
+   TIMELINE STATUS BUTTONS & DROPDOWN MENU
+   ========================================================= */
+
+.status-btn {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.status-btn-active { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.status-btn-accepted { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.status-btn-applied { background-color: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+.status-btn-departed { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+html.dark .status-btn-active { background-color: #14532d !important; color: #86efac !important; border: 1px solid #166534 !important; }
+html.dark .status-btn-accepted { background-color: #1e3a8a !important; color: #93c5fd !important; border: 1px solid #1d4ed8 !important; }
+html.dark .status-btn-applied { background-color: #713f12 !important; color: #fde047 !important; border: 1px solid #854d0e !important; }
+html.dark .status-btn-departed { background-color: #7f1d1d !important; color: #fca5a5 !important; border: 1px solid #991b1b !important; }
+
+.timeline-status-menu {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+html.dark .timeline-status-menu {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5) !important;
+}
+
+.menu-item {
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+}
+.menu-item:hover {
+  background-color: #f1f5f9;
+}
+html.dark .menu-item:hover {
+  background-color: #334155 !important;
+}
+
+.menu-item-danger { color: #b91c1c; }
+html.dark .menu-item-danger { color: #f87171 !important; }
+
+.menu-item-primary { color: #1e40af; }
+html.dark .menu-item-primary { color: #60a5fa !important; }
+
+.menu-item-success { color: #15803d; font-weight: bold; }
+html.dark .menu-item-success { color: #4ade80 !important; }
+
+/* =========================================================
+   DARK THEME SYSTEM OVERRIDES
    ========================================================= */
 
 /* Dark Mode Country Flag Outline */
@@ -108,15 +279,11 @@ html.dark .country-flag-wrapper svg {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 2px 4px rgba(0, 0, 0, 0.6) !important;
 }
 
-/* Blanket button styling in dark mode */
-html.dark button:not([style*="background: #3b82f6"]):not([style*="background: #10b981"]):not([style*="background: #ef4444"]):not([style*="background: #dc2626"]):not([style*="background: #16a34a"]):not([style*="background: #f59e0b"]):not([style*="background: #2563eb"]):not([style*="backgroundColor: #3b82f6"]):not([style*="backgroundColor: #10b981"]):not([style*="backgroundColor: #ef4444"]):not([style*="backgroundColor: #dc2626"]):not([style*="backgroundColor: #16a34a"]):not([style*="backgroundColor: #f59e0b"]):not([style*="backgroundColor: #2563eb"]) {
+/* Secondary Button fallback */
+html.dark button:not(.btn-primary):not(.btn-danger):not(.btn-cancel):not(.filter-tab):not(.status-btn):not(.menu-item):not([style*="background: #3b82f6"]):not([style*="background: #10b981"]):not([style*="background: #ef4444"]):not([style*="background: #dc2626"]):not([style*="background: #16a34a"]):not([style*="background: #f59e0b"]):not([style*="background: #2563eb"]):not([style*="backgroundColor: #3b82f6"]):not([style*="backgroundColor: #10b981"]):not([style*="backgroundColor: #ef4444"]):not([style*="backgroundColor: #dc2626"]):not([style*="backgroundColor: #16a34a"]):not([style*="backgroundColor: #f59e0b"]):not([style*="backgroundColor: #2563eb"]) {
   background-color: #334155 !important;
   color: #f8fafc !important;
   border-color: #475569 !important;
-}
-
-html.dark button:hover:not([disabled]) {
-  filter: brightness(1.15);
 }
 
 /* Day Header in Roster */
@@ -130,11 +297,9 @@ html.dark .roster-day-header {
   border: 1px solid #334155 !important;
   color: #f8fafc !important;
 }
-
 html.dark .roster-day-header div {
   color: #f8fafc !important;
 }
-
 html.dark .roster-day-header div:last-child {
   color: #94a3b8 !important;
 }
@@ -202,21 +367,19 @@ html.dark .settings-card span {
   color: #94a3b8 !important;
 }
 
-/* Timeline Full Width Columns */
+/* =========================================================
+   TIMELINE FULL WIDTH COLUMNS & OCCUPANCY PRESERVATION
+   ========================================================= */
+
 html.dark .timeline-table {
   background-color: #1e293b !important;
   border-color: #334155 !important;
 }
 
-html.dark .timeline-table th,
-html.dark .timeline-table td {
-  background-color: #1e293b !important;
+html.dark .timeline-table th {
+  background-color: #0f172a !important;
   color: #f8fafc !important;
   border-color: #334155 !important;
-}
-
-html.dark .timeline-table thead tr th {
-  background-color: #0f172a !important;
 }
 
 html.dark .timeline-table thead tr:first-child th:first-child {
@@ -231,42 +394,49 @@ html.dark .timeline-table td[style*="position: sticky"] {
   border-color: #334155 !important;
 }
 
-html.dark .timeline-table tbody tr.timeline-row td {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
-}
-
-/* Force dark surfaces on any container with white inline backgrounds */
-html.dark div[style*="background: #fff"],
-html.dark div[style*="background:#fff"],
-html.dark div[style*="background: rgb(255, 255, 255)"],
-html.dark div[style*="backgroundColor: #fff"],
-html.dark div[style*="backgroundColor: '#fff'"],
-html.dark div[style*="background-color: #fff"],
-html.dark div[style*="background: white"],
-html.dark div[style*="backgroundColor: white"] {
+/* Only empty cells or non-occupied cells get dark surface */
+html.dark .timeline-table tbody tr.timeline-row td:not(.timeline-occupied) {
   background-color: #1e293b !important;
   color: #f8fafc !important;
   border-color: #334155 !important;
 }
 
-/* Force dark backgrounds on light gray panels, card headers and toolbars */
-html.dark div[style*="background: #f8fafc"],
-html.dark div[style*="background:#f8fafc"],
-html.dark div[style*="backgroundColor: #f8fafc"],
-html.dark div[style*="background-color: #f8fafc"],
-html.dark div[style*="background: #f1f5f9"],
-html.dark div[style*="background:#f1f5f9"],
-html.dark div[style*="backgroundColor: #f1f5f9"],
-html.dark div[style*="background-color: #f1f5f9"],
-html.dark div[style*="background: #f4f4f5"],
-html.dark div[style*="background:#f4f4f5"],
-html.dark div[style*="backgroundColor: #f4f4f5"],
-html.dark div[style*="background-color: #f4f4f5"],
-html.dark div[style*="backgroundColor: #e4e4e7"] {
+/* Occupied stay cells MUST preserve their color fills in dark mode */
+html.dark .timeline-day-cell.timeline-occupied {
+  border-color: #334155 !important;
+}
+
+/* Section Header Dividers */
+html.dark tr[style*="backgroundColor: #e2e8f0"],
+html.dark tr[style*="background-color: #e2e8f0"] {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+}
+html.dark tr[style*="backgroundColor: #e2e8f0"] td {
+  color: #cbd5e1 !important;
+}
+
+/* Vacancies row */
+html.dark tr[style*="backgroundColor: #f0fdf4"],
+html.dark tr[style*="background-color: #f0fdf4"] {
+  background-color: #062414 !important;
+  border-color: #047857 !important;
+}
+html.dark tr[style*="backgroundColor: #f0fdf4"] td {
+  color: #6ee7b7 !important;
+}
+html.dark tr[style*="backgroundColor: #f0fdf4"] td[style*="backgroundColor: #dcfce7"] {
+  background-color: #064e3b !important;
+  color: #a7f3d0 !important;
+}
+html.dark tr[style*="backgroundColor: #f0fdf4"] td[style*="backgroundColor: #f8fafc"] {
   background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
+  color: #64748b !important;
+}
+
+/* Total Confirmed & Applied Rows */
+html.dark tr[style*="borderTop: 2px solid #64748b"] {
+  background-color: #0f172a !important;
 }
 
 /* Shift Slot Cells & Roster Day Columns */
@@ -298,88 +468,6 @@ html.dark .assignment-item {
 html.dark .shift-slot-cell button[style*="border: 1px dashed"] {
   border-color: #475569 !important;
   color: #94a3b8 !important;
-}
-
-/* Tables, Rows and Cells */
-html.dark table {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
-}
-
-html.dark tr {
-  border-color: #334155 !important;
-}
-
-html.dark th {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
-}
-
-html.dark th[style*="background-color: #f8fafc"],
-html.dark th[style*="background-color: #f1f5f9"],
-html.dark th[style*="backgroundColor: #f8fafc"],
-html.dark th[style*="backgroundColor: #f1f5f9"] {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
-}
-
-html.dark td {
-  border-color: #334155 !important;
-}
-
-html.dark td[style*="background: #fff"],
-html.dark td[style*="backgroundColor: #fff"],
-html.dark td[style*="background-color: #fff"] {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
-}
-
-html.dark td[style*="background: #f8fafc"],
-html.dark td[style*="backgroundColor: #f8fafc"],
-html.dark td[style*="background-color: #f8fafc"] {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-}
-
-/* Section Header Dividers */
-html.dark tr[style*="backgroundColor: #e2e8f0"],
-html.dark tr[style*="background-color: #e2e8f0"] {
-  background-color: #1e293b !important;
-  border-color: #475569 !important;
-}
-
-html.dark tr[style*="backgroundColor: #e2e8f0"] td,
-html.dark tr[style*="background-color: #e2e8f0"] td {
-  color: #cbd5e1 !important;
-}
-
-/* Vacancies row */
-html.dark tr[style*="backgroundColor: #f0fdf4"],
-html.dark tr[style*="background-color: #f0fdf4"] {
-  background-color: #062414 !important;
-  border-color: #047857 !important;
-}
-
-html.dark tr[style*="backgroundColor: #f0fdf4"] td {
-  color: #6ee7b7 !important;
-}
-
-html.dark tr[style*="backgroundColor: #f0fdf4"] td[style*="backgroundColor: #dcfce7"] {
-  background-color: #064e3b !important;
-  color: #a7f3d0 !important;
-}
-
-html.dark tr[style*="backgroundColor: #f0fdf4"] td[style*="backgroundColor: #f8fafc"] {
-  background-color: #0f172a !important;
-  color: #64748b !important;
-}
-
-/* Total Confirmed & Applied Rows */
-html.dark tr[style*="borderTop: 2px solid #64748b"] {
-  background-color: #0f172a !important;
 }
 
 /* Modals */

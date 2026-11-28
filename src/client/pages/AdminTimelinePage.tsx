@@ -288,15 +288,13 @@ export const AdminTimelinePage: React.FC = () => {
         <td style={{ padding: '0.4rem 0.6rem', borderRight: '1px solid #e2e8f0', whiteSpace: 'nowrap', position: 'relative' }} className="timeline-status-menu-container">
           <button
             onClick={() => setActiveMenuVolId(isMenuOpen ? null : person.id)}
+            className={`status-btn ${person.status === 'Active' ? 'status-btn-active' : person.status === 'Accepted' ? 'status-btn-accepted' : person.status === 'Departed' ? 'status-btn-departed' : 'status-btn-applied'}`}
             style={{
               fontSize: '0.75rem',
               padding: '0.2rem 0.5rem',
               borderRadius: '4px',
               fontWeight: '600',
-              cursor: 'pointer',
-              backgroundColor: person.status === 'Active' ? '#dcfce7' : person.status === 'Accepted' ? '#dbeafe' : person.status === 'Departed' ? '#fee2e2' : '#fef9c3',
-              color: person.status === 'Active' ? '#166534' : person.status === 'Accepted' ? '#1e40af' : person.status === 'Departed' ? '#991b1b' : '#854d0e',
-              border: `1px solid ${person.status === 'Active' ? '#bbf7d0' : person.status === 'Accepted' ? '#bfdbfe' : person.status === 'Departed' ? '#fecaca' : '#fef08a'}`
+              cursor: 'pointer'
             }}
             title="Click to change volunteer status"
           >
@@ -306,15 +304,13 @@ export const AdminTimelinePage: React.FC = () => {
           {/* Action Menu Dropdown */}
           {isMenuOpen && (
             <div
+              className="timeline-status-menu"
               style={{
                 position: 'absolute',
                 top: '100%',
                 left: '0.6rem',
                 zIndex: 50,
-                backgroundColor: '#fff',
-                border: '1px solid #cbd5e1',
                 borderRadius: '6px',
-                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
                 minWidth: '160px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -326,13 +322,15 @@ export const AdminTimelinePage: React.FC = () => {
                 <>
                   <button
                     onClick={() => { setActiveMenuVolId(null); setDepartingVol(person); }}
-                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#b91c1c' }}
+                    className="menu-item menu-item-danger"
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem' }}
                   >
                     🚪 Depart (Checkout)...
                   </button>
                   <button
                     onClick={() => handleStatusChange(person.id, 'Accepted')}
-                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#1e40af' }}
+                    className="menu-item menu-item-primary"
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem' }}
                   >
                     ↩ Revert to Confirmed
                   </button>
@@ -343,13 +341,15 @@ export const AdminTimelinePage: React.FC = () => {
                 <>
                   <button
                     onClick={() => handleMarkArrived(person.id)}
-                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#15803d', fontWeight: 'bold' }}
+                    className="menu-item menu-item-success"
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
                   >
                     ✓ Mark Arrived (In da house)
                   </button>
                   <button
                     onClick={() => handleCancel(person.id)}
-                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#b91c1c' }}
+                    className="menu-item menu-item-danger"
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem' }}
                   >
                     ✕ Cancel Application
                   </button>
@@ -359,7 +359,8 @@ export const AdminTimelinePage: React.FC = () => {
               {person.status === 'Departed' && (
                 <button
                   onClick={() => { setActiveMenuVolId(null); setReactivatingVol(person); }}
-                  style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#15803d', fontWeight: 'bold' }}
+                  className="menu-item menu-item-success"
+                  style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
                 >
                   🔄 Re-activate (New Stay)...
                 </button>
@@ -369,13 +370,15 @@ export const AdminTimelinePage: React.FC = () => {
                 <>
                   <button
                     onClick={() => { setActiveMenuVolId(null); handleOpenEdit(person.id); }}
-                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#15803d', fontWeight: 'bold' }}
+                    className="menu-item menu-item-success"
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
                   >
                     ✓ Accept Application...
                   </button>
                   <button
                     onClick={() => handleCancel(person.id)}
-                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#b91c1c' }}
+                    className="menu-item menu-item-danger"
+                    style={{ textAlign: 'left', padding: '0.45rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem' }}
                   >
                     ✕ Cancel Application
                   </button>
@@ -420,6 +423,7 @@ export const AdminTimelinePage: React.FC = () => {
           return (
             <td
               key={day.date}
+              className={`timeline-day-cell ${isOnSite ? 'timeline-occupied' : 'timeline-empty'}`}
               style={{
                 padding: 0,
                 width: '32px',

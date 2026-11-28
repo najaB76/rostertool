@@ -231,15 +231,10 @@ export const AdminVolunteersPage: React.FC = () => {
           <button 
             key={s} 
             onClick={() => { setFilter(s); setSearch(''); }}
+            className={`filter-tab ${filter === s ? 'active' : ''}`}
             style={{ 
-              background: 'none', 
-              border: 'none', 
-              fontWeight: filter === s ? 'bold' : 'normal',
-              color: filter === s ? '#3b82f6' : '#52525b',
-              borderBottom: filter === s ? '2px solid #3b82f6' : 'none',
               marginBottom: '-0.6rem',
               paddingBottom: '0.5rem',
-              cursor: 'pointer',
               fontSize: '0.95rem'
             }}
           >
@@ -374,14 +369,7 @@ export const AdminVolunteersPage: React.FC = () => {
 
                   <CountryFlag countryCode={v.nationality} />
 
-                  <span style={{ 
-                    fontSize: '0.75rem', 
-                    padding: '0.2rem 0.5rem', 
-                    borderRadius: '4px', 
-                    fontWeight: 'normal',
-                    backgroundColor: v.status === 'Active' ? '#bbf7d0' : v.status === 'Accepted' ? '#dbeafe' : v.status === 'Applied' ? '#fef08a' : '#f4f4f5',
-                    color: v.status === 'Active' ? '#166534' : v.status === 'Accepted' ? '#1e40af' : v.status === 'Applied' ? '#854d0e' : '#52525b'
-                  }}>
+                  <span className={`status-pill status-pill-${v.status.toLowerCase()}`}>
                     {v.status}
                   </span>
 
@@ -394,15 +382,7 @@ export const AdminVolunteersPage: React.FC = () => {
 
                   {/* Rehire Box for Departed (Green / Yellow / Red) */}
                   {v.status === 'Departed' && rehireStatus && (
-                    <span style={{
-                      fontSize: '0.75rem',
-                      fontWeight: 'bold',
-                      padding: '0.15rem 0.5rem',
-                      borderRadius: '4px',
-                      backgroundColor: rehireStatus === 'Accept' ? '#dcfce7' : rehireStatus === 'Possible' ? '#fef9c3' : '#fee2e2',
-                      color: rehireStatus === 'Accept' ? '#166534' : rehireStatus === 'Possible' ? '#854d0e' : '#991b1b',
-                      border: `1px solid ${rehireStatus === 'Accept' ? '#bbf7d0' : rehireStatus === 'Possible' ? '#fef08a' : '#fecaca'}`
-                    }}>
+                    <span className={`rehire-pill rehire-pill-${rehireStatus === 'Accept' ? 'accept' : rehireStatus === 'Possible' ? 'possible' : 'no'}`}>
                       {rehireStatus}
                     </span>
                   )}

@@ -354,12 +354,13 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
             {volunteer?.id && onDelete ? (
               <button
                 type="button"
+                className="btn-danger"
                 onClick={() => {
                   if (window.confirm(`Are you sure you want to permanently delete ${volunteer.fullName || 'this volunteer'}?\n\nThis will remove all their records, stays, and shift assignments.`)) {
                     onDelete(volunteer.id);
                   }
                 }}
-                style={{ padding: '0.5rem 1rem', background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
+                style={{ padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
               >
                 🗑 Delete Volunteer
               </button>
@@ -368,15 +369,17 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button 
                 type="button" 
+                className="btn-cancel"
                 onClick={onClose}
-                style={{ padding: '0.5rem 1rem', background: '#fff', border: '1px solid #d4d4d8', borderRadius: '4px', cursor: 'pointer' }}
+                style={{ padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}
               >
                 Cancel
               </button>
               <button 
                 type="button" 
+                className="btn-primary"
                 onClick={() => onSave({ ...formData, source: formData.applicationSourceName })} 
-                style={{ background: '#3b82f6', color: '#fff', padding: '0.5rem 1.25rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
+                style={{ padding: '0.5rem 1.25rem', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
               >
                 Save Volunteer
               </button>

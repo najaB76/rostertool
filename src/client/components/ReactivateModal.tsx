@@ -98,18 +98,20 @@ export const ReactivateModal: React.FC<ReactivateModalProps> = ({
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
             <button
               type="button"
+              className="btn-cancel"
               onClick={onClose}
               disabled={submitting}
-              style={{ padding: '0.5rem 1rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer' }}
+              style={{ padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}
             >
               Cancel
             </button>
             <button
               type="submit"
+              className="btn-primary"
               disabled={submitting}
-              style={{ padding: '0.5rem 1.25rem', background: '#10b981', color: '#fff', border: 'none', borderRadius: '4px', cursor: submitting ? 'not-allowed' : 'pointer', fontWeight: '600' }}
+              style={{ padding: '0.5rem 1.25rem', borderRadius: '4px', cursor: submitting ? 'not-allowed' : 'pointer', fontWeight: '600' }}
             >
-              {submitting ? 'Re-activating...' : 'Re-Activate for New Stay'}
+              {submitting ? 'Re-activating...' : 'Confirm Re-activation'}
             </button>
           </div>
         </form>
