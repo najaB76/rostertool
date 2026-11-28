@@ -44,10 +44,10 @@ export const ReactivateModal: React.FC<ReactivateModalProps> = ({
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
-      <div style={{ background: '#fff', padding: '1.75rem', borderRadius: '8px', width: '480px', maxWidth: '90vw', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e4e4e7', paddingBottom: '0.75rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a' }}>
+    <div className="modal-overlay" style={{ zIndex: 1100 }}>
+      <div className="modal-card" style={{ width: '480px', maxWidth: '90vw' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
+          <h3 className="modal-title" style={{ margin: 0, border: 'none', padding: 0 }}>
             Re-Activate Volunteer: {volunteer.preferredName || volunteer.fullName}
           </h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#94a3b8' }}>&times;</button>
@@ -55,21 +55,21 @@ export const ReactivateModal: React.FC<ReactivateModalProps> = ({
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#334155', marginBottom: '0.35rem' }}>
+            <label className="form-label" style={{ marginBottom: '0.35rem' }}>
               New Arrival Date *
             </label>
             <input
               type="date"
               value={arrivalDate}
               onChange={(e) => setArrivalDate(e.target.value)}
-              style={{ width: '100%', padding: '0.55rem', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box' }}
+              className="form-input"
               required
             />
           </div>
 
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-              <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#334155' }}>
+              <label className="form-label">
                 New Departure Date
               </label>
               <label style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer' }}>
@@ -86,7 +86,8 @@ export const ReactivateModal: React.FC<ReactivateModalProps> = ({
               value={departureDate}
               disabled={noEndDate}
               onChange={(e) => setDepartureDate(e.target.value)}
-              style={{ width: '100%', padding: '0.55rem', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.9rem', backgroundColor: noEndDate ? '#f1f5f9' : '#fff', cursor: noEndDate ? 'not-allowed' : 'text', boxSizing: 'border-box' }}
+              className="form-input"
+              style={{ cursor: noEndDate ? 'not-allowed' : 'text' }}
               required={!noEndDate}
             />
           </div>

@@ -179,12 +179,22 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
   const hasCapacityWarnings = capacityPreview.some(d => d.status !== 'OPTIMAL');
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, userSelect: isResizing ? 'none' : 'auto' }}>
-      <div style={{ position: 'relative', background: '#fff', padding: '2rem', borderRadius: '8px', width: `${modalSize.width}px`, height: `${modalSize.height}px`, minWidth: '480px', maxWidth: '95vw', minHeight: '400px', maxHeight: '95vh', overflow: 'auto', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)' }}>
-        <h3 style={{ marginTop: 0 }}>{volunteer ? `Edit Volunteer (${formData.status})` : 'New Volunteer Application'}</h3>
+    <div className="modal-overlay" style={{ userSelect: isResizing ? 'none' : 'auto' }}>
+      <div 
+        className="modal-card" 
+        style={{ 
+          width: `${modalSize.width}px`, 
+          height: `${modalSize.height}px`, 
+          minWidth: '480px', 
+          maxWidth: '95vw', 
+          minHeight: '400px', 
+          maxHeight: '95vh' 
+        }}
+      >
+        <h3 className="modal-title">{volunteer ? `Edit Volunteer (${formData.status})` : 'New Volunteer Application'}</h3>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label className="form-label">
             <strong>Full Name (Official) *</strong>
             <input 
               type="text" 
@@ -192,14 +202,14 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
               value={formData.fullName} 
               onChange={handleChange} 
               placeholder="e.g. Maria Silva"
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8' }} 
+              className="form-input" 
               required
             />
           </label>
 
           <div className="preferred-name-photo-row">
             <div className="preferred-name-field">
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <label className="form-label">
                 <strong>Preferred Name (Optional)</strong>
                 <input 
                   type="text" 
@@ -207,7 +217,7 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
                   value={formData.preferredName} 
                   onChange={handleChange} 
                   placeholder="e.g. Mari"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+                  className="form-input" 
                 />
               </label>
             </div>
@@ -259,24 +269,24 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <label className="form-label" style={{ flex: 1 }}>
               <strong>Date of Birth</strong>
               <input 
                 type="date" 
                 name="dateOfBirth" 
                 value={formData.dateOfBirth} 
                 onChange={handleChange} 
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+                className="form-input" 
               />
             </label>
 
-            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <label className="form-label" style={{ flex: 1 }}>
               <strong>Gender</strong>
               <select
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', backgroundColor: '#fff', boxSizing: 'border-box' }}
+                className="form-select"
               >
                 <option value="Unspecified">⚪ Unspecified</option>
                 <option value="Male">♂ Male</option>
@@ -287,7 +297,7 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <label className="form-label" style={{ flex: 1 }}>
               <strong>Email Address</strong>
               <input 
                 type="email" 
@@ -295,11 +305,11 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
                 value={formData.email} 
                 onChange={handleChange} 
                 placeholder="e.g. maria@example.com"
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+                className="form-input" 
               />
             </label>
 
-            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <label className="form-label" style={{ flex: 1 }}>
               <strong>Phone / WhatsApp</strong>
               <input 
                 type="tel" 
@@ -307,12 +317,12 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
                 value={formData.phone} 
                 onChange={handleChange} 
                 placeholder="e.g. +55 11 98765-4321"
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+                className="form-input" 
               />
             </label>
           </div>
 
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label className="form-label">
             <strong>Nationality</strong>
             <CountrySelect 
               value={formData.nationality} 
@@ -320,7 +330,7 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
             />
           </label>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <div className="form-label">
             <strong>Application Source</strong>
             {!isCustomSource ? (
               <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -328,7 +338,8 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
                   name="applicationSourceName"
                   value={formData.applicationSourceName}
                   onChange={handleChange}
-                  style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', backgroundColor: '#fff' }}
+                  className="form-select"
+                  style={{ flex: 1 }}
                 >
                   {sources.map(s => (
                     <option key={s} value={s}>{s}</option>
@@ -350,7 +361,8 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
                   value={formData.applicationSourceName}
                   onChange={handleChange}
                   placeholder="Enter custom source..."
-                  style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8' }}
+                  className="form-input"
+                  style={{ flex: 1 }}
                 />
                 <button
                   type="button"
@@ -364,17 +376,17 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
           </div>
 
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <label className="form-label" style={{ flex: 1 }}>
               <strong>Arrival Date</strong>
               <input 
                 type="date" 
                 name="arrivalDate" 
                 value={formData.arrivalDate} 
                 onChange={handleChange} 
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', boxSizing: 'border-box' }} 
+                className="form-input" 
               />
             </label>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <div className="form-label" style={{ flex: 1 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <strong>Departure Date</strong>
                 <label style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
@@ -393,7 +405,8 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
                 value={formData.noEndDate ? '' : formData.departureDate} 
                 disabled={formData.noEndDate}
                 onChange={handleChange} 
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', backgroundColor: formData.noEndDate ? '#f4f4f5' : '#fff', cursor: formData.noEndDate ? 'not-allowed' : 'text', boxSizing: 'border-box' }} 
+                className="form-input"
+                style={{ cursor: formData.noEndDate ? 'not-allowed' : 'text' }} 
               />
             </div>
           </div>
@@ -413,13 +426,13 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
             </div>
           )}
 
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label className="form-label">
             <strong>Primary Role</strong>
             <select 
               name="primaryRole" 
               value={formData.primaryRole} 
               onChange={handleChange} 
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', backgroundColor: '#fff' }}
+              className="form-select"
             >
               <option value="Housekeeping">Housekeeping (16h standard)</option>
               <option value="Reception">Reception (16h standard)</option>
@@ -441,14 +454,15 @@ export const VolunteerModal: React.FC<VolunteerModalProps> = ({ volunteer, onSav
             </label>
           </div>
 
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label className="form-label">
             <strong>Notes & Comments (Editable at all times)</strong>
             <textarea
               name="notes"
               value={formData.notes}
               onChange={handleChange}
               placeholder="Application history, interview remarks, on-stay feedback, or notes..."
-              style={{ width: '100%', minHeight: '80px', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', fontFamily: 'inherit' }}
+              className="form-textarea"
+              style={{ minHeight: '80px' }}
             />
           </label>
           

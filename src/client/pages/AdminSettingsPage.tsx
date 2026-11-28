@@ -276,7 +276,7 @@ export const AdminSettingsPage: React.FC = () => {
             <select
               value={settings.dateFormatPreference}
               onChange={(e) => setSettings({ ...settings, dateFormatPreference: e.target.value })}
-              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#fff', fontSize: '0.95rem' }}
+              className="form-select"
             >
               <option value="YYYY-MM-DD">YYYY-MM-DD (ISO standard, e.g. 2026-11-09)</option>
               <option value="DD-MM-YYYY">DD-MM-YYYY (European format, e.g. 09-11-2026)</option>
@@ -289,12 +289,9 @@ export const AdminSettingsPage: React.FC = () => {
           <button
             type="submit"
             disabled={saving}
+            className="btn-primary"
             style={{
               padding: '0.6rem 1.5rem',
-              backgroundColor: '#3b82f6',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
               fontWeight: '600',
               cursor: saving ? 'not-allowed' : 'pointer'
             }}
@@ -318,12 +315,9 @@ export const AdminSettingsPage: React.FC = () => {
             type="button"
             onClick={handleDownloadBackup}
             disabled={exporting}
+            className="btn-primary"
             style={{
               padding: '0.6rem 1.25rem',
-              backgroundColor: exporting ? '#6ee7b7' : '#10b981',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
               fontWeight: '600',
               cursor: exporting ? 'not-allowed' : 'pointer',
               display: 'inline-flex',

@@ -191,9 +191,9 @@ export const AdminUsersPage: React.FC = () => {
 
       {/* Add / Edit Admin User Modal */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1200 }}>
-          <form onSubmit={handleSave} style={{ background: '#fff', padding: '1.75rem', borderRadius: '8px', width: '100%', maxWidth: '380px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <h3 style={{ margin: 0 }}>{editingUser ? 'Edit Admin User' : 'Add Admin User'}</h3>
+        <div className="modal-overlay" style={{ zIndex: 1200 }}>
+          <form onSubmit={handleSave} className="modal-card" style={{ width: '100%', maxWidth: '380px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h3 className="modal-title">{editingUser ? 'Edit Admin User' : 'Add Admin User'}</h3>
 
             {error && (
               <div style={{ padding: '0.6rem 0.75rem', backgroundColor: '#fee2e2', border: '1px solid #fecaca', borderRadius: '4px', color: '#991b1b', fontSize: '0.85rem' }}>
@@ -201,19 +201,19 @@ export const AdminUsersPage: React.FC = () => {
               </div>
             )}
 
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', fontWeight: '500' }}>
+            <label className="form-label">
               Username *
               <input
                 type="text"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 placeholder="e.g. manager_sarah"
-                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8' }}
+                className="form-input"
                 required
               />
             </label>
 
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', fontWeight: '500' }}>
+            <label className="form-label">
               {editingUser ? 'Reset PIN (leave blank to keep current)' : 'Security PIN (min 4 digits) *'}
               <input
                 type="password"
@@ -221,7 +221,7 @@ export const AdminUsersPage: React.FC = () => {
                 value={formData.pin}
                 onChange={(e) => setFormData({ ...formData, pin: e.target.value })}
                 placeholder={editingUser ? 'Leave blank to keep current' : 'e.g. 5678'}
-                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8' }}
+                className="form-input"
                 required={!editingUser}
               />
             </label>
@@ -229,14 +229,16 @@ export const AdminUsersPage: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
               <button
                 type="button"
+                className="btn-cancel"
                 onClick={() => setIsModalOpen(false)}
-                style={{ padding: '0.5rem 1rem', background: '#f4f4f5', border: '1px solid #d4d4d8', borderRadius: '4px', cursor: 'pointer' }}
+                style={{ padding: '0.5rem 1rem' }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                style={{ padding: '0.5rem 1.25rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
+                className="btn-primary"
+                style={{ padding: '0.5rem 1.25rem' }}
               >
                 {editingUser ? 'Save Changes' : 'Create User'}
               </button>

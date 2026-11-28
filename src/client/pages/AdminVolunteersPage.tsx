@@ -246,13 +246,14 @@ export const AdminVolunteersPage: React.FC = () => {
       </div>
 
       {/* Filter Controls Bar (available across Accepted, Active, Departed, Applied) */}
-      <div style={{ background: '#fff', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #e4e4e7', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center', fontSize: '0.85rem' }}>
+      <div className="filter-bar">
         <input
           type="text"
           placeholder="🔍 Search name or code..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid #cbd5e1', width: '180px' }}
+          className="form-input"
+          style={{ width: '180px' }}
         />
 
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#475569' }}>
@@ -653,64 +654,67 @@ export const AdminVolunteersPage: React.FC = () => {
 
       {/* Accept Volunteer Dialog */}
       {acceptingVol && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
-          <div style={{ background: '#fff', padding: '2rem', borderRadius: '8px', width: '450px' }}>
-            <h3 style={{ marginTop: 0 }}>Accept Volunteer: {acceptingVol.fullName}</h3>
-            <p style={{ fontSize: '0.9rem', color: '#52525b' }}>Confirm agreed stay dates and primary role to lock in acceptance.</p>
+        <div className="modal-overlay" style={{ zIndex: 1100 }}>
+          <div className="modal-card" style={{ width: '450px', maxWidth: '90vw' }}>
+            <h3 className="modal-title">Accept Volunteer: {acceptingVol.fullName}</h3>
+            <p style={{ fontSize: '0.9rem', color: '#64748b', marginTop: '-0.5rem' }}>Confirm agreed stay dates and primary role to lock in acceptance.</p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <label className="form-label">
                 <strong>Arrival Date</strong>
                 <input 
                   type="date" 
                   value={acceptDates.arrivalDate} 
                   onChange={(e) => setAcceptDates(prev => ({ ...prev, arrivalDate: e.target.value }))}
-                  style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8' }}
+                  className="form-input"
                 />
               </label>
 
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <label className="form-label">
                 <strong>Departure Date</strong>
                 <input 
                   type="date" 
                   value={acceptDates.departureDate} 
                   onChange={(e) => setAcceptDates(prev => ({ ...prev, departureDate: e.target.value }))}
-                  style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8' }}
+                  className="form-input"
                 />
               </label>
 
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <label className="form-label">
                 <strong>Primary Role</strong>
                 <select 
                   value={acceptDates.primaryRole}
                   onChange={(e) => setAcceptDates(prev => ({ ...prev, primaryRole: e.target.value }))}
-                  style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', backgroundColor: '#fff' }}
+                  className="form-select"
                 >
                   <option value="Housekeeping">Housekeeping</option>
                   <option value="Reception">Reception</option>
                 </select>
               </label>
 
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <label className="form-label">
                 <strong>Acceptance Notes</strong>
                 <textarea 
                   value={acceptDates.notes}
                   onChange={(e) => setAcceptDates(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Notes about interview, agreed hours, or arrival logistics..."
-                  style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #d4d4d8', minHeight: '60px' }}
+                  className="form-textarea"
+                  style={{ minHeight: '60px' }}
                 />
               </label>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
                 <button 
                   onClick={() => setAcceptingVol(null)}
-                  style={{ padding: '0.5rem 1rem', background: '#fff', border: '1px solid #d4d4d8', borderRadius: '4px', cursor: 'pointer' }}
+                  className="btn-cancel"
+                  style={{ padding: '0.5rem 1rem' }}
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleConfirmAccept}
-                  style={{ padding: '0.5rem 1.25rem', background: '#10b981', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
+                  className="btn-primary"
+                  style={{ padding: '0.5rem 1.25rem' }}
                 >
                   Confirm Acceptance
                 </button>

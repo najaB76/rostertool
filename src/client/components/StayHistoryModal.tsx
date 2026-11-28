@@ -102,11 +102,11 @@ export const StayHistoryModal: React.FC<StayHistoryModalProps> = ({
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
-      <div style={{ background: '#fff', padding: '1.75rem', borderRadius: '8px', width: '580px', maxWidth: '90vw', maxHeight: '85vh', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e4e4e7', paddingBottom: '0.75rem' }}>
+    <div className="modal-overlay" style={{ zIndex: 1100 }}>
+      <div className="modal-card" style={{ width: '580px', maxWidth: '90vw', maxHeight: '85vh', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem' }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a' }}>
+            <h3 className="modal-title" style={{ margin: 0, border: 'none', padding: 0 }}>
               Stay History: {volunteer.preferredName || volunteer.fullName}
             </h3>
             <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Recorded stays and departure reviews ({stays.length} total)</span>

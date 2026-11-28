@@ -159,19 +159,22 @@ export const AdminHeadcountPage: React.FC = () => {
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <button 
             onClick={handlePrev}
-            style={{ padding: '0.4rem 0.85rem', background: '#f4f4f5', border: '1px solid #d4d4d8', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem' }}
+            className="btn-cancel"
+            style={{ padding: '0.4rem 0.85rem', fontSize: '0.9rem' }}
           >
             &larr; Previous
           </button>
           <button 
             onClick={handleToday}
-            style={{ padding: '0.4rem 0.85rem', background: '#f4f4f5', border: '1px solid #d4d4d8', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem' }}
+            className="btn-cancel"
+            style={{ padding: '0.4rem 0.85rem', fontSize: '0.9rem' }}
           >
             Today
           </button>
           <button 
             onClick={handleNext}
-            style={{ padding: '0.4rem 0.85rem', background: '#f4f4f5', border: '1px solid #d4d4d8', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem' }}
+            className="btn-cancel"
+            style={{ padding: '0.4rem 0.85rem', fontSize: '0.9rem' }}
           >
             Next &rarr;
           </button>

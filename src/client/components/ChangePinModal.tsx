@@ -63,10 +63,10 @@ export const ChangePinModal: React.FC<ChangePinModalProps> = ({ isOpen, onClose 
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1300 }}>
-      <div style={{ background: '#fff', padding: '1.75rem', borderRadius: '8px', width: '100%', maxWidth: '380px', display: 'flex', flexDirection: 'column', gap: '1rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+    <div className="modal-overlay" style={{ zIndex: 1300 }}>
+      <div className="modal-card" style={{ width: '100%', maxWidth: '380px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a' }}>Change Your PIN</h3>
+          <h3 className="modal-title" style={{ margin: 0, border: 'none', padding: 0 }}>Change Your PIN</h3>
           <button
             onClick={onClose}
             style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: '#94a3b8' }}
@@ -88,7 +88,7 @@ export const ChangePinModal: React.FC<ChangePinModalProps> = ({ isOpen, onClose 
         )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', fontWeight: '500', color: '#334155' }}>
+          <label className="form-label">
             Current PIN
             <input
               type="password"
@@ -98,11 +98,11 @@ export const ChangePinModal: React.FC<ChangePinModalProps> = ({ isOpen, onClose 
               placeholder="Enter current PIN"
               required
               autoFocus
-              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+              className="form-input"
             />
           </label>
 
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', fontWeight: '500', color: '#334155' }}>
+          <label className="form-label">
             New PIN (min 4 digits)
             <input
               type="password"
@@ -111,11 +111,11 @@ export const ChangePinModal: React.FC<ChangePinModalProps> = ({ isOpen, onClose 
               onChange={(e) => setNewPin(e.target.value)}
               placeholder="Enter new PIN"
               required
-              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+              className="form-input"
             />
           </label>
 
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', fontWeight: '500', color: '#334155' }}>
+          <label className="form-label">
             Confirm New PIN
             <input
               type="password"
@@ -124,24 +124,26 @@ export const ChangePinModal: React.FC<ChangePinModalProps> = ({ isOpen, onClose 
               onChange={(e) => setConfirmPin(e.target.value)}
               placeholder="Confirm new PIN"
               required
-              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+              className="form-input"
             />
           </label>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
             <button
               type="button"
+              className="btn-cancel"
               onClick={onClose}
-              style={{ padding: '0.45rem 1rem', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
+              style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
             >
               Cancel
             </button>
             <button
               type="submit"
+              className="btn-primary"
               disabled={loading || success}
-              style={{ padding: '0.45rem 1.25rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: '500', fontSize: '0.85rem' }}
+              style={{ padding: '0.45rem 1.25rem', fontSize: '0.85rem' }}
             >
-              {loading ? 'Saving...' : 'Update PIN'}
+              {loading ? 'Updating...' : 'Update PIN'}
             </button>
           </div>
         </form>

@@ -114,12 +114,12 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1200 }}>
-      <div style={{ background: '#fff', padding: '1.5rem', borderRadius: '8px', width: '600px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="modal-overlay" style={{ zIndex: 1200 }}>
+      <div className="modal-card" style={{ width: '600px', maxWidth: '90vw', maxHeight: '85vh', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {/* Modal Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #e4e4e7', paddingBottom: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem' }}>
           <div>
-            <h3 style={{ margin: '0 0 0.25rem 0' }}>Assign to {shift.shiftName}</h3>
+            <h3 className="modal-title" style={{ margin: '0 0 0.25rem 0', border: 'none', padding: 0 }}>Assign to {shift.shiftName}</h3>
             <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
               <strong>Date:</strong> {shift.date} • <strong>Duration:</strong> {shift.durationHours}h • <strong>Current Staffing:</strong> {shift.currentAssignments.length} / {shift.minStaff}
             </div>
@@ -138,7 +138,7 @@ export const ShiftAssignModal: React.FC<ShiftAssignModalProps> = ({
           placeholder="🔍 Filter candidates by name..." 
           value={search} 
           onChange={(e) => setSearch(e.target.value)} 
-          style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box' }}
+          className="form-input"
         />
 
         {loading ? (
